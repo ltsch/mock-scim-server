@@ -5,17 +5,74 @@ from sqlalchemy.orm import sessionmaker
 import hashlib
 
 from scim_server.main import app
-from scim_server.database import Base, get_db
-from scim_server.models import ApiKey
+from scim_server.database import Base, get_db, SessionLocal
+from scim_server.models import ApiKey, User, Group, Entitlement, Role
+from loguru import logger
 
-# Use in-memory SQLite for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+# Use the main database for testing (same as production)
+SQLALCHEMY_DATABASE_URL = "sqlite:///./scim.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
     connect_args={"check_same_thread": False}
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def validate_test_environment():
+    """Validate that the test environment is properly configured."""
+    logger.info("🔍 Validating test environment...")
+    
+    db = SessionLocal()
+    try:
+        # Check API keys
+        api_keys = db.query(ApiKey).count()
+        logger.info(f"📋 Found {api_keys} API keys in database")
+        
+        # Check test data
+        users = db.query(User).count()
+        groups = db.query(Group).count()
+        entitlements = db.query(Entitlement).count()
+        roles = db.query(Role).count()
+        
+        logger.info(f"👥 Found {users} users in database")
+        logger.info(f"🏢 Found {groups} groups in database")
+        logger.info(f"🎫 Found {entitlements} entitlements in database")
+        logger.info(f"🔑 Found {roles} roles in database")
+        
+        # Validate minimum requirements
+        if users < 5:
+            raise ValueError(f"Expected at least 5 users, found {users}. Run 'python scripts/create_test_data.py'")
+        
+        if groups < 5:
+            raise ValueError(f"Expected at least 5 groups, found {groups}. Run 'python scripts/create_test_data.py'")
+            
+        if entitlements < 5:
+            raise ValueError(f"Expected at least 5 entitlements, found {entitlements}. Run 'python scripts/create_test_data.py'")
+            
+        if roles < 5:
+            raise ValueError(f"Expected at least 5 roles, found {roles}. Run 'python scripts/create_test_data.py'")
+        
+        # Check for specific test users
+        test_users = ["john.doe@example.com", "jane.smith@example.com", "bob.wilson@example.com"]
+        for username in test_users:
+            user = db.query(User).filter(User.user_name == username).first()
+            if not user:
+                raise ValueError(f"Required test user '{username}' not found. Run 'python scripts/create_test_data.py'")
+        
+        # Check for specific test groups
+        test_groups = ["Engineering Team", "Marketing Team", "Sales Team"]
+        for group_name in test_groups:
+            group = db.query(Group).filter(Group.display_name == group_name).first()
+            if not group:
+                raise ValueError(f"Required test group '{group_name}' not found. Run 'python scripts/create_test_data.py'")
+        
+        logger.info("✅ Test environment validation passed")
+        
+    except Exception as e:
+        logger.error(f"❌ Test environment validation failed: {e}")
+        raise
+    finally:
+        db.close()
 
 def override_get_db():
     """Override the database dependency for testing."""
@@ -30,14 +87,16 @@ def db_engine():
     """Create database engine for testing."""
     Base.metadata.create_all(bind=engine)
     yield engine
-    Base.metadata.drop_all(bind=engine)
+
+@pytest.fixture(scope="session", autouse=True)
+def validate_environment():
+    """Validate test environment before running any tests."""
+    validate_test_environment()
 
 @pytest.fixture
 def db_session(db_engine):
     """Create database session for testing."""
-    connection = db_engine.connect()
-    transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
+    session = SessionLocal()
     
     # Always create a known API key for tests
     key_value = "test-api-key-12345"
@@ -50,8 +109,6 @@ def db_session(db_engine):
     yield session
     
     session.close()
-    transaction.rollback()
-    connection.close()
 
 @pytest.fixture
 def client(db_session):

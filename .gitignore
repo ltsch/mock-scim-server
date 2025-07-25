@@ -112,6 +112,7 @@ logs/
 
 # Test reports
 comprehensive_test_report_*.json
+tests/reports/comprehensive_test_report_*.json
 
 # OS generated files
 .DS_Store

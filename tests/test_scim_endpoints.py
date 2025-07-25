@@ -9,7 +9,7 @@ def test_resource_types_no_auth(client):
 
 def test_resource_types_with_auth(client, sample_api_key):
     """Test ResourceTypes endpoint with valid authentication."""
-    response = client.get("/v2/ResourceTypes", headers={"Authorization": "Bearer test-api-key"})
+    response = client.get("/v2/ResourceTypes", headers={"Authorization": f"Bearer {sample_api_key}"})
     assert response.status_code == 200
     
     data = response.json()
@@ -34,7 +34,7 @@ def test_schemas_no_auth(client):
 
 def test_schemas_with_auth(client, sample_api_key):
     """Test Schemas endpoint with valid authentication."""
-    response = client.get("/v2/Schemas", headers={"Authorization": "Bearer test-api-key"})
+    response = client.get("/v2/Schemas", headers={"Authorization": f"Bearer {sample_api_key}"})
     assert response.status_code == 200
     
     data = response.json()

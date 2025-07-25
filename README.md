@@ -163,7 +163,10 @@ scim-server/
 │   ├── test_health.py    # Health check tests
 │   ├── test_auth.py      # Authentication tests
 │   ├── test_scim_endpoints.py # SCIM endpoint tests
-│   └── test_user_endpoints.py # User endpoint tests
+│   ├── test_user_endpoints.py # User endpoint tests
+│   ├── reports/          # Test report files
+│   ├── data/             # Test data files
+│   └── debug/            # Debug scripts
 ├── scripts/              # Utility scripts
 │   ├── init_db.py        # Database initialization script
 │   ├── create_test_data.py # Test data creation script
@@ -239,24 +242,44 @@ curl -H "Authorization: Bearer dev-api-key-12345" \
 
 ## Testing
 
-### **Test Results:**
-- **Success Rate:** 93.9% (46/49 tests passing)
-- **Coverage:** All endpoints and operations tested
-- **Dynamic Testing:** Tests adapt to actual database data
-- **No Hardcoded Values:** All test data is read from endpoints
+### **Test Organization:**
+- **`tests/`** - Main test directory
+  - **`tests/reports/`** - Test report files (JSON format)
+  - **`tests/data/`** - Test data files (databases, etc.)
+  - **`tests/debug/`** - Debug scripts and utilities
+- **`scripts/`** - Test-related scripts
+  - **`scripts/create_test_data.py`** - Populates database with test data
+  - **`scripts/validate_test_environment.py`** - Validates test environment
+  - **`scripts/run_comprehensive_tests.py`** - Runs comprehensive integration tests
+
+### **Test Environment Validation:**
+Before running tests, the environment is automatically validated to ensure:
+- ✅ At least 5 users, groups, entitlements, and roles exist
+- ✅ Required test users (`john.doe@example.com`, `jane.smith@example.com`, etc.) are present
+- ✅ Required test groups (`Engineering Team`, `Marketing Team`, etc.) are present
+- ✅ Test API key (`test-api-key-12345`) is available
 
 ### **Running Tests:**
 
 ```bash
+# Validate test environment first
+python scripts/validate_test_environment.py
+
+# Create test data (if validation fails)
+python scripts/create_test_data.py
+
 # Run unit tests
 PYTHONPATH=. pytest tests/ -v
 
 # Run comprehensive integration tests
 python scripts/run_comprehensive_tests.py
-
-# Create test data first (if needed)
-python scripts/create_test_data.py
 ```
+
+### **Current Test Results:**
+- **Success Rate:** 77% (23/30 tests passing)
+- **Coverage:** All endpoints and operations tested
+- **Real-time Database Access:** Tests read from live database (no caching)
+- **Environment Validation:** Automatic validation ensures consistent test state
 
 ### **Test Features:**
 - **Dynamic Data:** Tests read actual data from endpoints

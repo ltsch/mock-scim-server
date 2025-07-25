@@ -954,7 +954,7 @@ class ComprehensiveSCIMTester:
         print(f"   - SCIM compliance: {'✅' if passed_tests > 0 else '❌'}")
         
         # Save detailed results to file
-        report_file = f"comprehensive_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        report_file = f"tests/reports/comprehensive_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         with open(report_file, 'w') as f:
             json.dump({
                 "test_run": {

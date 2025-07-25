@@ -47,7 +47,7 @@ def test_protected_endpoint_invalid_token(client):
 
 def test_protected_endpoint_valid_token(client, sample_api_key):
     """Test protected endpoint with valid API key."""
-    response = client.get("/protected", headers={"Authorization": "Bearer test-api-key"})
+    response = client.get("/protected", headers={"Authorization": f"Bearer {sample_api_key}"})
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "Authentication successful"

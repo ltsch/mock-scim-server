@@ -4,7 +4,7 @@ Debug script to test SCIM filtering
 """
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from scim_server.database import SessionLocal
 from scim_server.utils import parse_scim_filter
