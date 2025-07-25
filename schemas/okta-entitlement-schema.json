@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Okta SCIM Entitlement",
+  "type": "object",
+  "properties": {
+    "schemas": { 
+      "type": "array", 
+      "items": { "type": "string" },
+      "contains": { "const": "urn:okta:scim:schemas:core:1.0:Entitlement" }
+    },
+    "id": { "type": "string" },
+    "displayName": { "type": "string" },
+    "type": { 
+      "type": "string",
+      "enum": ["License", "Profile", "Permission", "Application"]
+    },
+    "description": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "resourceType": { "type": "string" },
+        "created": { "type": "string" },
+        "lastModified": { "type": "string" },
+        "location": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    }
+  },
+  "required": ["schemas", "id", "displayName", "type"]
+} 

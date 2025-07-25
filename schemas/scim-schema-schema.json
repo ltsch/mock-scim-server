@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SCIM Schema Resource",
+  "type": "object",
+  "properties": {
+    "schemas": { "type": "array", "items": { "type": "string" } },
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "multiValued": { "type": "boolean" },
+          "description": { "type": "string" },
+          "required": { "type": "boolean" },
+          "caseExact": { "type": "boolean" },
+          "mutability": { "type": "string" },
+          "returned": { "type": "string" },
+          "uniqueness": { "type": "string" },
+          "subAttributes": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "resourceType": { "type": "string" },
+        "created": { "type": "string" },
+        "lastModified": { "type": "string" },
+        "location": { "type": "string" },
+        "version": { "type": "string" }
+      }
+    }
+  },
+  "required": ["schemas", "id", "name", "attributes"]
+} 
