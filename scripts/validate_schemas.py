@@ -219,8 +219,8 @@ def validate_schema_files():
 def main():
     """Main validation function."""
     parser = argparse.ArgumentParser(description="Validate SCIM server responses against schemas")
-    parser.add_argument("--url", default="http://localhost:8000", help="Server base URL")
-    parser.add_argument("--api-key", default="test-api-key-12345", help="API key for authentication")
+    parser.add_argument("--url", default=None, help="Server base URL (defaults to config)")
+    parser.add_argument("--api-key", default=None, help="API key for authentication (defaults to config)")
     parser.add_argument("--validate-schemas-only", action="store_true", help="Only validate schema files, don't test server")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     
@@ -251,6 +251,17 @@ def main():
     except Exception as e:
         logger.error(f"❌ Cannot connect to server: {e}")
         return False
+    
+    # Use config values if none provided
+    if args.url is None:
+        from scim_server.config import settings
+        args.url = f"http://{settings.host}:{settings.port}"
+        logger.info(f"Using server URL from config: {args.url}")
+    
+    if args.api_key is None:
+        from scim_server.config import settings
+        args.api_key = settings.test_api_key
+        logger.info(f"Using API key from config: {args.api_key}")
     
     # Run validations
     results = {

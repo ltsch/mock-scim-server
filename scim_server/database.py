@@ -1,13 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from loguru import logger
+from .config import settings
 
-# SQLite database URL - will create scim.db in the project root
-SQLALCHEMY_DATABASE_URL = "sqlite:///./scim.db"
-
-# Create SQLAlchemy engine
+# Create SQLAlchemy engine using configuration
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
+    settings.database_url, 
     connect_args={"check_same_thread": False}  # Required for SQLite with multiple threads
 )
 

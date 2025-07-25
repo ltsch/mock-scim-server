@@ -99,7 +99,8 @@ def db_session(db_engine):
     session = SessionLocal()
     
     # Always create a known API key for tests
-    key_value = "test-api-key-12345"
+    from scim_server.config import settings
+    key_value = settings.test_api_key
     key_hash = hashlib.sha256(key_value.encode()).hexdigest()
     if not session.query(ApiKey).filter(ApiKey.key_hash == key_hash).first():
         api_key = ApiKey(key_hash=key_hash, name="test-key", is_active=True)
@@ -121,4 +122,5 @@ def client(db_session):
 @pytest.fixture
 def sample_api_key(db_session):
     """Return the known API key for tests."""
-    return "test-api-key-12345" 
+    from scim_server.config import settings
+    return settings.test_api_key 

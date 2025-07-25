@@ -51,4 +51,4 @@ def test_protected_endpoint_valid_token(client, sample_api_key):
     assert response.status_code == 200
     data = response.json()
     assert data["message"] == "Authentication successful"
-    assert data["api_key_name"] == "test-key" 
+    assert data["api_key_name"] == "Test API Key" 

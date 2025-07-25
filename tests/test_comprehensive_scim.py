@@ -6,12 +6,14 @@ import pytest
 import json
 import time
 from fastapi.testclient import TestClient
+from loguru import logger
 
 class TestComprehensiveSCIM:
     """Comprehensive SCIM testing class covering all use cases."""
     
     # Test data constants
-    TEST_API_KEY = "test-api-key-12345"
+    from scim_server.config import settings
+    TEST_API_KEY = settings.test_api_key
     AUTH_HEADERS = {"Authorization": f"Bearer {TEST_API_KEY}"}
     
     def get_unique_username(self, base_name):
@@ -21,7 +23,7 @@ class TestComprehensiveSCIM:
     
     def cleanup_test_data(self, client):
         """Clean up test data created during tests to prevent conflicts."""
-        print("Cleaning up test data...")
+        logger.info("Cleaning up test data...")
         
         # Clean up test users
         response = client.get("/v2/Users/", headers=self.AUTH_HEADERS)
@@ -29,7 +31,7 @@ class TestComprehensiveSCIM:
             data = response.json()
             for user in data['Resources']:
                 if user['userName'].startswith('newuser_') or user['userName'].startswith('test_'):
-                    print(f"Cleaning up test user: {user['userName']}")
+                    logger.info(f"Cleaning up test user: {user['userName']}")
                     # Note: We don't actually delete here to avoid interfering with other tests
                     # The unique usernames should prevent conflicts
         
@@ -39,10 +41,10 @@ class TestComprehensiveSCIM:
             data = response.json()
             for group in data['Resources']:
                 if group['displayName'].startswith('Test Group') or group['displayName'].startswith('Updated Test Group'):
-                    print(f"Cleaning up test group: {group['displayName']}")
+                    logger.info(f"Cleaning up test group: {group['displayName']}")
                     # Note: Groups are already deleted in the test, so this is just for logging
         
-        print("Test data cleanup completed")
+        logger.info("Test data cleanup completed")
     
     def test_01_schema_discovery(self, client):
         """Test SCIM schema discovery endpoints."""
@@ -52,7 +54,7 @@ class TestComprehensiveSCIM:
         response = client.get("/v2/ResourceTypes", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
-        print(f"ResourceTypes response: {json.dumps(data, indent=2)}")
+        logger.info(f"ResourceTypes response: {json.dumps(data, indent=2)}")
         
         # Verify all expected resource types are present
         resource_ids = [r["id"] for r in data["Resources"]]
@@ -65,9 +67,9 @@ class TestComprehensiveSCIM:
         response = client.get("/v2/Schemas", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
-        print(f"Schemas response: {json.dumps(data, indent=2)}")
+        logger.info(f"Schemas response: {json.dumps(data, indent=2)}")
         
-        print("✅ Schema discovery tests passed")
+        logger.info("✅ Schema discovery tests passed")
     
     def test_02_user_management(self, client):
         """Test comprehensive user management operations."""

@@ -14,8 +14,9 @@ from loguru import logger
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Test configuration
-BASE_URL = "http://localhost:8000"
-API_KEY = "test-api-key-12345"
+from scim_server.config import settings
+BASE_URL = f"http://{settings.host}:{settings.port}"
+API_KEY = settings.test_api_key
 AUTH_HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
 class ComprehensiveSCIMTester:

@@ -110,13 +110,13 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
 5. **Test the API:**
    ```bash
    # Health check
-   curl http://localhost:8000/healthz
+   curl http://localhost:6000/healthz
    
    # Get resource types (requires authentication)
-   curl -H "Authorization: Bearer dev-api-key-12345" http://localhost:8000/v2/ResourceTypes
+   curl -H "Authorization: Bearer dev-api-key-12345" http://localhost:6000/v2/ResourceTypes
    
    # List users with filtering
-   curl -H "Authorization: Bearer dev-api-key-12345" "http://localhost:8000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+   curl -H "Authorization: Bearer dev-api-key-12345" "http://localhost:6000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
    ```
 
 6. **Run comprehensive tests:**
@@ -180,13 +180,41 @@ scim-server/
 
 ---
 
+## Configuration
+
+The SCIM server uses a simple configuration file (`scim_server/config.py`) with all settings defined in one place. To customize settings, simply edit the values in this file.
+
+### **Available Settings:**
+- `database_url`: Database connection string (default: `sqlite:///./scim.db`)
+- `max_results_per_page`: Maximum results per page (default: `100`)
+- `default_page_size`: Default page size (default: `100`)
+- `max_count_limit`: Maximum limit for counting total results (default: `1000`)
+- `rate_limit_create`: Rate limit for create operations (default: `10` requests per minute)
+- `rate_limit_read`: Rate limit for read operations (default: `100` requests per minute)
+- `rate_limit_window`: Rate limit window in seconds (default: `60`)
+- `host`: Server host (default: `0.0.0.0`)
+- `port`: Server port (default: `6000`)
+- `log_level`: Logging level (default: `debug`)
+- `default_api_key`: Development API key (default: `dev-api-key-12345`)
+- `test_api_key`: Test API key (default: `test-api-key-12345`)
+
+### **Customization:**
+Simply edit `scim_server/config.py` to change any settings:
+
+```python
+# Example: Change port and API keys
+port: int = 6000
+default_api_key: str = "my-custom-dev-key"
+test_api_key: str = "my-custom-test-key"
+```
+
 ## Authentication
 
 - All API requests must include an `Authorization: Bearer <API_KEY>` header.
 - API keys are stored in the SQLite database and can be managed via the API.
 - Requests without a valid API key will receive a 401 Unauthorized response.
-- Default development API key: `dev-api-key-12345`
-- Test API key: `test-api-key-12345` (created by test data script)
+- Default development API key: Configurable in `scim_server/config.py` (default: `dev-api-key-12345`)
+- Test API key: Configurable in `scim_server/config.py` (default: `test-api-key-12345`)
 
 ---
 
@@ -198,26 +226,26 @@ The server supports SCIM 2.0 filtering and pagination:
 ```bash
 # Exact username match
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:8000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+  "http://localhost:6000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
 
 # Contains display name
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:8000/v2/Users/?filter=displayName%20co%20%22John%22"
+  "http://localhost:6000/v2/Users/?filter=displayName%20co%20%22John%22"
 
 # Group filtering
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:8000/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
+  "http://localhost:6000/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
 ```
 
 ### **Pagination Examples:**
 ```bash
 # Get first 2 users
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:8000/v2/Users/?startIndex=1&count=2"
+  "http://localhost:6000/v2/Users/?startIndex=1&count=2"
 
 # Get users 3-5
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:8000/v2/Users/?startIndex=3&count=3"
+  "http://localhost:6000/v2/Users/?startIndex=3&count=3"
 ```
 
 ---
@@ -257,7 +285,7 @@ Before running tests, the environment is automatically validated to ensure:
 - ✅ At least 5 users, groups, entitlements, and roles exist
 - ✅ Required test users (`john.doe@example.com`, `jane.smith@example.com`, etc.) are present
 - ✅ Required test groups (`Engineering Team`, `Marketing Team`, etc.) are present
-- ✅ Test API key (`test-api-key-12345`) is available
+- ✅ Test API key (configurable in `scim_server/config.py`) is available
 
 ### **Running Tests:**
 

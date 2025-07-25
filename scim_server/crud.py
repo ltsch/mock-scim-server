@@ -24,7 +24,7 @@ def create_user(db: Session, user_data: UserCreate) -> User:
         display_name=user_data.displayName,
         given_name=user_data.name.givenName if user_data.name else None,
         family_name=user_data.name.familyName if user_data.name else None,
-        email=user_data.emails[0].value if user_data.emails else None,
+        email=str(user_data.emails[0].value) if user_data.emails else None,
         active=user_data.active
     )
     
@@ -43,8 +43,11 @@ def get_user_by_username(db: Session, username: str) -> Optional[User]:
     """Get user by username."""
     return db.query(User).filter(User.user_name == username).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100, filter_query: Optional[str] = None) -> List[User]:
+def get_users(db: Session, skip: int = 0, limit: int = None, filter_query: Optional[str] = None) -> List[User]:
     """Get users with optional filtering."""
+    from .config import settings
+    if limit is None:
+        limit = settings.default_page_size
     query = db.query(User)
     
     if filter_query:
@@ -92,7 +95,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100, filter_query: Option
     else:
         logger.info("No filter applied")
     
-    result = query.offset(skip).limit(limit).all()
+    result = query.order_by(User.id).offset(skip).limit(limit).all()
     logger.info(f"Query returned {len(result)} users")
     return result
 
@@ -122,8 +125,8 @@ def update_user(db: Session, user_id: str, user_data: UserUpdate) -> Optional[Us
     logger.info(f"User updated successfully: {user_id}")
     return db_user
 
-def delete_user(db: Session, user_id: str) -> bool:
-    """Delete user (soft delete by setting active=False)."""
+def deactivate_user(db: Session, user_id: str) -> bool:
+    """Deactivate user by setting active=False (soft delete)."""
     logger.info(f"Deactivating user: {user_id}")
     
     db_user = get_user(db, user_id)
@@ -134,6 +137,20 @@ def delete_user(db: Session, user_id: str) -> bool:
     db.commit()
     
     logger.info(f"User deactivated successfully: {user_id}")
+    return True
+
+def delete_user(db: Session, user_id: str) -> bool:
+    """Hard delete user from database."""
+    logger.info(f"Deleting user: {user_id}")
+    
+    db_user = get_user(db, user_id)
+    if not db_user:
+        return False
+    
+    db.delete(db_user)
+    db.commit()
+    
+    logger.info(f"User deleted successfully: {user_id}")
     return True
 
 # Group CRUD operations
@@ -160,8 +177,11 @@ def get_group(db: Session, group_id: str) -> Optional[Group]:
     """Get group by SCIM ID."""
     return db.query(Group).filter(Group.scim_id == group_id).first()
 
-def get_groups(db: Session, skip: int = 0, limit: int = 100, filter_query: Optional[str] = None) -> List[Group]:
+def get_groups(db: Session, skip: int = 0, limit: int = None, filter_query: Optional[str] = None) -> List[Group]:
     """Get groups with optional filtering."""
+    from .config import settings
+    if limit is None:
+        limit = settings.default_page_size
     query = db.query(Group)
     
     if filter_query:
@@ -192,7 +212,7 @@ def get_groups(db: Session, skip: int = 0, limit: int = 100, filter_query: Optio
                 )
             )
     
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Group.id).offset(skip).limit(limit).all()
 
 def update_group(db: Session, group_id: str, group_data: GroupUpdate) -> Optional[Group]:
     """Update group."""
@@ -254,8 +274,11 @@ def get_entitlement(db: Session, entitlement_id: str) -> Optional[Entitlement]:
     """Get entitlement by SCIM ID."""
     return db.query(Entitlement).filter(Entitlement.scim_id == entitlement_id).first()
 
-def get_entitlements(db: Session, skip: int = 0, limit: int = 100, filter_query: Optional[str] = None) -> List[Entitlement]:
+def get_entitlements(db: Session, skip: int = 0, limit: int = None, filter_query: Optional[str] = None) -> List[Entitlement]:
     """Get entitlements with optional filtering."""
+    from .config import settings
+    if limit is None:
+        limit = settings.default_page_size
     query = db.query(Entitlement)
     
     if filter_query:
@@ -292,7 +315,7 @@ def get_entitlements(db: Session, skip: int = 0, limit: int = 100, filter_query:
                 )
             )
     
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Entitlement.id).offset(skip).limit(limit).all()
 
 def update_entitlement(db: Session, entitlement_id: str, entitlement_data: EntitlementUpdate) -> Optional[Entitlement]:
     """Update entitlement."""
@@ -355,8 +378,11 @@ def get_role(db: Session, role_id: str) -> Optional[Role]:
     """Get role by SCIM ID."""
     return db.query(Role).filter(Role.scim_id == role_id).first()
 
-def get_roles(db: Session, skip: int = 0, limit: int = 100, filter_query: Optional[str] = None) -> List[Role]:
+def get_roles(db: Session, skip: int = 0, limit: int = None, filter_query: Optional[str] = None) -> List[Role]:
     """Get roles with optional filtering."""
+    from .config import settings
+    if limit is None:
+        limit = settings.default_page_size
     query = db.query(Role)
     
     if filter_query:
@@ -387,7 +413,7 @@ def get_roles(db: Session, skip: int = 0, limit: int = 100, filter_query: Option
                 )
             )
     
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Role.id).offset(skip).limit(limit).all()
 
 def update_role(db: Session, role_id: str, role_data: RoleUpdate) -> Optional[Role]:
     """Update role."""

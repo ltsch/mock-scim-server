@@ -83,7 +83,8 @@ def validate_test_environment():
                 logger.info(f"✅ Found test group: {group_name}")
         
         # Check for test API key
-        test_key = "test-api-key-12345"
+        from scim_server.config import settings
+        test_key = settings.test_api_key
         import hashlib
         key_hash = hashlib.sha256(test_key.encode()).hexdigest()
         api_key = db.query(ApiKey).filter(ApiKey.key_hash == key_hash).first()

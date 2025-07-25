@@ -17,10 +17,12 @@ from loguru import logger
 
 def create_test_api_keys():
     """Create test API keys."""
+    from scim_server.config import settings
+    
     db = SessionLocal()
     try:
-        # Create test API key
-        test_key = "test-api-key-12345"
+        # Create test API key using configuration
+        test_key = settings.test_api_key
         test_key_hash = hashlib.sha256(test_key.encode()).hexdigest()
         
         existing_key = db.query(ApiKey).filter(ApiKey.key_hash == test_key_hash).first()
@@ -30,7 +32,7 @@ def create_test_api_keys():
                 name="Test API Key"
             )
             db.add(api_key)
-            logger.info("Created test API key: test-api-key-12345")
+            logger.info(f"Created test API key: {test_key}")
         
         db.commit()
         logger.info("Test API keys created successfully")

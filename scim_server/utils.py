@@ -95,10 +95,19 @@ def create_scim_list_response(resources: List[Dict[str, Any]], total_results: in
         "Resources": resources
     }
 
+# Allowed filter fields and operators for security
+ALLOWED_FILTER_FIELDS = {
+    'userName', 'displayName', 'email', 'givenName', 'familyName',
+    'active', 'externalId'
+}
+
+ALLOWED_OPERATORS = {'eq', 'co', 'sw', 'ew'}
+
 def parse_scim_filter(filter_query: str) -> Optional[Dict[str, Any]]:
     """
     Parse SCIM filter query and return structured filter information.
     Returns a dict with 'field', 'operator', and 'value' keys.
+    Validates against allowed fields and operators for security.
     """
     if not filter_query:
         return None
@@ -118,6 +127,13 @@ def parse_scim_filter(filter_query: str) -> Optional[Dict[str, Any]]:
         field = match.group(1)
         operator = match.group(2)
         value = match.group(3)
+        
+        # Validate field and operator against whitelist
+        if field not in ALLOWED_FILTER_FIELDS:
+            return None
+        
+        if operator not in ALLOWED_OPERATORS:
+            return None
         
         return {
             'field': field,

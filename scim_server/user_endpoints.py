@@ -1,19 +1,27 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from loguru import logger
 from typing import List, Optional
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from .database import get_db
 from .auth import get_api_key
 from .models import ApiKey, User
-from .crud import create_user, get_user, get_users, update_user, delete_user, get_user_by_username
+from .crud import create_user, get_user, get_users, update_user, deactivate_user, get_user_by_username
 from .schemas import UserCreate, UserUpdate, UserResponse, UserListResponse
 from .utils import user_to_scim_response, create_scim_list_response, parse_scim_filter, validate_scim_id, create_error_response
+from .config import settings
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/v2/Users", tags=["Users"])
 
 @router.post("/", response_model=UserResponse, status_code=201)
+@limiter.limit(f"{settings.rate_limit_create}/{settings.rate_limit_window}minute")
 async def create_user_endpoint(
+    request: Request,
     user_data: UserCreate,
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
@@ -40,9 +48,11 @@ async def create_user_endpoint(
     return response
 
 @router.get("/", response_model=UserListResponse)
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
 async def get_users_endpoint(
-    start_index: int = Query(1, ge=1, description="1-based index of the first result"),
-    count: int = Query(100, ge=1, le=100, description="Number of results to return"),
+    request: Request,
+    start_index: int = Query(1, ge=1, alias="startIndex", description="1-based index of the first result"),
+    count: int = Query(settings.default_page_size, ge=1, le=settings.max_results_per_page, description="Number of results to return"),
     filter: Optional[str] = Query(None, alias="filter", description="SCIM filter query"),
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
@@ -59,7 +69,7 @@ async def get_users_endpoint(
     # Get total count for pagination (with filter applied)
     if filter:
         # Get total count of filtered results
-        filtered_users = get_users(db, skip=0, limit=1000, filter_query=filter)
+        filtered_users = get_users(db, skip=0, limit=settings.max_count_limit, filter_query=filter)
         total_count = len(filtered_users)
     else:
         # Get total count of all users
@@ -200,8 +210,8 @@ async def delete_user_endpoint(
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
 ):
-    """Delete a user (soft delete by setting active=False)."""
-    logger.info(f"Deleting user: {user_id}")
+    """Deactivate a user (soft delete by setting active=False)."""
+    logger.info(f"Deactivating user: {user_id}")
     
     # Validate SCIM ID format
     if not validate_scim_id(user_id):
@@ -220,14 +230,14 @@ async def delete_user_endpoint(
             detail="User not found"
         )
     
-    # Delete user (soft delete)
-    success = delete_user(db, user_id)
+    # Deactivate user (soft delete)
+    success = deactivate_user(db, user_id)
     if not success:
-        logger.error(f"Failed to delete user: {user_id}")
+        logger.error(f"Failed to deactivate user: {user_id}")
         raise HTTPException(
             status_code=500,
-            detail="Failed to delete user"
+            detail="Failed to deactivate user"
         )
     
-    logger.info(f"User deleted successfully: {user_id}")
+    logger.info(f"User deactivated successfully: {user_id}")
     return None 

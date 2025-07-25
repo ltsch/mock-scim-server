@@ -16,6 +16,8 @@ from scim_server.models import ApiKey
 
 def create_default_api_key():
     """Create a default API key for development."""
+    from scim_server.config import settings
+    
     db = SessionLocal()
     try:
         # Check if default API key already exists
@@ -24,8 +26,8 @@ def create_default_api_key():
             logger.info("Default API key already exists")
             return
         
-        # Create default API key
-        default_token = "dev-api-key-12345"
+        # Create default API key using configuration
+        default_token = settings.default_api_key
         key_hash = hashlib.sha256(default_token.encode()).hexdigest()
         
         api_key = ApiKey(
@@ -39,7 +41,7 @@ def create_default_api_key():
         
         logger.info("Default API key created successfully")
         logger.info(f"Token: {default_token}")
-        logger.info("Use this token in Authorization header: Bearer dev-api-key-12345")
+        logger.info(f"Use this token in Authorization header: Bearer {default_token}")
         
     except Exception as e:
         logger.error(f"Error creating default API key: {e}")

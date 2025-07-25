@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from loguru import logger
 from typing import List, Optional
@@ -9,11 +9,19 @@ from .models import ApiKey, Role
 from .crud import create_role, get_role, get_roles, update_role, delete_role
 from .schemas import RoleCreate, RoleUpdate, RoleResponse, RoleListResponse
 from .utils import role_to_scim_response, create_scim_list_response, parse_scim_filter, validate_scim_id
+from .config import settings
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/v2/Roles", tags=["Roles"])
 
 @router.post("/", response_model=RoleResponse, status_code=201)
+@limiter.limit(f"{settings.rate_limit_create}/{settings.rate_limit_window}minute")
 async def create_role_endpoint(
+    request: Request,
     role_data: RoleCreate,
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
@@ -31,9 +39,11 @@ async def create_role_endpoint(
     return response
 
 @router.get("/", response_model=RoleListResponse)
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
 async def get_roles_endpoint(
-    start_index: int = Query(1, ge=1, description="1-based index of the first result"),
-    count: int = Query(100, ge=1, le=100, description="Number of results to return"),
+    request: Request,
+    start_index: int = Query(1, ge=1, alias="startIndex", description="1-based index of the first result"),
+    count: int = Query(settings.default_page_size, ge=1, le=settings.max_results_per_page, description="Number of results to return"),
     filter: Optional[str] = Query(None, alias="filter", description="SCIM filter query"),
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
@@ -50,7 +60,7 @@ async def get_roles_endpoint(
     # Get total count for pagination (with filter applied)
     if filter:
         # Get total count of filtered results
-        filtered_roles = get_roles(db, skip=0, limit=1000, filter_query=filter)
+        filtered_roles = get_roles(db, skip=0, limit=settings.max_count_limit, filter_query=filter)
         total_count = len(filtered_roles)
     else:
         # Get total count of all roles

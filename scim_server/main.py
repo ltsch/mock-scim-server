@@ -2,10 +2,14 @@ from fastapi import FastAPI, Depends
 from loguru import logger
 import sys
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from .database import init_db, get_db
 from .auth import get_api_key
 from .models import ApiKey
+from .config import settings
 from .scim_endpoints import router as scim_router
 from .user_endpoints import router as user_router
 from .group_endpoints import router as group_router
@@ -17,8 +21,11 @@ logger.remove()
 logger.add(
     sys.stdout,
     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-    level="DEBUG"
+    level=settings.log_level.upper()
 )
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +44,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Add rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Include all SCIM endpoint routers
 app.include_router(scim_router)

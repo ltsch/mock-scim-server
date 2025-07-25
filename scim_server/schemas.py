@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class ScimName(BaseModel):
 
 class ScimEmail(BaseModel):
     """SCIM email object."""
-    value: str
+    value: EmailStr
     type: Optional[str] = "work"
     primary: Optional[bool] = False
 
@@ -160,7 +160,7 @@ class ScimListResponse(BaseModel):
     """Base SCIM list response schema."""
     schemas: List[str] = ["urn:ietf:params:scim:api:messages:2.0:ListResponse"]
     totalResults: int
-    startIndex: int
+    startIndex: int = 1
     itemsPerPage: int
     Resources: List[Dict[str, Any]]
 

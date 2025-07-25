@@ -1,16 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from loguru import logger
 from typing import List, Dict, Any
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from .database import get_db
 from .auth import get_api_key
 from .models import ApiKey
+from .config import settings
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/v2", tags=["SCIM"])
 
 @router.get("/ResourceTypes")
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
 async def get_resource_types(
+    request: Request,
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
 ):
@@ -60,7 +68,9 @@ async def get_resource_types(
     return response
 
 @router.get("/Schemas")
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
 async def get_schemas(
+    request: Request,
     api_key: ApiKey = Depends(get_api_key),
     db: Session = Depends(get_db)
 ):
