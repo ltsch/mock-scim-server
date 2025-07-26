@@ -6,7 +6,7 @@ import hashlib
 
 from scim_server.main import app
 from scim_server.database import Base, get_db, SessionLocal
-from scim_server.models import ApiKey, User, Group, Entitlement, Role
+from scim_server.models import ApiKey, User, Group, Entitlement
 from loguru import logger
 
 # Use the main database for testing (same as production)
@@ -32,39 +32,22 @@ def validate_test_environment():
         users = db.query(User).count()
         groups = db.query(Group).count()
         entitlements = db.query(Entitlement).count()
-        roles = db.query(Role).count()
         
         logger.info(f"👥 Found {users} users in database")
         logger.info(f"🏢 Found {groups} groups in database")
         logger.info(f"🎫 Found {entitlements} entitlements in database")
-        logger.info(f"🔑 Found {roles} roles in database")
         
         # Validate minimum requirements
         if users < 5:
-            raise ValueError(f"Expected at least 5 users, found {users}. Run 'python scripts/create_test_data.py'")
+            raise ValueError(f"Expected at least 5 users, found {users}. Run 'python scripts/scim_cli.py create'")
         
         if groups < 5:
-            raise ValueError(f"Expected at least 5 groups, found {groups}. Run 'python scripts/create_test_data.py'")
+            raise ValueError(f"Expected at least 5 groups, found {groups}. Run 'python scripts/scim_cli.py create'")
             
         if entitlements < 5:
-            raise ValueError(f"Expected at least 5 entitlements, found {entitlements}. Run 'python scripts/create_test_data.py'")
-            
-        if roles < 5:
-            raise ValueError(f"Expected at least 5 roles, found {roles}. Run 'python scripts/create_test_data.py'")
+            raise ValueError(f"Expected at least 5 entitlements, found {entitlements}. Run 'python scripts/scim_cli.py create'")
         
-        # Check for specific test users
-        test_users = ["john.doe@example.com", "jane.smith@example.com", "bob.wilson@example.com"]
-        for username in test_users:
-            user = db.query(User).filter(User.user_name == username).first()
-            if not user:
-                raise ValueError(f"Required test user '{username}' not found. Run 'python scripts/create_test_data.py'")
-        
-        # Check for specific test groups
-        test_groups = ["Engineering Team", "Marketing Team", "Sales Team"]
-        for group_name in test_groups:
-            group = db.query(Group).filter(Group.display_name == group_name).first()
-            if not group:
-                raise ValueError(f"Required test group '{group_name}' not found. Run 'python scripts/create_test_data.py'")
+
         
         logger.info("✅ Test environment validation passed")
         

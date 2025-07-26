@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scim_server.database import SessionLocal
-from scim_server.models import ApiKey, User, Group, Entitlement, Role
+from scim_server.models import ApiKey, User, Group, Entitlement
 from loguru import logger
 
 def validate_test_environment():
@@ -26,12 +26,10 @@ def validate_test_environment():
         users = db.query(User).count()
         groups = db.query(Group).count()
         entitlements = db.query(Entitlement).count()
-        roles = db.query(Role).count()
         
         logger.info(f"👥 Found {users} users in database")
         logger.info(f"🏢 Found {groups} groups in database")
         logger.info(f"🎫 Found {entitlements} entitlements in database")
-        logger.info(f"🔑 Found {roles} roles in database")
         
         # Validate minimum requirements
         validation_passed = True
@@ -53,12 +51,6 @@ def validate_test_environment():
             validation_passed = False
         else:
             logger.info(f"✅ Entitlements: {entitlements} (minimum 5 required)")
-            
-        if roles < 5:
-            logger.error(f"❌ Expected at least 5 roles, found {roles}")
-            validation_passed = False
-        else:
-            logger.info(f"✅ Roles: {roles} (minimum 5 required)")
         
         # Check for specific test users
         test_users = ["john.doe@example.com", "jane.smith@example.com", "bob.wilson@example.com"]

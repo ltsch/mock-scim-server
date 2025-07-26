@@ -123,29 +123,7 @@ def validate_entitlement_responses(base_url, api_key):
     
     return all_valid
 
-def validate_role_responses(base_url, api_key):
-    """Validate role responses."""
-    logger.info("🔍 Validating Role responses...")
-    
-    # Load role schema
-    role_schema = load_schema("schemas/okta-role-schema.json")
-    if not role_schema:
-        return False
-    
-    # Get role list response
-    roles_response = get_server_response(base_url, "/v2/Roles/", api_key)
-    if not roles_response or 'Resources' not in roles_response:
-        logger.error("Failed to get roles response")
-        return False
-    
-    # Validate each role
-    all_valid = True
-    for i, role in enumerate(roles_response['Resources'][:3]):  # Test first 3 roles
-        logger.info(f"  Validating role {i+1}: {role.get('displayName', 'Unknown')}")
-        if not validate_response(role_schema, role, f"Role {i+1}"):
-            all_valid = False
-    
-    return all_valid
+
 
 def validate_list_responses(base_url, api_key):
     """Validate SCIM list response format."""
@@ -169,7 +147,7 @@ def validate_list_responses(base_url, api_key):
     }
     
     # Test each endpoint
-    endpoints = ["/v2/Users/", "/v2/Groups/", "/v2/Entitlements/", "/v2/Roles/"]
+    endpoints = ["/v2/Users/", "/v2/Groups/", "/v2/Entitlements/"]
     all_valid = True
     
     for endpoint in endpoints:
@@ -191,7 +169,6 @@ def validate_schema_files():
         "schemas/scim-user-schema.json",
         "schemas/scim-group-schema.json", 
         "schemas/okta-entitlement-schema.json",
-        "schemas/okta-role-schema.json",
         "schemas/scim-schema-schema.json"
     ]
     
@@ -269,7 +246,7 @@ def main():
         "users": validate_user_responses(args.url, args.api_key),
         "groups": validate_group_responses(args.url, args.api_key),
         "entitlements": validate_entitlement_responses(args.url, args.api_key),
-        "roles": validate_role_responses(args.url, args.api_key)
+
     }
     
     # Summary

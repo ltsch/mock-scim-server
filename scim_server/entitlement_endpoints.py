@@ -10,7 +10,11 @@ from .response_converter import entitlement_converter
 from .schemas import EntitlementCreate, EntitlementUpdate, EntitlementResponse, EntitlementListResponse
 
 # Create router
-router = APIRouter(prefix="/v2/Entitlements", tags=["Entitlements"])
+from .config import settings
+
+# Construct the API prefix dynamically
+api_prefix = f"{settings.api_base_path}/scim/v2/Entitlements"
+router = APIRouter(prefix=api_prefix, tags=["Entitlements"])
 
 # Create endpoint handler using base class
 # This single line replaces 234 lines of duplicated code!

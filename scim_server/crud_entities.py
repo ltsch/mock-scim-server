@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session, Query
 from sqlalchemy import or_
 
 from .crud_base import BaseCRUD
-from .models import User, Group, Entitlement, Role
-from .schemas import UserCreate, UserUpdate, GroupCreate, GroupUpdate, EntitlementCreate, EntitlementUpdate, RoleCreate, RoleUpdate
+from .models import User, Group, Entitlement
+from .schemas import UserCreate, UserUpdate, GroupCreate, GroupUpdate, EntitlementCreate, EntitlementUpdate
 
 class UserCRUD(BaseCRUD[User]):
     """User-specific CRUD operations."""
@@ -41,7 +41,11 @@ class UserCRUD(BaseCRUD[User]):
         """Update user with proper data transformation."""
         # Transform UserUpdate to dict
         update_data = {}
-        update_dict = user_data.model_dump(exclude_unset=True)
+        if hasattr(user_data, 'model_dump'):
+            update_dict = user_data.model_dump(exclude_unset=True)
+        else:
+            # Handle case where user_data is already a dict
+            update_dict = user_data
         
         # Map SCIM field names to database field names
         field_mapping = {
@@ -91,7 +95,11 @@ class GroupCRUD(BaseCRUD[Group]):
     def update_group(self, db: Session, group_id: str, group_data: GroupUpdate, server_id: str = "default") -> Optional[Group]:
         """Update group with proper data transformation."""
         update_data = {}
-        update_dict = group_data.model_dump(exclude_unset=True)
+        if hasattr(group_data, 'model_dump'):
+            update_dict = group_data.model_dump(exclude_unset=True)
+        else:
+            # Handle case where group_data is already a dict
+            update_dict = group_data
         
         field_mapping = {
             'displayName': 'display_name',
@@ -125,6 +133,8 @@ class EntitlementCRUD(BaseCRUD[Entitlement]):
             'display_name': entitlement_data.displayName,
             'type': entitlement_data.type,
             'description': entitlement_data.description,
+            'entitlement_type': entitlement_data.entitlementType,
+            'multi_valued': entitlement_data.multiValued,
         }
         
         return self.create(db, data, server_id)
@@ -132,12 +142,18 @@ class EntitlementCRUD(BaseCRUD[Entitlement]):
     def update_entitlement(self, db: Session, entitlement_id: str, entitlement_data: EntitlementUpdate, server_id: str = "default") -> Optional[Entitlement]:
         """Update entitlement with proper data transformation."""
         update_data = {}
-        update_dict = entitlement_data.model_dump(exclude_unset=True)
+        if hasattr(entitlement_data, 'model_dump'):
+            update_dict = entitlement_data.model_dump(exclude_unset=True)
+        else:
+            # Handle case where entitlement_data is already a dict
+            update_dict = entitlement_data
         
         field_mapping = {
             'displayName': 'display_name',
             'type': 'type',
-            'description': 'description'
+            'description': 'description',
+            'entitlementType': 'entitlement_type',
+            'multiValued': 'multi_valued'
         }
         
         for scim_field, value in update_dict.items():
@@ -151,52 +167,13 @@ class EntitlementCRUD(BaseCRUD[Entitlement]):
         field_mapping = {
             'displayName': 'display_name',
             'type': 'type',
-            'description': 'description'
-        }
-        return field_mapping.get(scim_field, scim_field)
-
-class RoleCRUD(BaseCRUD[Role]):
-    """Role-specific CRUD operations."""
-    
-    def __init__(self):
-        super().__init__(Role)
-    
-    def create_role(self, db: Session, role_data: RoleCreate, server_id: str = "default") -> Role:
-        """Create a new role with proper data transformation."""
-        data = {
-            'scim_id': str(uuid.uuid4()),
-            'display_name': role_data.displayName,
-            'description': role_data.description,
-        }
-        
-        return self.create(db, data, server_id)
-    
-    def update_role(self, db: Session, role_id: str, role_data: RoleUpdate, server_id: str = "default") -> Optional[Role]:
-        """Update role with proper data transformation."""
-        update_data = {}
-        update_dict = role_data.model_dump(exclude_unset=True)
-        
-        field_mapping = {
-            'displayName': 'display_name',
-            'description': 'description'
-        }
-        
-        for scim_field, value in update_dict.items():
-            if scim_field in field_mapping:
-                update_data[field_mapping[scim_field]] = value
-        
-        return self.update(db, role_id, update_data, server_id)
-    
-    def _get_db_field_name(self, scim_field: str) -> Optional[str]:
-        """Map SCIM field names to database column names for roles."""
-        field_mapping = {
-            'displayName': 'display_name',
-            'description': 'description'
+            'description': 'description',
+            'entitlementType': 'entitlement_type',
+            'multiValued': 'multi_valued'
         }
         return field_mapping.get(scim_field, scim_field)
 
 # Create instances for easy import
 user_crud = UserCRUD()
 group_crud = GroupCRUD()
-entitlement_crud = EntitlementCRUD()
-role_crud = RoleCRUD() 
+entitlement_crud = EntitlementCRUD() 

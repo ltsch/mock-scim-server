@@ -87,7 +87,7 @@ class UserResponse(UserBase):
     meta: ScimMeta
     groups: Optional[List[Dict[str, str]]] = None
     entitlements: Optional[List[Dict[str, str]]] = None
-    roles: Optional[List[Dict[str, str]]] = None
+
 
 # Group schemas
 class GroupBase(BaseModel):
@@ -117,6 +117,8 @@ class EntitlementBase(BaseModel):
     displayName: str = Field(..., description="Human-readable name for the entitlement")
     type: str = Field(..., description="Type of entitlement (e.g., 'License', 'Profile')")
     description: Optional[str] = None
+    entitlementType: Optional[str] = Field(None, description="Category of entitlement (e.g., 'application_access', 'role_based')")
+    multiValued: Optional[bool] = Field(False, description="Whether this entitlement supports multiple values")
 
 class EntitlementCreate(EntitlementBase):
     """Schema for creating an entitlement."""
@@ -127,6 +129,8 @@ class EntitlementUpdate(BaseModel):
     displayName: Optional[str] = None
     type: Optional[str] = None
     description: Optional[str] = None
+    entitlementType: Optional[str] = None
+    multiValued: Optional[bool] = None
 
 class EntitlementResponse(EntitlementBase):
     """Schema for entitlement responses."""
@@ -134,26 +138,7 @@ class EntitlementResponse(EntitlementBase):
     schemas: List[str] = ["urn:okta:scim:schemas:core:1.0:Entitlement"]
     meta: ScimMeta
 
-# Role schemas
-class RoleBase(BaseModel):
-    """Base role schema."""
-    displayName: str = Field(..., description="Human-readable name for the role")
-    description: Optional[str] = None
 
-class RoleCreate(RoleBase):
-    """Schema for creating a role."""
-    pass
-
-class RoleUpdate(BaseModel):
-    """Schema for updating a role."""
-    displayName: Optional[str] = None
-    description: Optional[str] = None
-
-class RoleResponse(RoleBase):
-    """Schema for role responses."""
-    id: str
-    schemas: List[str] = ["urn:okta:scim:schemas:core:1.0:Role"]
-    meta: ScimMeta
 
 # List response schemas
 class ScimListResponse(BaseModel):
@@ -176,9 +161,7 @@ class EntitlementListResponse(ScimListResponse):
     """Entitlement list response schema."""
     Resources: List[EntitlementResponse]
 
-class RoleListResponse(ScimListResponse):
-    """Role list response schema."""
-    Resources: List[RoleResponse]
+
 
 # Error response schema
 class ScimError(BaseModel):

@@ -14,7 +14,7 @@ from .scim_endpoints import router as scim_router
 from .user_endpoints import router as user_router
 from .group_endpoints import router as group_router
 from .entitlement_endpoints import router as entitlement_router
-from .role_endpoints import router as role_router
+
 
 # Configure logging
 logger.remove()
@@ -54,7 +54,7 @@ app.include_router(scim_router)
 app.include_router(user_router)
 app.include_router(group_router)
 app.include_router(entitlement_router)
-app.include_router(role_router)
+
 
 @app.get("/healthz", tags=["Health"])
 def health_check():

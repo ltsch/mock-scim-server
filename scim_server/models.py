@@ -58,21 +58,13 @@ class Entitlement(Base):
     display_name = Column(String(255), nullable=False)
     type = Column(String(100), nullable=False)  # e.g., "License", "Profile"
     description = Column(Text, nullable=True)
+    entitlement_type = Column(String(100), nullable=True)  # e.g., "application_access", "role_based"
+    multi_valued = Column(Boolean, default=False)  # Whether this entitlement supports multiple values
     server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class Role(Base):
-    """SCIM Role entity for Okta compatibility."""
-    __tablename__ = "roles"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    scim_id = Column(String(255), unique=True, index=True, nullable=False)
-    display_name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    server_id = Column(String(255), index=True, nullable=False, default="default")
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 
 class Schema(Base):
     """SCIM Schema definitions for custom extensions."""
@@ -104,10 +96,4 @@ class UserEntitlement(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     entitlement_id = Column(Integer, ForeignKey("entitlements.id"), nullable=False)
 
-class UserRole(Base):
-    """Association table for User-Role relationships."""
-    __tablename__ = "user_roles"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False) 
+ 

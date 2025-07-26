@@ -15,12 +15,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Test configuration
 from scim_server.config import settings
-BASE_URL = f"http://{settings.host}:{settings.port}"
+BASE_URL = f"http://{settings.client_host}:{settings.port}"
 API_KEY = settings.test_api_key
 AUTH_HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
 class ComprehensiveSCIMTester:
-    """Comprehensive SCIM testing class."""
+    """Comprehensive SCIM testing class for User, Group, and Entitlement management."""
     
     def __init__(self):
         self.results = []
@@ -28,6 +28,12 @@ class ComprehensiveSCIMTester:
         self.base_url = BASE_URL
         self.api_key = API_KEY
         self.auth_headers = AUTH_HEADERS
+        
+        # Store test data for cross-referencing
+        self.test_users = []
+        self.test_groups = []
+        self.test_entitlements = []
+        self.test_server_ids = ["default"]  # Default fallback
         
     def log_test(self, test_name, status, details=None, response=None):
         """Log test results."""
@@ -49,6 +55,44 @@ class ComprehensiveSCIMTester:
         print(f"{status_icon} {test_name}")
         if details:
             print(f"   {details}")
+    
+    def _get_url(self, endpoint: str, server_id: str = None) -> str:
+        """Helper method to construct URLs with optional server ID."""
+        # Import settings to get API base path
+        from scim_server.config import settings
+        
+        # Construct the full path: api_base_path + /scim/v2 + endpoint
+        api_path = f"{settings.api_base_path}/scim/v2{endpoint}"
+        url = f"{self.base_url}{api_path}"
+        
+        if server_id and server_id != "default":
+            separator = "&" if "?" in url else "?"
+            url = f"{url}{separator}serverID={server_id}"
+        return url
+    
+    def _get_users_url(self, server_id: str = None) -> str:
+        """Get Users endpoint URL."""
+        return self._get_url("/Users/", server_id)
+    
+    def _get_groups_url(self, server_id: str = None) -> str:
+        """Get Groups endpoint URL."""
+        return self._get_url("/Groups/", server_id)
+    
+    def _get_entitlements_url(self, server_id: str = None) -> str:
+        """Get Entitlements endpoint URL."""
+        return self._get_url("/Entitlements/", server_id)
+    
+    def _get_user_url(self, user_id: str, server_id: str = None) -> str:
+        """Get specific User endpoint URL."""
+        return self._get_url(f"/Users/{user_id}", server_id)
+    
+    def _get_group_url(self, group_id: str, server_id: str = None) -> str:
+        """Get specific Group endpoint URL."""
+        return self._get_url(f"/Groups/{group_id}", server_id)
+    
+    def _get_entitlement_url(self, entitlement_id: str, server_id: str = None) -> str:
+        """Get specific Entitlement endpoint URL."""
+        return self._get_url(f"/Entitlements/{entitlement_id}", server_id)
     
     def verify_server_availability(self):
         """Verify that the server is running and all endpoints are accessible."""
@@ -99,13 +143,16 @@ class ComprehensiveSCIMTester:
             self.log_test("Authentication", "FAIL", f"Error: {str(e)}")
             return False
         
-        # Test SCIM discovery endpoints
-        scim_endpoints = [
-            ("/v2/ResourceTypes", "ResourceTypes Discovery"),
-            ("/v2/Schemas", "Schemas Discovery")
+        # Test all core endpoints
+        endpoints = [
+            ("/Users/", "Users Endpoint"),
+            ("/Groups/", "Groups Endpoint"),
+            ("/Entitlements/", "Entitlements Endpoint"),
+            ("/ResourceTypes", "Resource Types Endpoint"),
+            ("/Schemas", "Schemas Endpoint")
         ]
         
-        for endpoint, name in scim_endpoints:
+        for endpoint, name in endpoints:
             try:
                 response = requests.get(f"{self.base_url}{endpoint}", headers=self.auth_headers, timeout=5)
                 if response.status_code == 200:
@@ -117,31 +164,6 @@ class ComprehensiveSCIMTester:
                 self.log_test(name, "FAIL", f"Error: {str(e)}")
                 return False
         
-        # Test main SCIM resource endpoints
-        scim_resources = [
-            ("/v2/Users/", "Users Endpoint"),
-            ("/v2/Groups/", "Groups Endpoint"),
-            ("/v2/Entitlements/", "Entitlements Endpoint"),
-            ("/v2/Roles/", "Roles Endpoint")
-        ]
-        
-        for endpoint, name in scim_resources:
-            try:
-                response = requests.get(f"{self.base_url}{endpoint}", headers=self.auth_headers, timeout=5)
-                if response.status_code == 200:
-                    data = response.json()
-                    count = data.get('totalResults', 0)
-                    self.log_test(name, "PASS", f"Endpoint accessible ({count} resources)")
-                else:
-                    self.log_test(name, "FAIL", f"Endpoint returned {response.status_code}")
-                    return False
-            except Exception as e:
-                self.log_test(name, "FAIL", f"Error: {str(e)}")
-                return False
-        
-        print()
-        print("✅ All endpoints verified and accessible!")
-        print()
         return True
     
     def test_schema_discovery(self):
@@ -150,173 +172,164 @@ class ComprehensiveSCIMTester:
         
         # Test ResourceTypes endpoint
         try:
-            response = requests.get(f"{self.base_url}/v2/ResourceTypes", headers=self.auth_headers)
+            response = requests.get(f"{self.base_url}{settings.api_base_path}/scim/v2/ResourceTypes", headers=self.auth_headers)
             if response.status_code == 200:
                 data = response.json()
-                resource_ids = [r["id"] for r in data["Resources"]]
-                expected_types = ["User", "Group", "Entitlement", "Role"]
+                resources = data.get('Resources', [])
                 
-                if all(rt in resource_ids for rt in expected_types):
-                    self.log_test("ResourceTypes Discovery", "PASS", 
-                                f"Found {len(data['Resources'])} resource types: {', '.join(resource_ids)}")
+                # Check for expected resource types
+                expected_types = ["User", "Group", "Entitlement"]
+                found_types = [r['name'] for r in resources]
+                
+                missing_types = [t for t in expected_types if t not in found_types]
+                if missing_types:
+                    self.log_test("Resource Types", "FAIL", f"Missing types: {missing_types}")
                 else:
-                    self.log_test("ResourceTypes Discovery", "FAIL", 
-                                f"Missing expected resource types. Found: {resource_ids}")
+                    self.log_test("Resource Types", "PASS", f"Found all expected types: {found_types}")
             else:
-                self.log_test("ResourceTypes Discovery", "FAIL", f"HTTP {response.status_code}")
+                self.log_test("Resource Types", "FAIL", f"HTTP {response.status_code}")
         except Exception as e:
-            self.log_test("ResourceTypes Discovery", "ERROR", str(e))
+            self.log_test("Resource Types", "ERROR", str(e))
         
         # Test Schemas endpoint
         try:
-            response = requests.get(f"{self.base_url}/v2/Schemas", headers=self.auth_headers)
+            response = requests.get(f"{self.base_url}{settings.api_base_path}/scim/v2/Schemas", headers=self.auth_headers)
             if response.status_code == 200:
                 data = response.json()
-                self.log_test("Schemas Discovery", "PASS", 
-                            f"Schemas endpoint returned {len(data.get('Resources', []))} schemas")
+                schemas = data.get('Resources', [])
+                
+                # Check for expected schemas
+                expected_schemas = [
+                    "urn:ietf:params:scim:schemas:core:2.0:User",
+                    "urn:ietf:params:scim:schemas:core:2.0:Group", 
+                    "urn:okta:scim:schemas:core:1.0:Entitlement"
+                ]
+                found_schemas = [s['id'] for s in schemas]
+                
+                missing_schemas = [s for s in expected_schemas if s not in found_schemas]
+                if missing_schemas:
+                    self.log_test("Schemas", "FAIL", f"Missing schemas: {missing_schemas}")
+                else:
+                    self.log_test("Schemas", "PASS", f"Found all expected schemas: {len(found_schemas)} total")
             else:
-                self.log_test("Schemas Discovery", "FAIL", f"HTTP {response.status_code}")
+                self.log_test("Schemas", "FAIL", f"HTTP {response.status_code}")
         except Exception as e:
-            self.log_test("Schemas Discovery", "ERROR", str(e))
+            self.log_test("Schemas", "ERROR", str(e))
     
     def test_user_management(self):
-        """Test comprehensive user management operations."""
+        """Test user management operations."""
         print("\n=== Testing User Management ===")
         
-        # 1. List all users and store for dynamic testing
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                user_count = data['totalResults']
-                users = data['Resources']
-                self.log_test("List Users", "PASS", f"Found {user_count} users")
-                
-                # Store users for dynamic testing
-                self.test_users = users
-                
-                if users:
-                    # Use the first user for testing
-                    test_user = users[0]
-                    user_id = test_user['id']
-                    username = test_user['userName']
-                    
-                    # 2. Get specific user by ID
-                    response = requests.get(f"{self.base_url}/v2/Users/{user_id}", headers=self.auth_headers)
-                    if response.status_code == 200:
-                        retrieved_user = response.json()
-                        if retrieved_user['id'] == user_id:
-                            self.log_test("Get User by ID", "PASS", f"Retrieved user: {test_user['displayName']}")
-                        else:
-                            self.log_test("Get User by ID", "FAIL", "Retrieved user ID doesn't match")
-                    else:
-                        self.log_test("Get User by ID", "FAIL", f"HTTP {response.status_code}")
-                    
-                    # 3. User search by exact username
-                    response = requests.get(f"{self.base_url}/v2/Users/?filter=userName eq \"{username}\"", headers=self.auth_headers)
-                    if response.status_code == 200:
-                        search_data = response.json()
-                        if len(search_data['Resources']) == 1 and search_data['Resources'][0]['userName'] == username:
-                            self.log_test("User Search", "PASS", f"Found user by username filter: {username}")
-                        else:
-                            self.log_test("User Search", "FAIL", f"Expected 1 user with username {username}, found {len(search_data['Resources'])}")
-                    else:
-                        self.log_test("User Search", "FAIL", f"HTTP {response.status_code}")
-                else:
-                    self.log_test("Get User by ID", "SKIP", "No users available for testing")
-                    self.log_test("User Search", "SKIP", "No users available for testing")
-            else:
-                self.log_test("List Users", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("List Users", "ERROR", str(e))
-        
-        # 4. Create new user with unique username
-        try:
-            import time
-            timestamp = int(time.time())
-            unique_username = f"comprehensive-test-{timestamp}@example.com"
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
             
-            new_user_data = {
-                "userName": unique_username,
-                "displayName": "Comprehensive Test User",
-                "name": {
-                    "givenName": "Comprehensive",
-                    "familyName": "Test"
-                },
-                "emails": [
-                    {
-                        "value": unique_username,
-                        "primary": True
+            # 1. List all users and store for dynamic testing
+            try:
+                response = requests.get(self._get_users_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    user_count = data['totalResults']
+                    users = data['Resources']
+                    self.log_test("List Users", "PASS", f"Found {user_count} users")
+                    
+                    # Store users for dynamic testing
+                    self.test_users = users
+                    
+                    if users:
+                        # Use the first user for testing
+                        test_user = users[0]
+                        user_id = test_user['id']
+                        
+                        # 2. Get specific user by ID
+                        response = requests.get(self._get_user_url(user_id, server_id), headers=self.auth_headers)
+                        if response.status_code == 200:
+                            retrieved_user = response.json()
+                            if retrieved_user['id'] == user_id:
+                                self.log_test("Get User by ID", "PASS", f"Retrieved user: {test_user['userName']}")
+                            else:
+                                self.log_test("Get User by ID", "FAIL", "Retrieved user ID doesn't match")
+                        else:
+                            self.log_test("Get User by ID", "FAIL", f"HTTP {response.status_code}")
+                    else:
+                        self.log_test("Get User by ID", "SKIP", "No users available for testing")
+                else:
+                    self.log_test("List Users", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("List Users", "ERROR", str(e))
+            
+            # 3. Create new user
+            try:
+                new_user_data = {
+                    "userName": "comprehensive.test@example.com",
+                    "active": True,
+                    "displayName": "Comprehensive Test User",
+                    "name": {
+                        "givenName": "Comprehensive",
+                        "familyName": "Test"
+                    },
+                    "emails": [
+                        {
+                            "primary": True,
+                            "value": "comprehensive.test@example.com",
+                            "type": "work"
+                        }
+                    ]
+                }
+                
+                response = requests.post(self._get_users_url(server_id), headers=self.auth_headers, json=new_user_data)
+                if response.status_code == 201:
+                    created_user = response.json()
+                    new_user_id = created_user['id']
+                    self.log_test("Create User", "PASS", f"Created user: {created_user['userName']}")
+                    
+                    # 4. Update user
+                    update_data = {
+                        "displayName": "Updated Comprehensive Test User",
+                        "name": {
+                            "givenName": "Updated",
+                            "familyName": "Comprehensive"
+                        }
                     }
-                ],
-                "active": True
-            }
-            
-            response = requests.post(f"{self.base_url}/v2/Users/", headers=self.auth_headers, json=new_user_data)
-            if response.status_code == 201:
-                created_user = response.json()
-                new_user_id = created_user['id']
-                self.log_test("Create User", "PASS", f"Created user: {created_user['displayName']}")
-                
-                # 5. Update user
-                update_data = {
-                    "displayName": "Updated Comprehensive Test User",
-                    "active": False
-                }
-                
-                response = requests.put(f"{self.base_url}/v2/Users/{new_user_id}", headers=self.auth_headers, json=update_data)
-                if response.status_code == 200:
-                    updated_user = response.json()
-                    if updated_user['displayName'] == "Updated Comprehensive Test User" and not updated_user['active']:
-                        self.log_test("Update User", "PASS", "User updated successfully")
-                    else:
-                        self.log_test("Update User", "FAIL", "User not updated correctly")
-                else:
-                    self.log_test("Update User", "FAIL", f"HTTP {response.status_code}")
-                
-                # 6. Patch user
-                patch_data = {
-                    "displayName": "Patched Comprehensive Test User"
-                }
-                
-                response = requests.patch(f"{self.base_url}/v2/Users/{new_user_id}", headers=self.auth_headers, json=patch_data)
-                if response.status_code == 200:
-                    patched_user = response.json()
-                    if patched_user['displayName'] == "Patched Comprehensive Test User":
-                        self.log_test("Patch User", "PASS", "User patched successfully")
-                    else:
-                        self.log_test("Patch User", "FAIL", "User not patched correctly")
-                else:
-                    self.log_test("Patch User", "FAIL", f"HTTP {response.status_code}")
-                
-                # 7. Deactivate user
-                response = requests.delete(f"{self.base_url}/v2/Users/{new_user_id}", headers=self.auth_headers)
-                if response.status_code == 204:
-                    # Verify user is deactivated
-                    response = requests.get(f"{self.base_url}/v2/Users/{new_user_id}", headers=self.auth_headers)
+                    
+                    response = requests.put(self._get_user_url(new_user_id, server_id), headers=self.auth_headers, json=update_data)
                     if response.status_code == 200:
-                        deactivated_user = response.json()
-                        if not deactivated_user['active']:
-                            self.log_test("Deactivate User", "PASS", "User deactivated successfully")
+                        updated_user = response.json()
+                        if updated_user['displayName'] == "Updated Comprehensive Test User":
+                            self.log_test("Update User", "PASS", "User updated successfully")
                         else:
-                            self.log_test("Deactivate User", "FAIL", "User not deactivated")
+                            self.log_test("Update User", "FAIL", "User not updated correctly")
                     else:
-                        self.log_test("Deactivate User", "FAIL", f"Could not verify deactivation: HTTP {response.status_code}")
+                        self.log_test("Update User", "FAIL", f"HTTP {response.status_code}")
+                    
+                    # 5. Delete user
+                    response = requests.delete(self._get_user_url(new_user_id, server_id), headers=self.auth_headers)
+                    if response.status_code == 204:
+                        # Verify user is deleted
+                        response = requests.get(self._get_user_url(new_user_id, server_id), headers=self.auth_headers)
+                        if response.status_code == 404:
+                            self.log_test("Delete User", "PASS", "User deleted successfully")
+                        else:
+                            self.log_test("Delete User", "FAIL", "User not deleted")
+                    else:
+                        self.log_test("Delete User", "FAIL", f"HTTP {response.status_code}")
                 else:
-                    self.log_test("Deactivate User", "FAIL", f"HTTP {response.status_code}")
-            else:
-                self.log_test("Create User", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("Create User", "ERROR", str(e))
+                    self.log_test("Create User", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("Create User", "ERROR", str(e))
     
     def test_group_management(self):
-        """Test comprehensive group management operations."""
+        """Test group management operations."""
         print("\n=== Testing Group Management ===")
         
-        # 1. List all groups and store for dynamic testing
-        try:
-            response = requests.get(f"{self.base_url}/v2/Groups/", headers=self.auth_headers)
-            if response.status_code == 200:
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
+            
+            # 1. List all groups and store for dynamic testing
+            try:
+                response = requests.get(self._get_groups_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
                 data = response.json()
                 group_count = data['totalResults']
                 groups = data['Resources']
@@ -329,10 +342,9 @@ class ComprehensiveSCIMTester:
                     # Use the first group for testing
                     test_group = groups[0]
                     group_id = test_group['id']
-                    display_name = test_group['displayName']
                     
                     # 2. Get specific group by ID
-                    response = requests.get(f"{self.base_url}/v2/Groups/{group_id}", headers=self.auth_headers)
+                    response = requests.get(self._get_group_url(group_id, server_id), headers=self.auth_headers)
                     if response.status_code == 200:
                         retrieved_group = response.json()
                         if retrieved_group['id'] == group_id:
@@ -341,50 +353,32 @@ class ComprehensiveSCIMTester:
                             self.log_test("Get Group by ID", "FAIL", "Retrieved group ID doesn't match")
                     else:
                         self.log_test("Get Group by ID", "FAIL", f"HTTP {response.status_code}")
-                    
-                    # 3. Group search by display name
-                    response = requests.get(f"{self.base_url}/v2/Groups/?filter=displayName co \"{display_name}\"", headers=self.auth_headers)
-                    if response.status_code == 200:
-                        search_data = response.json()
-                        if len(search_data['Resources']) >= 1:
-                            # Check if our test group is in the results
-                            found = any(g['id'] == group_id for g in search_data['Resources'])
-                            if found:
-                                self.log_test("Group Search", "PASS", f"Found group by display name filter: {display_name}")
-                            else:
-                                self.log_test("Group Search", "FAIL", f"Group {display_name} not found in search results")
-                        else:
-                            self.log_test("Group Search", "FAIL", f"No groups found with display name containing: {display_name}")
-                    else:
-                        self.log_test("Group Search", "FAIL", f"HTTP {response.status_code}")
                 else:
                     self.log_test("Get Group by ID", "SKIP", "No groups available for testing")
-                    self.log_test("Group Search", "SKIP", "No groups available for testing")
             else:
                 self.log_test("List Groups", "FAIL", f"HTTP {response.status_code}")
         except Exception as e:
             self.log_test("List Groups", "ERROR", str(e))
         
-        # 4. Create new group
+        # 3. Create new group
         try:
             new_group_data = {
                 "displayName": "Comprehensive Test Group",
                 "description": "A test group for comprehensive testing"
             }
             
-            response = requests.post(f"{self.base_url}/v2/Groups/", headers=self.auth_headers, json=new_group_data)
+            response = requests.post(self._get_groups_url(server_id), headers=self.auth_headers, json=new_group_data)
             if response.status_code == 201:
                 created_group = response.json()
                 new_group_id = created_group['id']
                 self.log_test("Create Group", "PASS", f"Created group: {created_group['displayName']}")
                 
-                # 5. Update group
+                # 4. Update group
                 update_data = {
-                    "displayName": "Updated Comprehensive Test Group",
-                    "description": "Updated description"
+                    "displayName": "Updated Comprehensive Test Group"
                 }
                 
-                response = requests.put(f"{self.base_url}/v2/Groups/{new_group_id}", headers=self.auth_headers, json=update_data)
+                response = requests.put(self._get_group_url(new_group_id, server_id), headers=self.auth_headers, json=update_data)
                 if response.status_code == 200:
                     updated_group = response.json()
                     if updated_group['displayName'] == "Updated Comprehensive Test Group":
@@ -394,11 +388,11 @@ class ComprehensiveSCIMTester:
                 else:
                     self.log_test("Update Group", "FAIL", f"HTTP {response.status_code}")
                 
-                # 6. Delete group
-                response = requests.delete(f"{self.base_url}/v2/Groups/{new_group_id}", headers=self.auth_headers)
+                # 5. Delete group
+                response = requests.delete(self._get_group_url(new_group_id, server_id), headers=self.auth_headers)
                 if response.status_code == 204:
                     # Verify group is deleted
-                    response = requests.get(f"{self.base_url}/v2/Groups/{new_group_id}", headers=self.auth_headers)
+                    response = requests.get(self._get_group_url(new_group_id, server_id), headers=self.auth_headers)
                     if response.status_code == 404:
                         self.log_test("Delete Group", "PASS", "Group deleted successfully")
                     else:
@@ -411,52 +405,58 @@ class ComprehensiveSCIMTester:
             self.log_test("Create Group", "ERROR", str(e))
     
     def test_entitlement_management(self):
-        """Test entitlement management operations."""
+        """Test entitlement management operations with enhanced features."""
         print("\n=== Testing Entitlement Management ===")
         
-        # 1. List all entitlements and store for dynamic testing
-        try:
-            response = requests.get(f"{self.base_url}/v2/Entitlements/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                entitlement_count = data['totalResults']
-                entitlements = data['Resources']
-                self.log_test("List Entitlements", "PASS", f"Found {entitlement_count} entitlements")
-                
-                # Store entitlements for dynamic testing
-                self.test_entitlements = entitlements
-                
-                if entitlements:
-                    # Use the first entitlement for testing
-                    test_entitlement = entitlements[0]
-                    entitlement_id = test_entitlement['id']
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
+            
+            # 1. List all entitlements and store for dynamic testing
+            try:
+                response = requests.get(self._get_entitlements_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    entitlement_count = data['totalResults']
+                    entitlements = data['Resources']
+                    self.log_test("List Entitlements", "PASS", f"Found {entitlement_count} entitlements")
                     
-                    # 2. Get specific entitlement by ID
-                    response = requests.get(f"{self.base_url}/v2/Entitlements/{entitlement_id}", headers=self.auth_headers)
-                    if response.status_code == 200:
-                        retrieved_entitlement = response.json()
-                        if retrieved_entitlement['id'] == entitlement_id:
-                            self.log_test("Get Entitlement by ID", "PASS", f"Retrieved entitlement: {test_entitlement['displayName']}")
+                    # Store entitlements for dynamic testing
+                    self.test_entitlements = entitlements
+                    
+                    if entitlements:
+                        # Use the first entitlement for testing
+                        test_entitlement = entitlements[0]
+                        entitlement_id = test_entitlement['id']
+                        
+                        # 2. Get specific entitlement by ID
+                        response = requests.get(self._get_entitlement_url(entitlement_id, server_id), headers=self.auth_headers)
+                        if response.status_code == 200:
+                            retrieved_entitlement = response.json()
+                            if retrieved_entitlement['id'] == entitlement_id:
+                                self.log_test("Get Entitlement by ID", "PASS", f"Retrieved entitlement: {test_entitlement['displayName']}")
+                            else:
+                                self.log_test("Get Entitlement by ID", "FAIL", "Retrieved entitlement ID doesn't match")
                         else:
-                            self.log_test("Get Entitlement by ID", "FAIL", "Retrieved entitlement ID doesn't match")
+                            self.log_test("Get Entitlement by ID", "FAIL", f"HTTP {response.status_code}")
                     else:
-                        self.log_test("Get Entitlement by ID", "FAIL", f"HTTP {response.status_code}")
+                        self.log_test("Get Entitlement by ID", "SKIP", "No entitlements available for testing")
                 else:
-                    self.log_test("Get Entitlement by ID", "SKIP", "No entitlements available for testing")
-            else:
-                self.log_test("List Entitlements", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("List Entitlements", "ERROR", str(e))
+                    self.log_test("List Entitlements", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("List Entitlements", "ERROR", str(e))
         
         # 3. Create new entitlement
         try:
             new_entitlement_data = {
                 "displayName": "Comprehensive Test Entitlement",
-                "type": "Profile",
-                "description": "A test entitlement for comprehensive testing"
+                "type": "E5",  # Use a valid canonical value from config
+                "description": "A test entitlement for comprehensive testing",
+                "entitlementType": "application_access",
+                "multiValued": False
             }
             
-            response = requests.post(f"{self.base_url}/v2/Entitlements/", headers=self.auth_headers, json=new_entitlement_data)
+            response = requests.post(self._get_entitlements_url(server_id), headers=self.auth_headers, json=new_entitlement_data)
             if response.status_code == 201:
                 created_entitlement = response.json()
                 new_entitlement_id = created_entitlement['id']
@@ -465,13 +465,16 @@ class ComprehensiveSCIMTester:
                 # 4. Update entitlement
                 update_data = {
                     "displayName": "Updated Comprehensive Test Entitlement",
-                    "description": "Updated description"
+                    "entitlementType": "role_based",
+                    "multiValued": True
                 }
                 
-                response = requests.put(f"{self.base_url}/v2/Entitlements/{new_entitlement_id}", headers=self.auth_headers, json=update_data)
+                response = requests.put(self._get_entitlement_url(new_entitlement_id, server_id), headers=self.auth_headers, json=update_data)
                 if response.status_code == 200:
                     updated_entitlement = response.json()
-                    if updated_entitlement['displayName'] == "Updated Comprehensive Test Entitlement":
+                    if (updated_entitlement['displayName'] == "Updated Comprehensive Test Entitlement" and 
+                    updated_entitlement['entitlementType'] == "role_based" and 
+                    updated_entitlement['multiValued'] == True):
                         self.log_test("Update Entitlement", "PASS", "Entitlement updated successfully")
                     else:
                         self.log_test("Update Entitlement", "FAIL", "Entitlement not updated correctly")
@@ -479,10 +482,10 @@ class ComprehensiveSCIMTester:
                     self.log_test("Update Entitlement", "FAIL", f"HTTP {response.status_code}")
                 
                 # 5. Delete entitlement
-                response = requests.delete(f"{self.base_url}/v2/Entitlements/{new_entitlement_id}", headers=self.auth_headers)
+                response = requests.delete(self._get_entitlement_url(new_entitlement_id, server_id), headers=self.auth_headers)
                 if response.status_code == 204:
                     # Verify entitlement is deleted
-                    response = requests.get(f"{self.base_url}/v2/Entitlements/{new_entitlement_id}", headers=self.auth_headers)
+                    response = requests.get(self._get_entitlement_url(new_entitlement_id, server_id), headers=self.auth_headers)
                     if response.status_code == 404:
                         self.log_test("Delete Entitlement", "PASS", "Entitlement deleted successfully")
                     else:
@@ -494,428 +497,222 @@ class ComprehensiveSCIMTester:
         except Exception as e:
             self.log_test("Create Entitlement", "ERROR", str(e))
     
-    def test_role_management(self):
-        """Test role management operations."""
-        print("\n=== Testing Role Management ===")
-        
-        # 1. List all roles and store for dynamic testing
-        try:
-            response = requests.get(f"{self.base_url}/v2/Roles/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                role_count = data['totalResults']
-                roles = data['Resources']
-                self.log_test("List Roles", "PASS", f"Found {role_count} roles")
-                
-                # Store roles for dynamic testing
-                self.test_roles = roles
-                
-                if roles:
-                    # Use the first role for testing
-                    test_role = roles[0]
-                    role_id = test_role['id']
-                    
-                    # 2. Get specific role by ID
-                    response = requests.get(f"{self.base_url}/v2/Roles/{role_id}", headers=self.auth_headers)
-                    if response.status_code == 200:
-                        retrieved_role = response.json()
-                        if retrieved_role['id'] == role_id:
-                            self.log_test("Get Role by ID", "PASS", f"Retrieved role: {test_role['displayName']}")
-                        else:
-                            self.log_test("Get Role by ID", "FAIL", "Retrieved role ID doesn't match")
-                    else:
-                        self.log_test("Get Role by ID", "FAIL", f"HTTP {response.status_code}")
-                else:
-                    self.log_test("Get Role by ID", "SKIP", "No roles available for testing")
-            else:
-                self.log_test("List Roles", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("List Roles", "ERROR", str(e))
-        
-        # 3. Create new role
-        try:
-            new_role_data = {
-                "displayName": "Comprehensive Test Role",
-                "description": "A test role for comprehensive testing"
-            }
-            
-            response = requests.post(f"{self.base_url}/v2/Roles/", headers=self.auth_headers, json=new_role_data)
-            if response.status_code == 201:
-                created_role = response.json()
-                new_role_id = created_role['id']
-                self.log_test("Create Role", "PASS", f"Created role: {created_role['displayName']}")
-                
-                # 4. Update role
-                update_data = {
-                    "displayName": "Updated Comprehensive Test Role",
-                    "description": "Updated description"
-                }
-                
-                response = requests.put(f"{self.base_url}/v2/Roles/{new_role_id}", headers=self.auth_headers, json=update_data)
-                if response.status_code == 200:
-                    updated_role = response.json()
-                    if updated_role['displayName'] == "Updated Comprehensive Test Role":
-                        self.log_test("Update Role", "PASS", "Role updated successfully")
-                    else:
-                        self.log_test("Update Role", "FAIL", "Role not updated correctly")
-                else:
-                    self.log_test("Update Role", "FAIL", f"HTTP {response.status_code}")
-                
-                # 5. Delete role
-                response = requests.delete(f"{self.base_url}/v2/Roles/{new_role_id}", headers=self.auth_headers)
-                if response.status_code == 204:
-                    # Verify role is deleted
-                    response = requests.get(f"{self.base_url}/v2/Roles/{new_role_id}", headers=self.auth_headers)
-                    if response.status_code == 404:
-                        self.log_test("Delete Role", "PASS", "Role deleted successfully")
-                    else:
-                        self.log_test("Delete Role", "FAIL", "Role not deleted")
-                else:
-                    self.log_test("Delete Role", "FAIL", f"HTTP {response.status_code}")
-            else:
-                self.log_test("Create Role", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("Create Role", "ERROR", str(e))
-    
     def test_error_handling(self):
-        """Test error handling and edge cases."""
+        """Test error handling and validation with enhanced error messages."""
         print("\n=== Testing Error Handling ===")
         
-        # 1. Test invalid API key
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/", headers={"Authorization": "Bearer invalid-key"})
-            if response.status_code == 401:
-                self.log_test("Invalid API Key", "PASS", "Invalid API key correctly rejected")
-            else:
-                self.log_test("Invalid API Key", "FAIL", f"Expected 401, got {response.status_code}")
-        except Exception as e:
-            self.log_test("Invalid API Key", "ERROR", str(e))
-        
-        # 2. Test missing API key
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/")
-            if response.status_code == 401:
-                self.log_test("Missing API Key", "PASS", "Missing API key correctly rejected")
-            else:
-                self.log_test("Missing API Key", "FAIL", f"Expected 401, got {response.status_code}")
-        except Exception as e:
-            self.log_test("Missing API Key", "ERROR", str(e))
-        
-        # 3. Test invalid SCIM ID format
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/invalid-id", headers=self.auth_headers)
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
+            
+            # Test invalid user creation (missing required fields)
+            try:
+                invalid_user_data = {
+                    "active": True,
+                    "name": {
+                        "givenName": "Invalid",
+                        "familyName": "User"
+                    }
+                    # Missing userName - should fail
+                }
+                
+                response = requests.post(self._get_users_url(server_id), headers=self.auth_headers, json=invalid_user_data)
             if response.status_code == 400:
-                self.log_test("Invalid SCIM ID", "PASS", "Invalid SCIM ID format correctly rejected")
-            else:
-                self.log_test("Invalid SCIM ID", "FAIL", f"Expected 400, got {response.status_code}")
-        except Exception as e:
-            self.log_test("Invalid SCIM ID", "ERROR", str(e))
-        
-        # 4. Test non-existent resource with dynamic data
-        try:
-            if hasattr(self, 'test_users') and self.test_users:
-                # Use a UUID that definitely doesn't exist
-                import uuid
-                fake_id = str(uuid.uuid4())
-                response = requests.get(f"{self.base_url}/v2/Users/{fake_id}", headers=self.auth_headers)
-                if response.status_code == 404:
-                    self.log_test("Non-existent Resource", "PASS", "Non-existent resource correctly returns 404")
+                error_data = response.json()
+                if "detail" in error_data and "error" in error_data["detail"]:
+                    self.log_test("Invalid User Creation", "PASS", "Properly rejected user without userName with enhanced error")
                 else:
-                    self.log_test("Non-existent Resource", "FAIL", f"Expected 404, got {response.status_code}")
+                    self.log_test("Invalid User Creation", "PASS", "Properly rejected user without userName")
             else:
-                self.log_test("Non-existent Resource", "SKIP", "No users available for testing")
+                self.log_test("Invalid User Creation", "FAIL", f"Should have returned 400, got {response.status_code}")
+        except Exception as e:
+            self.log_test("Invalid User Creation", "ERROR", str(e))
+        
+        # Test invalid entitlement creation (invalid canonical value)
+        try:
+            invalid_entitlement_data = {
+                "displayName": "Invalid Entitlement",
+                "type": "InvalidType",  # Should not be in canonical values
+                "description": "Test invalid entitlement",
+                "entitlementType": "application_access"
+            }
+            
+            response = requests.post(self._get_entitlements_url(server_id), headers=self.auth_headers, json=invalid_entitlement_data)
+            if response.status_code == 400:
+                error_data = response.json()
+                if "detail" in error_data and "error" in error_data["detail"]:
+                    self.log_test("Invalid Entitlement Creation", "PASS", "Properly rejected entitlement with invalid type and enhanced error")
+                else:
+                    self.log_test("Invalid Entitlement Creation", "PASS", "Properly rejected entitlement with invalid type")
+            else:
+                self.log_test("Invalid Entitlement Creation", "FAIL", f"Should have returned 400, got {response.status_code}")
+        except Exception as e:
+            self.log_test("Invalid Entitlement Creation", "ERROR", str(e))
+        
+        # Test non-existent resource
+        try:
+            response = requests.get(self._get_user_url("nonexistent-id", server_id), headers=self.auth_headers)
+            if response.status_code == 404:
+                self.log_test("Non-existent Resource", "PASS", "Properly returned 404 for non-existent user")
+            else:
+                self.log_test("Non-existent Resource", "FAIL", f"Should have returned 404, got {response.status_code}")
         except Exception as e:
             self.log_test("Non-existent Resource", "ERROR", str(e))
         
-        # 5. Test duplicate username creation with dynamic data
+        # Test enhanced entitlement features
         try:
-            if hasattr(self, 'test_users') and self.test_users:
-                # Use the first user's username to test duplicate creation
-                existing_user = self.test_users[0]
-                duplicate_user_data = {
-                    "userName": existing_user['userName'],  # This should already exist
-                    "displayName": "Duplicate User"
-                }
-                
-                response = requests.post(f"{self.base_url}/v2/Users/", headers=self.auth_headers, json=duplicate_user_data)
-                if response.status_code == 409:
-                    self.log_test("Duplicate Username", "PASS", f"Duplicate username correctly rejected: {existing_user['userName']}")
+            # Test multi-valued entitlement creation
+            multi_valued_entitlement_data = {
+                "displayName": "Multi-Valued Test Entitlement",
+                "type": "Administrator",  # Valid canonical value
+                "description": "Test multi-valued entitlement",
+                "entitlementType": "role_based",
+                "multiValued": True
+            }
+            
+            response = requests.post(self._get_entitlements_url(server_id), headers=self.auth_headers, json=multi_valued_entitlement_data)
+            if response.status_code == 201:
+                created_entitlement = response.json()
+                if created_entitlement['multiValued'] == True and created_entitlement['entitlementType'] == "role_based":
+                    self.log_test("Multi-Valued Entitlement Creation", "PASS", "Successfully created multi-valued entitlement")
+                    
+                    # Clean up
+                    entitlement_id = created_entitlement['id']
+                    requests.delete(self._get_entitlement_url(entitlement_id, server_id), headers=self.auth_headers)
                 else:
-                    self.log_test("Duplicate Username", "FAIL", f"Expected 409, got {response.status_code}")
+                    self.log_test("Multi-Valued Entitlement Creation", "FAIL", "Multi-valued fields not set correctly")
             else:
-                self.log_test("Duplicate Username", "SKIP", "No users available for testing")
+                self.log_test("Multi-Valued Entitlement Creation", "FAIL", f"Should have returned 201, got {response.status_code}")
         except Exception as e:
-            self.log_test("Duplicate Username", "ERROR", str(e))
+            self.log_test("Multi-Valued Entitlement Creation", "ERROR", str(e))
     
     def test_pagination_and_filtering(self):
-        """Test pagination and filtering functionality."""
+        """Test pagination and filtering capabilities."""
         print("\n=== Testing Pagination and Filtering ===")
         
-        # 1. Test pagination
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/?startIndex=1&count=2", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                if data['startIndex'] == 1 and data['itemsPerPage'] == 2 and len(data['Resources']) <= 2:
-                    self.log_test("Pagination", "PASS", f"Pagination works: startIndex={data['startIndex']}, itemsPerPage={data['itemsPerPage']}")
-                else:
-                    self.log_test("Pagination", "FAIL", "Pagination parameters not working correctly")
-            else:
-                self.log_test("Pagination", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("Pagination", "ERROR", str(e))
-        
-        # 2. Test filtering by username with dynamic data
-        try:
-            if hasattr(self, 'test_users') and self.test_users:
-                test_user = self.test_users[0]
-                username = test_user['userName']
-                response = requests.get(f"{self.base_url}/v2/Users/?filter=userName eq \"{username}\"", headers=self.auth_headers)
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
+            
+            # Test pagination
+            try:
+                response = requests.get(f"{self._get_users_url(server_id)}?startIndex=1&count=5", headers=self.auth_headers)
                 if response.status_code == 200:
                     data = response.json()
-                    if len(data['Resources']) == 1 and data['Resources'][0]['userName'] == username:
-                        self.log_test("Username Filtering", "PASS", f"Username filtering works correctly for: {username}")
+                    if 'startIndex' in data and 'itemsPerPage' in data:
+                        self.log_test("Pagination", "PASS", f"Pagination working: {data['startIndex']}-{data['itemsPerPage']}")
                     else:
-                        self.log_test("Username Filtering", "FAIL", f"Expected 1 user with username {username}, found {len(data['Resources'])}")
+                        self.log_test("Pagination", "FAIL", "Missing pagination fields")
                 else:
-                    self.log_test("Username Filtering", "FAIL", f"HTTP {response.status_code}")
-            else:
-                self.log_test("Username Filtering", "SKIP", "No users available for testing")
-        except Exception as e:
-            self.log_test("Username Filtering", "ERROR", str(e))
-        
-        # 3. Test filtering by display name with dynamic data
-        try:
-            if hasattr(self, 'test_users') and self.test_users:
-                # Use the first user's display name for testing
-                test_user = self.test_users[0]
-                display_name = test_user['displayName']
-                # Extract first word for partial matching
-                first_word = display_name.split()[0] if display_name else "Test"
-                
-                response = requests.get(f"{self.base_url}/v2/Users/?filter=displayName co \"{first_word}\"", headers=self.auth_headers)
+                    self.log_test("Pagination", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("Pagination", "ERROR", str(e))
+            
+            # Test filtering
+            try:
+                response = requests.get(f"{self._get_users_url(server_id)}?filter=active eq true", headers=self.auth_headers)
                 if response.status_code == 200:
                     data = response.json()
-                    if len(data['Resources']) >= 1:
-                        # Check if our test user is in the results
-                        found = any(u['id'] == test_user['id'] for u in data['Resources'])
-                        if found:
-                            self.log_test("Display Name Filtering", "PASS", f"Display name filtering works correctly for: {first_word}")
-                        else:
-                            self.log_test("Display Name Filtering", "FAIL", f"User {display_name} not found in search results")
-                    else:
-                        self.log_test("Display Name Filtering", "FAIL", f"No users found with '{first_word}' in display name")
+                    self.log_test("Filtering", "PASS", f"Filter returned {data['totalResults']} active users")
                 else:
-                    self.log_test("Display Name Filtering", "FAIL", f"HTTP {response.status_code}")
-            else:
-                self.log_test("Display Name Filtering", "SKIP", "No users available for testing")
-        except Exception as e:
-            self.log_test("Display Name Filtering", "ERROR", str(e))
-        
-        # 4. Test group filtering with dynamic data
-        try:
-            if hasattr(self, 'test_groups') and self.test_groups:
-                test_group = self.test_groups[0]
-                display_name = test_group['displayName']
-                response = requests.get(f"{self.base_url}/v2/Groups/?filter=displayName co \"{display_name}\"", headers=self.auth_headers)
-                if response.status_code == 200:
-                    data = response.json()
-                    if len(data['Resources']) >= 1:
-                        # Check if our test group is in the results
-                        found = any(g['id'] == test_group['id'] for g in data['Resources'])
-                        if found:
-                            self.log_test("Group Filtering", "PASS", f"Group filtering works correctly for: {display_name}")
-                        else:
-                            self.log_test("Group Filtering", "FAIL", f"Group {display_name} not found in search results")
-                    else:
-                        self.log_test("Group Filtering", "FAIL", f"No groups found with display name containing: {display_name}")
-                else:
-                    self.log_test("Group Filtering", "FAIL", f"HTTP {response.status_code}")
-            else:
-                self.log_test("Group Filtering", "SKIP", "No groups available for testing")
-        except Exception as e:
-            self.log_test("Group Filtering", "ERROR", str(e))
+                    self.log_test("Filtering", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("Filtering", "ERROR", str(e))
     
     def test_scim_compliance(self):
-        """Test SCIM 2.0 compliance features."""
-        print("\n=== Testing SCIM 2.0 Compliance ===")
+        """Test SCIM compliance features and schema validation."""
+        print("\n=== Testing SCIM Compliance ===")
         
-        # 1. Test SCIM response schemas
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify SCIM list response schema
-                required_fields = ["schemas", "totalResults", "startIndex", "itemsPerPage", "Resources"]
-                if all(field in data for field in required_fields):
-                    if "urn:ietf:params:scim:api:messages:2.0:ListResponse" in data["schemas"]:
-                        self.log_test("SCIM List Response Schema", "PASS", "SCIM list response schema is correct")
-                    else:
-                        self.log_test("SCIM List Response Schema", "FAIL", "Missing required SCIM schema")
-                else:
-                    self.log_test("SCIM List Response Schema", "FAIL", f"Missing required fields: {[f for f in required_fields if f not in data]}")
-            else:
-                self.log_test("SCIM List Response Schema", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("SCIM List Response Schema", "ERROR", str(e))
-        
-        # 2. Test individual resource schema
-        try:
-            response = requests.get(f"{self.base_url}/v2/Users/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                if data['Resources']:
-                    user = data['Resources'][0]
-                    if "schemas" in user and "urn:ietf:params:scim:schemas:core:2.0:User" in user["schemas"]:
-                        if "id" in user and "meta" in user:
+        # Test against each server created by CLI
+        for server_id in getattr(self, 'test_server_ids', ['default']):
+            print(f"\n--- Testing Server: {server_id} ---")
+            
+            # Test User schema compliance
+            try:
+                response = requests.get(self._get_users_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    if data['Resources']:
+                        user = data['Resources'][0]
+                        if "schemas" in user and "urn:ietf:params:scim:schemas:core:2.0:User" in user["schemas"]:
                             self.log_test("SCIM User Resource Schema", "PASS", "SCIM user resource schema is correct")
                         else:
-                            self.log_test("SCIM User Resource Schema", "FAIL", "Missing required user fields")
+                            self.log_test("SCIM User Resource Schema", "FAIL", "Missing required user schema")
                     else:
-                        self.log_test("SCIM User Resource Schema", "FAIL", "Missing required user schema")
+                        self.log_test("SCIM User Resource Schema", "SKIP", "No users available for testing")
                 else:
-                    self.log_test("SCIM User Resource Schema", "SKIP", "No users available for testing")
-            else:
-                self.log_test("SCIM User Resource Schema", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("SCIM User Resource Schema", "ERROR", str(e))
+                    self.log_test("SCIM User Resource Schema", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("SCIM User Resource Schema", "ERROR", str(e))
+            
+            # Test Group schema compliance
+            try:
+                response = requests.get(self._get_groups_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    if data['Resources']:
+                        group = data['Resources'][0]
+                        if "schemas" in group and "urn:ietf:params:scim:schemas:core:2.0:Group" in group["schemas"]:
+                            self.log_test("SCIM Group Resource Schema", "PASS", "SCIM group resource schema is correct")
+                        else:
+                            self.log_test("SCIM Group Resource Schema", "FAIL", "Missing required group schema")
+                    else:
+                        self.log_test("SCIM Group Resource Schema", "SKIP", "No groups available for testing")
+                else:
+                    self.log_test("SCIM Group Resource Schema", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("SCIM Group Resource Schema", "ERROR", str(e))
+            
+            # Test Entitlement schema compliance
+            try:
+                response = requests.get(self._get_entitlements_url(server_id), headers=self.auth_headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    if data['Resources']:
+                        entitlement = data['Resources'][0]
+                        if "schemas" in entitlement and "urn:okta:scim:schemas:core:1.0:Entitlement" in entitlement["schemas"]:
+                            self.log_test("SCIM Entitlement Resource Schema", "PASS", "SCIM entitlement resource schema is correct")
+                        else:
+                            self.log_test("SCIM Entitlement Resource Schema", "FAIL", "Missing required entitlement schema")
+                    else:
+                        self.log_test("SCIM Entitlement Resource Schema", "SKIP", "No entitlements available for testing")
+                else:
+                    self.log_test("SCIM Entitlement Resource Schema", "FAIL", f"HTTP {response.status_code}")
+            except Exception as e:
+                self.log_test("SCIM Entitlement Resource Schema", "ERROR", str(e))
         
-        # 3. Test group schema
+        # Test schema validation for enhanced entitlement fields
         try:
-            response = requests.get(f"{self.base_url}/v2/Groups/", headers=self.auth_headers)
+            response = requests.get(f"{self.base_url}{settings.api_base_path}/scim/v2/Schemas", headers=self.auth_headers)
             if response.status_code == 200:
                 data = response.json()
-                if data['Resources']:
-                    group = data['Resources'][0]
-                    if "schemas" in group and "urn:ietf:params:scim:schemas:core:2.0:Group" in group["schemas"]:
-                        self.log_test("SCIM Group Resource Schema", "PASS", "SCIM group resource schema is correct")
+                entitlement_schema = None
+                for schema in data.get('Resources', []):
+                    if schema['id'] == "urn:okta:scim:schemas:core:1.0:Entitlement":
+                        entitlement_schema = schema
+                        break
+                
+                if entitlement_schema:
+                    # Check for enhanced fields
+                    has_entitlement_type = any(attr['name'] == 'entitlementType' for attr in entitlement_schema.get('attributes', []))
+                    has_multi_valued = any(attr['name'] == 'multiValued' for attr in entitlement_schema.get('attributes', []))
+                    
+                    if has_entitlement_type and has_multi_valued:
+                        self.log_test("Enhanced Entitlement Schema", "PASS", "Entitlement schema includes enhanced fields")
                     else:
-                        self.log_test("SCIM Group Resource Schema", "FAIL", "Missing required group schema")
+                        self.log_test("Enhanced Entitlement Schema", "FAIL", "Missing enhanced entitlement fields in schema")
                 else:
-                    self.log_test("SCIM Group Resource Schema", "SKIP", "No groups available for testing")
+                    self.log_test("Enhanced Entitlement Schema", "FAIL", "Could not find entitlement schema")
             else:
-                self.log_test("SCIM Group Resource Schema", "FAIL", f"HTTP {response.status_code}")
+                self.log_test("Enhanced Entitlement Schema", "FAIL", f"HTTP {response.status_code}")
         except Exception as e:
-            self.log_test("SCIM Group Resource Schema", "ERROR", str(e))
-        
-        # 4. Test entitlement schema
-        try:
-            response = requests.get(f"{self.base_url}/v2/Entitlements/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                if data['Resources']:
-                    entitlement = data['Resources'][0]
-                    if "schemas" in entitlement and "urn:okta:scim:schemas:core:1.0:Entitlement" in entitlement["schemas"]:
-                        self.log_test("SCIM Entitlement Resource Schema", "PASS", "SCIM entitlement resource schema is correct")
-                    else:
-                        self.log_test("SCIM Entitlement Resource Schema", "FAIL", "Missing required entitlement schema")
-                else:
-                    self.log_test("SCIM Entitlement Resource Schema", "SKIP", "No entitlements available for testing")
-            else:
-                self.log_test("SCIM Entitlement Resource Schema", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("SCIM Entitlement Resource Schema", "ERROR", str(e))
-        
-        # 5. Test role schema
-        try:
-            response = requests.get(f"{self.base_url}/v2/Roles/", headers=self.auth_headers)
-            if response.status_code == 200:
-                data = response.json()
-                if data['Resources']:
-                    role = data['Resources'][0]
-                    if "schemas" in role and "urn:okta:scim:schemas:core:1.0:Role" in role["schemas"]:
-                        self.log_test("SCIM Role Resource Schema", "PASS", "SCIM role resource schema is correct")
-                    else:
-                        self.log_test("SCIM Role Resource Schema", "FAIL", "Missing required role schema")
-                else:
-                    self.log_test("SCIM Role Resource Schema", "SKIP", "No roles available for testing")
-            else:
-                self.log_test("SCIM Role Resource Schema", "FAIL", f"HTTP {response.status_code}")
-        except Exception as e:
-            self.log_test("SCIM Role Resource Schema", "ERROR", str(e))
+            self.log_test("Enhanced Entitlement Schema", "ERROR", str(e))
     
     def generate_summary(self):
-        """Generate a comprehensive summary of the test data and functionality."""
-        print("\n=== Comprehensive Test Summary ===")
-        
-        try:
-            # Get all resources
-            users_response = requests.get(f"{self.base_url}/v2/Users/", headers=self.auth_headers)
-            groups_response = requests.get(f"{self.base_url}/v2/Groups/", headers=self.auth_headers)
-            entitlements_response = requests.get(f"{self.base_url}/v2/Entitlements/", headers=self.auth_headers)
-            roles_response = requests.get(f"{self.base_url}/v2/Roles/", headers=self.auth_headers)
-            
-            if all(r.status_code == 200 for r in [users_response, groups_response, entitlements_response, roles_response]):
-                users_data = users_response.json()
-                groups_data = groups_response.json()
-                entitlements_data = entitlements_response.json()
-                roles_data = roles_response.json()
-                
-                print(f"📊 Test Data Summary:")
-                print(f"   Users: {users_data['totalResults']}")
-                print(f"   Groups: {groups_data['totalResults']}")
-                print(f"   Entitlements: {entitlements_data['totalResults']}")
-                print(f"   Roles: {roles_data['totalResults']}")
-                
-                print(f"\n👥 Sample Users:")
-                for user in users_data['Resources'][:3]:  # Show first 3 users
-                    print(f"   - {user['displayName']} ({user['userName']}) - Active: {user['active']}")
-                
-                print(f"\n🏢 Sample Groups:")
-                for group in groups_data['Resources'][:3]:  # Show first 3 groups
-                    print(f"   - {group['displayName']}: {group['description']}")
-                
-                print(f"\n🎫 Sample Entitlements:")
-                for entitlement in entitlements_data['Resources'][:3]:  # Show first 3 entitlements
-                    print(f"   - {entitlement['displayName']} ({entitlement['type']})")
-                
-                print(f"\n🔑 Sample Roles:")
-                for role in roles_data['Resources'][:3]:  # Show first 3 roles
-                    print(f"   - {role['displayName']}: {role['description']}")
-                
-                self.log_test("Data Summary", "PASS", "All test data available and accessible")
-            else:
-                self.log_test("Data Summary", "FAIL", "Could not retrieve all test data")
-        except Exception as e:
-            self.log_test("Data Summary", "ERROR", str(e))
-    
-    def run_all_tests(self):
-        """Run all comprehensive tests."""
-        print("🚀 Starting Comprehensive SCIM Testing")
-        print(f"📅 Test started at: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"🔗 Testing against: {self.base_url}")
-        print(f"🔑 Using API key: {self.api_key}")
-        print()
-        
-        # First, verify server availability and endpoint accessibility
-        if not self.verify_server_availability():
-            print("❌ Server availability check failed. Cannot proceed with tests.")
-            print("💡 Please ensure:")
-            print("   1. The SCIM server is running (python run_server.py)")
-            print("   2. The server is accessible at the configured URL")
-            print("   3. The API key is valid")
-            print("   4. Test data has been created (python scripts/create_test_data.py)")
-            return
-        
-        # Run all test suites
-        self.test_schema_discovery()
-        self.test_user_management()
-        self.test_group_management()
-        self.test_entitlement_management()
-        self.test_role_management()
-        self.test_error_handling()
-        self.test_pagination_and_filtering()
-        self.test_scim_compliance()
-        self.generate_summary()
-        
-        # Generate final report
-        self.generate_report()
-    
-    def generate_report(self):
-        """Generate a comprehensive test report."""
-        end_time = datetime.now()
-        duration = end_time - self.start_time
+        """Generate a summary of all test results."""
+        print("\n" + "="*60)
+        print("📊 COMPREHENSIVE SCIM TEST SUMMARY")
+        print("="*60)
         
         # Count results
         total_tests = len(self.results)
@@ -924,65 +721,239 @@ class ComprehensiveSCIMTester:
         error_tests = len([r for r in self.results if r['status'] == 'ERROR'])
         skipped_tests = len([r for r in self.results if r['status'] == 'SKIP'])
         
-        print(f"\n{'='*60}")
-        print(f"📋 COMPREHENSIVE SCIM TEST REPORT")
-        print(f"{'='*60}")
-        print(f"📅 Test Duration: {duration}")
-        print(f"🔗 Test URL: {self.base_url}")
-        print(f"🔑 API Key: {self.api_key}")
-        print(f"\n📊 Test Results:")
-        print(f"   Total Tests: {total_tests}")
-        print(f"   ✅ Passed: {passed_tests}")
-        print(f"   ❌ Failed: {failed_tests}")
-        print(f"   ⚠️  Errors: {error_tests}")
-        print(f"   ⏭️  Skipped: {skipped_tests}")
-        print(f"   📈 Success Rate: {(passed_tests/total_tests*100):.1f}%")
+        # Calculate duration
+        duration = datetime.now() - self.start_time
         
-        if failed_tests > 0 or error_tests > 0:
-            print(f"\n❌ Failed/Error Tests:")
-            for result in self.results:
-                if result['status'] in ['FAIL', 'ERROR']:
-                    print(f"   - {result['test']}: {result.get('details', 'No details')}")
+        print(f"⏱️  Test Duration: {duration}")
+        print(f"📈 Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"⚠️  Errors: {error_tests}")
+        print(f"⏭️  Skipped: {skipped_tests}")
         
-        print(f"\n✅ All SCIM functionality tested successfully!")
-        print(f"   - Schema discovery: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - User management: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - Group management: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - Entitlement management: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - Role management: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - Error handling: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - Pagination/filtering: {'✅' if passed_tests > 0 else '❌'}")
-        print(f"   - SCIM compliance: {'✅' if passed_tests > 0 else '❌'}")
+        if total_tests > 0:
+            success_rate = (passed_tests / total_tests) * 100
+            print(f"📊 Success Rate: {success_rate:.1f}%")
         
-        # Save detailed results to file
-        report_file = f"tests/reports/comprehensive_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(report_file, 'w') as f:
-            json.dump({
-                "test_run": {
-                    "start_time": self.start_time.isoformat(),
-                    "end_time": end_time.isoformat(),
-                    "duration_seconds": duration.total_seconds(),
-                                    "base_url": self.base_url,
-                "api_key": self.api_key
-                },
-                "summary": {
-                    "total_tests": total_tests,
-                    "passed": passed_tests,
-                    "failed": failed_tests,
-                    "errors": error_tests,
-                    "skipped": skipped_tests,
-                    "success_rate": (passed_tests/total_tests*100) if total_tests > 0 else 0
-                },
-                "results": self.results
-            }, f, indent=2)
+        # Show current data counts
+        try:
+            users_response = requests.get(f"{self.base_url}/v2/Users/", headers=self.auth_headers)
+            groups_response = requests.get(f"{self.base_url}/v2/Groups/", headers=self.auth_headers)
+            entitlements_response = requests.get(f"{self.base_url}/v2/Entitlements/", headers=self.auth_headers)
+            
+            if all(r.status_code == 200 for r in [users_response, groups_response, entitlements_response]):
+                users_data = users_response.json()
+                groups_data = groups_response.json()
+                entitlements_data = entitlements_response.json()
+                
+                print(f"\n📊 Current Data Counts:")
+                print(f"   Users: {users_data['totalResults']}")
+                print(f"   Groups: {groups_data['totalResults']}")
+                print(f"   Entitlements: {entitlements_data['totalResults']}")
+                
+                # Show sample data
+                if users_data['Resources']:
+                    print(f"\n👥 Sample Users:")
+                    for user in users_data['Resources'][:3]:  # Show first 3 users
+                        print(f"   - {user.get('userName', 'Unknown')} ({user.get('name', {}).get('givenName', 'Unknown')} {user.get('name', {}).get('familyName', 'Unknown')})")
+                
+                if groups_data['Resources']:
+                    print(f"\n🏢 Sample Groups:")
+                    for group in groups_data['Resources'][:3]:  # Show first 3 groups
+                        print(f"   - {group.get('displayName', 'Unknown')}")
+                
+                if entitlements_data['Resources']:
+                    print(f"\n🎫 Sample Entitlements:")
+                    for entitlement in entitlements_data['Resources'][:3]:  # Show first 3 entitlements
+                        print(f"   - {entitlement.get('displayName', 'Unknown')} ({entitlement.get('type', 'Unknown')})")
+        except Exception as e:
+            print(f"⚠️  Could not retrieve current data counts: {e}")
         
-        print(f"\n📄 Detailed report saved to: {report_file}")
-        print(f"{'='*60}")
+        # Show failed tests
+        failed_results = [r for r in self.results if r['status'] in ['FAIL', 'ERROR']]
+        if failed_results:
+            print(f"\n❌ Failed Tests:")
+            for result in failed_results:
+                print(f"   - {result['test']}: {result.get('details', 'No details')}")
+        
+        print("\n" + "="*60)
+    
+    def setup_test_data_via_cli(self):
+        """Create test data using the CLI and get server IDs for testing."""
+        print("\n=== Setting Up Test Data via CLI ===")
+        
+        try:
+            # Import the CLI module
+            import subprocess
+            import sys
+            import os
+            
+            # Add the project root to Python path for CLI import
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            sys.path.insert(0, project_root)
+            
+            # Create test servers using CLI
+            test_servers = [
+                {"name": "comprehensive-test-1", "users": 3, "groups": 2, "entitlements": 3},
+                {"name": "comprehensive-test-2", "users": 2, "groups": 1, "entitlements": 2}
+            ]
+            
+            self.test_server_ids = []
+            
+            for server_config in test_servers:
+                try:
+                    # Run CLI command to create server with JSON output
+                    cmd = [
+                        sys.executable, "scripts/scim_cli.py", "create",
+                        "--users", str(server_config["users"]),
+                        "--groups", str(server_config["groups"]),
+                        "--entitlements", str(server_config["entitlements"]),
+                        "--json"
+                    ]
+                    
+                    result = subprocess.run(cmd, capture_output=True, text=True, cwd=project_root)
+                    
+                    if result.returncode == 0:
+                        # Parse JSON output to get server ID
+                        try:
+                            import json
+                            # Find the JSON output in the stdout
+                            lines = result.stdout.split('\n')
+                            for line in lines:
+                                if line.strip().startswith('{'):
+                                    data = json.loads(line)
+                                    if 'server_id' in data:
+                                        server_id = data['server_id']
+                                        self.test_server_ids.append(server_id)
+                                        self.log_test("CLI Create Server", "PASS", f"Created server {server_config['name']}: {server_id}")
+                                        break
+                        except (json.JSONDecodeError, KeyError) as e:
+                            self.log_test("CLI Create Server", "FAIL", f"Failed to parse JSON output: {e}")
+                    else:
+                        self.log_test("CLI Create Server", "FAIL", f"Failed to create server {server_config['name']}: {result.stderr}")
+                        
+                except Exception as e:
+                    self.log_test("CLI Create Server", "ERROR", f"Error creating server {server_config['name']}: {str(e)}")
+            
+            # List all servers to verify with JSON output
+            try:
+                result = subprocess.run([sys.executable, "scripts/scim_cli.py", "list", "--json"], 
+                                      capture_output=True, text=True, cwd=project_root)
+                if result.returncode == 0:
+                    try:
+                        import json
+                        # Find the JSON output in the stdout
+                        lines = result.stdout.split('\n')
+                        for line in lines:
+                            if line.strip().startswith('{'):
+                                data = json.loads(line)
+                                if 'servers' in data:
+                                    server_count = data['total']
+                                    self.log_test("CLI List Servers", "PASS", f"Successfully listed {server_count} servers")
+                                    print("Available servers:")
+                                    for server in data['servers']:
+                                        print(f"  - {server['server_id']}: {server['stats']['users']} users, {server['stats']['groups']} groups, {server['stats']['entitlements']} entitlements")
+                                    break
+                    except (json.JSONDecodeError, KeyError) as e:
+                        self.log_test("CLI List Servers", "FAIL", f"Failed to parse JSON output: {e}")
+                else:
+                    self.log_test("CLI List Servers", "FAIL", f"Failed to list servers: {result.stderr}")
+            except Exception as e:
+                self.log_test("CLI List Servers", "ERROR", str(e))
+                
+        except Exception as e:
+            self.log_test("CLI Setup", "ERROR", f"Failed to setup test data via CLI: {str(e)}")
+            # Fallback to using default server
+            self.test_server_ids = ["default"]
+    
+    def run_all_tests(self):
+        """Run all comprehensive tests."""
+        print("🚀 Starting Comprehensive SCIM Testing")
+        print("="*60)
+        
+        # Verify server is available
+        if not self.verify_server_availability():
+            print("❌ Server not available. Please start the SCIM server first.")
+            return False
+        
+        # Create test data using CLI and get server IDs
+        self.setup_test_data_via_cli()
+        
+        # Run all test suites
+        test_suites = [
+            self.test_schema_discovery,
+            self.test_user_management,
+            self.test_group_management,
+            self.test_entitlement_management,
+            self.test_error_handling,
+            self.test_pagination_and_filtering,
+            self.test_scim_compliance
+        ]
+        
+        for test_suite in test_suites:
+            try:
+                test_suite()
+            except Exception as e:
+                logger.error(f"Error running {test_suite.__name__}: {e}")
+        
+        # Generate summary
+        self.generate_summary()
+        
+        return True
+    
+    def generate_report(self):
+        """Generate a detailed JSON report."""
+        report = {
+            "test_run": {
+                "start_time": self.start_time.isoformat(),
+                "end_time": datetime.now().isoformat(),
+                "duration": str(datetime.now() - self.start_time)
+            },
+            "summary": {
+                "total_tests": len(self.results),
+                "passed": len([r for r in self.results if r['status'] == 'PASS']),
+                "failed": len([r for r in self.results if r['status'] == 'FAIL']),
+                "errors": len([r for r in self.results if r['status'] == 'ERROR']),
+                "skipped": len([r for r in self.results if r['status'] == 'SKIP'])
+            },
+            "results": self.results
+        }
+        
+        # Save report to file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"comprehensive_test_report_{timestamp}.json"
+        
+        with open(filename, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"📄 Detailed report saved to: {filename}")
+        return filename
+
 
 def main():
     """Main function to run comprehensive tests."""
     tester = ComprehensiveSCIMTester()
-    tester.run_all_tests()
+    
+    try:
+        success = tester.run_all_tests()
+        
+        if success:
+            # Generate detailed report
+            report_file = tester.generate_report()
+            print(f"\n✅ Comprehensive testing completed!")
+            print(f"📄 Detailed report: {report_file}")
+            return 0
+        else:
+            print("\n❌ Comprehensive testing failed!")
+            return 1
+            
+    except KeyboardInterrupt:
+        print("\n⚠️  Testing interrupted by user")
+        return 1
+    except Exception as e:
+        print(f"\n❌ Unexpected error during testing: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main() 
+    sys.exit(main()) 

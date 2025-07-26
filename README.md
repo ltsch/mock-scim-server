@@ -59,6 +59,7 @@ All virtual SCIM servers share the same API key authentication system, which is 
 - **SCIM 2.0 Compliance:** Implement all core SCIM endpoints and behaviors, with a focus on Okta's unique requirements for ResourceTypes, entitlements, and schema discovery. ([SCIM 2.0 RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644), [Okta SCIM with Entitlements Guide](https://developer.okta.com/docs/guides/scim-with-entitlements/main/))
 - **Multi-Server Support:** Enable multiple virtual SCIM servers on the same web port for development and testing scenarios
 - **Standalone & Self-Contained:** No external dependencies or services. All data and configuration are stored in a local SQLite database.
+- **Dynamic Schema System:** SCIM schemas are generated dynamically based on actual database models and configuration, ensuring accurate representation of the server's data model
 - **Developer Experience:** Extensive logging, debugging, and comprehensive testing infrastructure.
 - **Extensibility:** Designed for easy extension and modification, including support for custom schemas and attributes.
 - **Authentication:** Simple API key authentication using static keys provided as Bearer tokens in the Authorization header.
@@ -72,8 +73,9 @@ All virtual SCIM servers share the same API key authentication system, which is 
 ### **✅ Implemented Features**
 
 - **SCIM 2.0 Endpoints:**
-  - `/v2/ResourceTypes` - Returns available resource types for schema discovery
-  - `/v2/Schemas` - Returns custom schema extensions (currently empty)
+  - `/v2/ResourceTypes` - Returns available resource types for schema discovery (dynamic)
+  - `/v2/Schemas` - Returns all available schemas with detailed attribute definitions (dynamic)
+  - `/v2/Schemas/{schema_urn}` - Returns specific schema by URN (dynamic)
   - `/v2/Users` - Full CRUD operations with SCIM filtering and pagination
   - `/v2/Groups` - Full CRUD operations with SCIM filtering and pagination
   - `/v2/Entitlements` - Full CRUD operations with SCIM filtering and pagination
@@ -231,6 +233,102 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
    python scripts/run_comprehensive_tests.py
    ```
 
+7. **Test dynamic schema system:**
+   ```bash
+   python scripts/test_dynamic_schemas.py
+   ```
+
+8. **Test enhanced error handling:**
+   ```bash
+   python scripts/test_enhanced_error_handling.py
+   ```
+
+---
+
+## Dynamic Schema System
+
+The SCIM server now features a **dynamic schema system** that generates SCIM schema definitions at runtime based on:
+
+1. **Database Models** - SQLAlchemy model definitions
+2. **Configuration Values** - Settings from `config.py` (e.g., entitlement types)
+3. **Actual Data** - Current state of the database
+4. **SCIM 2.0 Compliance** - RFC 7643 specification adherence
+
+#### **Key Features:**
+
+- **Dynamic Resource Types** - `/v2/ResourceTypes` endpoint generates resource types dynamically
+- **Dynamic Schema Discovery** - `/v2/Schemas` endpoint returns all available schemas with detailed attribute definitions
+- **Individual Schema Access** - `/v2/Schemas/{schema_urn}` endpoint provides specific schema information
+- **Configuration Reflection** - Entitlement types from `config.py` are automatically included as canonical values
+- **No Hardcoded Values** - All schema information is generated from actual system state
+- **Enhanced Error Handling** - Detailed, developer-friendly error messages with troubleshooting guidance
+
+#### **Example Schema Response:**
+
+```json
+{
+  "schemas": ["urn:okta:scim:schemas:core:1.0:Entitlement"],
+  "id": "urn:okta:scim:schemas:core:1.0:Entitlement",
+  "name": "Entitlement",
+  "description": "Entitlement",
+  "attributes": [
+    {
+      "name": "type",
+      "type": "string",
+      "multiValued": false,
+      "description": "The type of entitlement",
+      "required": true,
+      "caseExact": false,
+      "mutability": "readWrite",
+      "returned": "default",
+      "uniqueness": "none",
+      "canonicalValues": [
+        "E5", "Administrator", "Paid User", "Contributor", "Member",
+        "Read-only", "Standard User", "Basic User", "Limited", "Full",
+        "Standard", "Employee", "User", "Full-time", "Developer"
+      ]
+    }
+  ]
+}
+```
+
+#### **Example Error Response:**
+
+```json
+{
+  "detail": {
+    "error": "SCIM_VALIDATION_ERROR",
+    "message": "Field 'type' value 'InvalidType' is not valid",
+    "field": "type",
+    "provided_value": "InvalidType",
+    "allowed_values": ["Administrator", "Paid User", "Contributor", "Member", "Read-only", "Standard User", "Basic User", "Limited", "Full", "Standard", "Employee", "User", "Full-time", "Developer", "E5"],
+    "type": "invalid_canonical_value",
+    "resource_type": "Entitlement",
+    "help": "Use one of the allowed values: Administrator, Paid User, Contributor, Member, Read-only, Standard User, Basic User, Limited, Full, Standard, Employee, User, Full-time, Developer, E5"
+  }
+}
+```
+
+#### **Testing the Schema System:**
+
+```bash
+# Test all schema functionality
+python scripts/test_dynamic_schemas.py
+
+# Test enhanced error handling
+python scripts/test_enhanced_error_handling.py
+
+# Test individual endpoints
+curl -H "Authorization: Bearer test-api-key-12345" http://localhost:7001/v2/ResourceTypes
+curl -H "Authorization: Bearer test-api-key-12345" http://localhost:7001/v2/Schemas
+curl -H "Authorization: Bearer test-api-key-12345" "http://localhost:7001/v2/Schemas/urn:okta:scim:schemas:core:1.0:Entitlement"
+
+# Test error handling examples
+curl -X POST -H "Authorization: Bearer test-api-key-12345" -H "Content-Type: application/json" \
+  -d '{"displayName": "Test Entitlement", "type": "InvalidType"}' \
+  http://localhost:7001/v2/Entitlements/
+```
+
 ---
 
 ## Multi-Server Usage Examples
@@ -275,12 +373,15 @@ The SCIM.Cloud project includes a comprehensive CLI tool (`scripts/scim_cli.py`)
 ### **Features**
 
 - **Create Virtual Servers**: Generate new virtual SCIM servers with populated test data
-- **List Servers**: View all virtual servers with their statistics
+- **List Servers**: View all virtual servers with their statistics including relationships
 - **Delete Servers**: Remove specific virtual servers and their data
 - **Reset Database**: Clear all data for environment reset
 - **Interactive Mode**: User-friendly prompts with default values
 - **Command Line Mode**: Scriptable operations with parameters
 - **Configurable Defaults**: All settings configurable via `scim_server/config.py`
+- **Realistic Data Generation**: Creates diverse user data with realistic names, emails, and attributes
+- **Relationship Management**: Automatically creates user-group, user-entitlement, and user-role relationships
+- **Configurable Distribution**: Control the percentage of users with various attributes and relationships
 
 ### **Usage Examples**
 
@@ -334,6 +435,26 @@ cli_entitlement_types: list = [
 cli_role_names: list = [
     "Developer", "Manager", "Admin", "Analyst", "Designer"
 ]
+
+# Enhanced realistic data generation
+cli_first_names: list = ["James", "Mary", "John", "Patricia", ...]  # 100 realistic first names
+cli_last_names: list = ["Smith", "Johnson", "Williams", "Brown", ...]  # 100 realistic last names
+cli_departments: list = ["Engineering", "Marketing", "Sales", "HR", ...]  # 20 departments
+cli_job_titles: list = ["Software Engineer", "Marketing Manager", ...]  # 53 job titles
+cli_company_domains: list = ["example.com", "testcompany.com", ...]  # 9 company domains
+
+# User attribute distribution settings (percentages)
+cli_user_active_rate: float = 0.95  # 95% of users are active
+cli_user_department_rate: float = 0.85  # 85% of users have departments assigned
+cli_user_job_title_rate: float = 0.90  # 90% of users have job titles
+cli_user_multiple_groups_rate: float = 0.60  # 60% of users belong to multiple groups
+cli_user_entitlements_rate: float = 0.80  # 80% of users have entitlements
+cli_user_roles_rate: float = 0.70  # 70% of users have roles
+
+# Relationship distribution settings
+cli_max_groups_per_user: int = 4  # Maximum groups a user can belong to
+cli_max_entitlements_per_user: int = 6  # Maximum entitlements a user can have
+cli_max_roles_per_user: int = 3  # Maximum roles a user can have
 ```
 
 ### **Benefits**
@@ -343,6 +464,10 @@ cli_role_names: list = [
 - **Testing Integration**: Can be used in automated test scripts for consistent test data
 - **Environment Management**: Easy cleanup and reset capabilities for development environments
 - **Configurable**: All defaults and data types can be customized via configuration
+- **Realistic User Data**: Generates diverse user profiles with realistic names, emails, and attributes
+- **Complex Relationships**: Creates realistic user-group, user-entitlement, and user-role relationships
+- **Configurable Distribution**: Control the percentage of users with various attributes and relationships
+- **Enhanced Testing**: More representative test data for complex SCIM scenarios and edge cases
 
 ---
 
@@ -430,6 +555,20 @@ The SCIM server uses a simple configuration file (`scim_server/config.py`) with 
 - `cli_group_names`: List of predefined group names for test data
 - `cli_entitlement_types`: List of predefined entitlement types and names
 - `cli_role_names`: List of predefined role names for test data
+- `cli_first_names`: List of realistic first names for user generation (100 names)
+- `cli_last_names`: List of realistic last names for user generation (100 names)
+- `cli_departments`: List of department names for organizational structure (20 departments)
+- `cli_job_titles`: List of realistic job titles (53 titles)
+- `cli_company_domains`: List of company email domains for realistic email generation
+- `cli_user_active_rate`: Percentage of users that should be active (default: `0.95`)
+- `cli_user_department_rate`: Percentage of users with department assignments (default: `0.85`)
+- `cli_user_job_title_rate`: Percentage of users with job titles (default: `0.90`)
+- `cli_user_multiple_groups_rate`: Percentage of users in multiple groups (default: `0.60`)
+- `cli_user_entitlements_rate`: Percentage of users with entitlements (default: `0.80`)
+- `cli_user_roles_rate`: Percentage of users with roles (default: `0.70`)
+- `cli_max_groups_per_user`: Maximum groups a user can belong to (default: `4`)
+- `cli_max_entitlements_per_user`: Maximum entitlements a user can have (default: `6`)
+- `cli_max_roles_per_user`: Maximum roles a user can have (default: `3`)
 
 ### **Multi-Server Configuration:**
 Additional settings for multi-server functionality will be added to support:

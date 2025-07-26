@@ -10,7 +10,11 @@ from .response_converter import group_converter
 from .schemas import GroupCreate, GroupUpdate, GroupResponse, GroupListResponse
 
 # Create router
-router = APIRouter(prefix="/v2/Groups", tags=["Groups"])
+from .config import settings
+
+# Construct the API prefix dynamically
+api_prefix = f"{settings.api_base_path}/scim/v2/Groups"
+router = APIRouter(prefix=api_prefix, tags=["Groups"])
 
 # Create endpoint handler using base class
 # This single line replaces 234 lines of duplicated code!

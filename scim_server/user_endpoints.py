@@ -10,7 +10,11 @@ from .response_converter import user_converter
 from .schemas import UserCreate, UserUpdate, UserResponse, UserListResponse
 
 # Create router
-router = APIRouter(prefix="/v2/Users", tags=["Users"])
+from .config import settings
+
+# Construct the API prefix dynamically
+api_prefix = f"{settings.api_base_path}/scim/v2/Users"
+router = APIRouter(prefix=api_prefix, tags=["Users"])
 
 # Create endpoint handler using base class
 # This single line replaces 253 lines of duplicated code!

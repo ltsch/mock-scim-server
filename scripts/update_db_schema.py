@@ -43,14 +43,7 @@ def update_database_schema():
             cursor.execute("ALTER TABLE entitlements ADD COLUMN server_id VARCHAR(255) DEFAULT 'default'")
             cursor.execute("CREATE INDEX idx_entitlements_server_id ON entitlements(server_id)")
         
-        # Check roles table
-        cursor.execute("PRAGMA table_info(roles)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        if 'server_id' not in columns:
-            logger.info("Adding server_id column to roles table...")
-            cursor.execute("ALTER TABLE roles ADD COLUMN server_id VARCHAR(255) DEFAULT 'default'")
-            cursor.execute("CREATE INDEX idx_roles_server_id ON roles(server_id)")
+
         
         # Check schemas table
         cursor.execute("PRAGMA table_info(schemas)")
@@ -67,7 +60,7 @@ def update_database_schema():
         
         # Verify the changes
         logger.info("Verifying schema changes...")
-        tables = ['users', 'groups', 'entitlements', 'roles', 'schemas']
+        tables = ['users', 'groups', 'entitlements', 'schemas']
         
         for table in tables:
             cursor.execute(f"PRAGMA table_info({table})")

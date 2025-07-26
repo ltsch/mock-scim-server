@@ -9,11 +9,14 @@ from .database import get_db
 from .auth import get_api_key
 from .models import ApiKey
 from .config import settings
+from .schema_definitions import DynamicSchemaGenerator
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/v2", tags=["SCIM"])
+# Construct the API prefix dynamically
+api_prefix = f"{settings.api_base_path}/scim/v2"
+router = APIRouter(prefix=api_prefix, tags=["SCIM"])
 
 @router.get("/ResourceTypes")
 @limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
@@ -28,33 +31,9 @@ async def get_resource_types(
     """
     logger.info("ResourceTypes endpoint called")
     
-    # Return the standard SCIM resource types as defined in the README
-    resource_types = [
-        {
-            "id": "User",
-            "name": "User",
-            "endpoint": "/Users",
-            "schema": "urn:ietf:params:scim:schemas:core:2.0:User"
-        },
-        {
-            "id": "Group",
-            "name": "Group", 
-            "endpoint": "/Groups",
-            "schema": "urn:ietf:params:scim:schemas:core:2.0:Group"
-        },
-        {
-            "id": "Entitlement",
-            "name": "Entitlement",
-            "endpoint": "/Entitlements",
-            "schema": "urn:okta:scim:schemas:core:1.0:Entitlement"
-        },
-        {
-            "id": "Role",
-            "name": "Role",
-            "endpoint": "/Roles", 
-            "schema": "urn:okta:scim:schemas:core:1.0:Role"
-        }
-    ]
+    # Generate resource types dynamically
+    schema_generator = DynamicSchemaGenerator(db)
+    resource_types = schema_generator.get_resource_types()
     
     response = {
         "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
@@ -80,15 +59,42 @@ async def get_schemas(
     """
     logger.info("Schemas endpoint called")
     
-    # For now, return empty list since we don't have custom schemas yet
-    # This can be extended later to return schemas from the database
+    # Generate schemas dynamically
+    schema_generator = DynamicSchemaGenerator(db)
+    schemas = schema_generator.get_all_schemas()
+    
     response = {
         "schemas": ["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
-        "totalResults": 0,
+        "totalResults": len(schemas),
         "startIndex": 1,
-        "itemsPerPage": 0,
-        "Resources": []
+        "itemsPerPage": len(schemas),
+        "Resources": schemas
     }
     
-    logger.info("Returning 0 custom schemas")
-    return response 
+    logger.info(f"Returning {len(schemas)} schemas")
+    return response
+
+
+@router.get("/Schemas/{schema_urn}")
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
+async def get_schema_by_urn(
+    schema_urn: str,
+    request: Request,
+    api_key: ApiKey = Depends(get_api_key),
+    db: Session = Depends(get_db)
+):
+    """
+    Get a specific schema by URN.
+    This endpoint is called by SCIM clients to get detailed schema information.
+    """
+    logger.info(f"Schema endpoint called for URN: {schema_urn}")
+    
+    # Generate schema dynamically
+    schema_generator = DynamicSchemaGenerator(db)
+    schema = schema_generator.get_schema_by_urn(schema_urn)
+    
+    if not schema:
+        raise HTTPException(status_code=404, detail=f"Schema not found: {schema_urn}")
+    
+    logger.info(f"Returning schema for URN: {schema_urn}")
+    return schema 

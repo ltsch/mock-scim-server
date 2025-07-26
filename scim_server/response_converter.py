@@ -5,7 +5,7 @@ This module eliminates response conversion duplication by providing a single con
 
 from typing import Dict, Any, Optional
 from datetime import datetime
-from .models import User, Group, Entitlement, Role
+from .models import User, Group, Entitlement
 from .schemas import ScimMeta, ScimName, ScimEmail
 
 class ScimResponseConverter:
@@ -34,7 +34,7 @@ class ScimResponseConverter:
         Convert any entity to SCIM response format.
         
         Args:
-            entity: Database entity (User, Group, Entitlement, Role)
+            entity: Database entity (User, Group, Entitlement)
             
         Returns:
             Dict containing SCIM response format
@@ -72,8 +72,7 @@ class ScimResponseConverter:
             return self._extract_group_fields(entity)
         elif isinstance(entity, Entitlement):
             return self._extract_entitlement_fields(entity)
-        elif isinstance(entity, Role):
-            return self._extract_role_fields(entity)
+
         else:
             raise ValueError(f"Unsupported entity type: {type(entity)}")
     
@@ -116,14 +115,11 @@ class ScimResponseConverter:
             "displayName": entitlement.display_name,
             "type": entitlement.type,
             "description": entitlement.description,
+            "entitlementType": entitlement.entitlement_type,
+            "multiValued": entitlement.multi_valued,
         }
     
-    def _extract_role_fields(self, role: Role) -> Dict[str, Any]:
-        """Extract Role-specific fields."""
-        return {
-            "displayName": role.display_name,
-            "description": role.description,
-        }
+
 
 # Pre-configured converters for each entity type
 class UserResponseConverter(ScimResponseConverter):
@@ -165,25 +161,13 @@ class EntitlementResponseConverter(ScimResponseConverter):
                 'displayName': 'display_name',
                 'type': 'type',
                 'description': 'description',
+                'entitlementType': 'entitlement_type',
+                'multiValued': 'multi_valued',
             },
             entity_type="Entitlement"
-        )
-
-class RoleResponseConverter(ScimResponseConverter):
-    """Role-specific response converter."""
-    
-    def __init__(self):
-        super().__init__(
-            schema_uri="urn:okta:scim:schemas:core:1.0:Role",
-            field_mapping={
-                'displayName': 'display_name',
-                'description': 'description',
-            },
-            entity_type="Role"
         )
 
 # Create instances for easy import
 user_converter = UserResponseConverter()
 group_converter = GroupResponseConverter()
-entitlement_converter = EntitlementResponseConverter()
-role_converter = RoleResponseConverter() 
+entitlement_converter = EntitlementResponseConverter() 

@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from .models import User, Group, Entitlement, Role
-from .schemas import ScimMeta, ScimName, ScimEmail, UserResponse, GroupResponse, EntitlementResponse, RoleResponse
+from .models import User, Group, Entitlement
+from .schemas import ScimMeta, ScimName, ScimEmail, UserResponse, GroupResponse, EntitlementResponse
 
 def create_scim_meta(resource_type: str, resource_id: str, created: datetime = None, modified: datetime = None) -> ScimMeta:
     """Create SCIM meta information."""
@@ -70,17 +70,7 @@ def entitlement_to_scim_response(entitlement: Entitlement) -> Dict[str, Any]:
         "meta": meta.model_dump()
     }
 
-def role_to_scim_response(role: Role) -> Dict[str, Any]:
-    """Convert Role database model to SCIM response format."""
-    meta = create_scim_meta("Role", role.scim_id, role.created_at, role.updated_at)
-    
-    return {
-        "schemas": ["urn:okta:scim:schemas:core:1.0:Role"],
-        "id": role.scim_id,
-        "displayName": role.display_name,
-        "description": role.description,
-        "meta": meta.model_dump()
-    }
+
 
 def create_scim_list_response(resources: List[Dict[str, Any]], total_results: int, start_index: int = 1, items_per_page: int = None) -> Dict[str, Any]:
     """Create a SCIM list response."""

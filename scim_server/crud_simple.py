@@ -6,9 +6,9 @@ This module provides a clean interface to all CRUD operations without duplicatio
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from .crud_entities import user_crud, group_crud, entitlement_crud, role_crud
-from .schemas import UserCreate, UserUpdate, GroupCreate, GroupUpdate, EntitlementCreate, EntitlementUpdate, RoleCreate, RoleUpdate
-from .models import User, Group, Entitlement, Role
+from .crud_entities import user_crud, group_crud, entitlement_crud
+from .schemas import UserCreate, UserUpdate, GroupCreate, GroupUpdate, EntitlementCreate, EntitlementUpdate
+from .models import User, Group, Entitlement
 
 # User CRUD operations
 def create_user(db: Session, user_data: UserCreate, server_id: str = "default") -> User:
@@ -81,23 +81,4 @@ def delete_entitlement(db: Session, entitlement_id: str, server_id: str = "defau
     """Delete entitlement within a specific server."""
     return entitlement_crud.delete(db, entitlement_id, server_id)
 
-# Role CRUD operations
-def create_role(db: Session, role_data: RoleCreate, server_id: str = "default") -> Role:
-    """Create a new role."""
-    return role_crud.create_role(db, role_data, server_id)
-
-def get_role(db: Session, role_id: str, server_id: str = "default") -> Optional[Role]:
-    """Get role by SCIM ID within a specific server."""
-    return role_crud.get_by_id(db, role_id, server_id)
-
-def get_roles(db: Session, skip: int = 0, limit: int = None, filter_query: Optional[str] = None, server_id: str = "default") -> List[Role]:
-    """Get roles with optional filtering within a specific server."""
-    return role_crud.get_list(db, skip, limit, filter_query, server_id)
-
-def update_role(db: Session, role_id: str, role_data: RoleUpdate, server_id: str = "default") -> Optional[Role]:
-    """Update role within a specific server."""
-    return role_crud.update_role(db, role_id, role_data, server_id)
-
-def delete_role(db: Session, role_id: str, server_id: str = "default") -> bool:
-    """Delete role within a specific server."""
-    return role_crud.delete(db, role_id, server_id) 
+ 

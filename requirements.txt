@@ -6,4 +6,5 @@ email-validator==2.1.0
 loguru==0.7.3
 pytest==8.4.1
 httpx==0.28.1
-slowapi==0.1.9 
+slowapi==0.1.9
+names==0.3.0 

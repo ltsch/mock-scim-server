@@ -16,6 +16,7 @@ from .models import ApiKey
 from .config import settings
 from .server_context import get_server_id
 from .utils import validate_scim_id, create_scim_list_response
+from .schema_validator import create_schema_validator
 
 # Generic types for entities
 T = TypeVar('T')
@@ -70,12 +71,12 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         @self.limiter.limit(f"{settings.rate_limit_create}/{settings.rate_limit_window}minute")
         async def create_entity_endpoint(
             request: Request,
-            entity_data: self.create_schema,
+            entity_data: dict,
             server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
             api_key: ApiKey = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
-            return await self._create_entity(entity_data, server_id, db)
+            return await self._create_entity_raw(entity_data, server_id, db)
         
         # List endpoint
         @self.router.get("/", response_model=self.list_response_schema)
@@ -136,47 +137,88 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         ):
             return await self._delete_entity(entity_id, server_id, db)
     
+    async def _create_entity_raw(self, entity_data: dict, server_id: str, db: Session) -> ResponseSchema:
+        """Generic create entity endpoint with raw JSON and schema validation."""
+        logger.info(f"Creating {self.entity_type}: {entity_data.get('displayName', 'unknown')} in server: {server_id}")
+        
+        try:
+            # Create schema validator
+            validator = create_schema_validator(db)
+            
+            # Validate against schema (entity_data is already a dict)
+            validated_data = validator.validate_create_request(self.entity_type, entity_data)
+            
+            # Check for duplicates if applicable
+            if hasattr(self.crud, 'get_by_field'):
+                # For users, check userName uniqueness; for others, check displayName
+                if self.entity_type == "User" and 'userName' in validated_data:
+                    existing = self.crud.get_by_field(db, 'user_name', validated_data['userName'], server_id)
+                    if existing:
+                        logger.warning(f"{self.entity_type} with userName {validated_data['userName']} already exists in server: {server_id}")
+                        raise HTTPException(
+                            status_code=409,
+                            detail=f"{self.entity_type} with userName '{validated_data['userName']}' already exists"
+                        )
+                elif 'displayName' in validated_data:
+                    existing = self.crud.get_by_field(db, 'display_name', validated_data['displayName'], server_id)
+                    if existing:
+                        logger.warning(f"{self.entity_type} with displayName {validated_data['displayName']} already exists in server: {server_id}")
+                        raise HTTPException(
+                            status_code=409,
+                            detail=f"{self.entity_type} with displayName '{validated_data['displayName']}' already exists"
+                        )
+            
+            # Convert validated dict back to Pydantic model for CRUD operations
+            if self.entity_type == "User":
+                # Reconstruct UserCreate from validated data
+                user_create = self.create_schema(
+                    userName=validated_data.get('userName'),
+                    displayName=validated_data.get('displayName'),
+                    active=validated_data.get('active', True),
+                    name=validated_data.get('name'),
+                    emails=validated_data.get('emails'),
+                    externalId=validated_data.get('externalId')
+                )
+                db_entity = self.crud.create_user(db, user_create, server_id)
+            elif self.entity_type == "Group":
+                # Reconstruct GroupCreate from validated data
+                group_create = self.create_schema(
+                    displayName=validated_data.get('displayName'),
+                    description=validated_data.get('description')
+                )
+                db_entity = self.crud.create_group(db, group_create, server_id)
+            elif self.entity_type == "Entitlement":
+                # Reconstruct EntitlementCreate from validated data
+                entitlement_create = self.create_schema(
+                    displayName=validated_data.get('displayName'),
+                    type=validated_data.get('type'),
+                    description=validated_data.get('description'),
+                    entitlementType=validated_data.get('entitlementType'),
+                    multiValued=validated_data.get('multiValued', False)
+                )
+                db_entity = self.crud.create_entitlement(db, entitlement_create, server_id)
+            
+            else:
+                raise ValueError(f"Unsupported entity type: {self.entity_type}")
+            
+            # Convert to SCIM response format
+            response = self.converter.to_scim_response(db_entity)
+            
+            logger.info(f"{self.entity_type} created successfully: {db_entity.scim_id} in server: {server_id}")
+            return response
+            
+        except HTTPException:
+            # Re-raise HTTP exceptions (validation errors)
+            raise
+        except Exception as e:
+            logger.error(f"Error creating {self.entity_type}: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to create {self.entity_type}")
+    
     async def _create_entity(self, entity_data: CreateSchema, server_id: str, db: Session) -> ResponseSchema:
-        """Generic create entity endpoint."""
-        logger.info(f"Creating {self.entity_type}: {getattr(entity_data, 'displayName', 'unknown')} in server: {server_id}")
-        
-        # Check for duplicates if applicable
-        if hasattr(self.crud, 'get_by_field'):
-            # For users, check userName uniqueness; for others, check displayName
-            if self.entity_type == "User" and hasattr(entity_data, 'userName'):
-                existing = self.crud.get_by_field(db, 'user_name', entity_data.userName, server_id)
-                if existing:
-                    logger.warning(f"{self.entity_type} with userName {entity_data.userName} already exists in server: {server_id}")
-                    raise HTTPException(
-                        status_code=409,
-                        detail=f"{self.entity_type} with userName '{entity_data.userName}' already exists"
-                    )
-            elif hasattr(entity_data, 'displayName'):
-                existing = self.crud.get_by_field(db, 'display_name', entity_data.displayName, server_id)
-                if existing:
-                    logger.warning(f"{self.entity_type} with displayName {entity_data.displayName} already exists in server: {server_id}")
-                    raise HTTPException(
-                        status_code=409,
-                        detail=f"{self.entity_type} with displayName '{entity_data.displayName}' already exists"
-                    )
-        
-        # Create entity using the appropriate method
-        if self.entity_type == "User":
-            db_entity = self.crud.create_user(db, entity_data, server_id)
-        elif self.entity_type == "Group":
-            db_entity = self.crud.create_group(db, entity_data, server_id)
-        elif self.entity_type == "Entitlement":
-            db_entity = self.crud.create_entitlement(db, entity_data, server_id)
-        elif self.entity_type == "Role":
-            db_entity = self.crud.create_role(db, entity_data, server_id)
-        else:
-            raise ValueError(f"Unsupported entity type: {self.entity_type}")
-        
-        # Convert to SCIM response format
-        response = self.converter.to_scim_response(db_entity)
-        
-        logger.info(f"{self.entity_type} created successfully: {db_entity.scim_id} in server: {server_id}")
-        return response
+        """Generic create entity endpoint with Pydantic model and schema validation."""
+        # Convert Pydantic model to dict and delegate to raw method
+        data_dict = entity_data.model_dump(exclude_unset=True)
+        return await self._create_entity_raw(data_dict, server_id, db)
     
     async def _get_entities(
         self, 
@@ -221,7 +263,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         """Generic get entity by ID endpoint."""
         logger.info(f"Getting {self.entity_type}: {entity_id} in server: {server_id}")
         
-        # Validate SCIM ID format
+        # Validate SCIM ID format first
         if not validate_scim_id(entity_id):
             logger.warning(f"Invalid SCIM ID format: {entity_id}")
             raise HTTPException(
@@ -245,56 +287,79 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         return response
     
     async def _update_entity(self, entity_id: str, entity_data: UpdateSchema, server_id: str, db: Session) -> ResponseSchema:
-        """Generic update entity endpoint."""
+        """Generic update entity endpoint with schema validation."""
         logger.info(f"Updating {self.entity_type}: {entity_id} in server: {server_id}")
         
-        # Validate SCIM ID format
-        if not validate_scim_id(entity_id):
-            logger.warning(f"Invalid SCIM ID format: {entity_id}")
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid SCIM ID format"
-            )
-        
-        # Check if entity exists
-        existing_entity = self.crud.get_by_id(db, entity_id, server_id)
-        if not existing_entity:
-            logger.warning(f"{self.entity_type} not found: {entity_id}")
-            raise HTTPException(
-                status_code=404,
-                detail=f"{self.entity_type} not found"
-            )
-        
-        # Update entity using the appropriate method
-        if self.entity_type == "User":
-            updated_entity = self.crud.update_user(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Group":
-            updated_entity = self.crud.update_group(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Entitlement":
-            updated_entity = self.crud.update_entitlement(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Role":
-            updated_entity = self.crud.update_role(db, entity_id, entity_data, server_id)
-        else:
-            raise ValueError(f"Unsupported entity type: {self.entity_type}")
+        try:
+            # Validate SCIM ID format first
+            if not validate_scim_id(entity_id):
+                logger.warning(f"Invalid SCIM ID format: {entity_id}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid SCIM ID format"
+                )
             
-        if not updated_entity:
-            logger.error(f"Failed to update {self.entity_type}: {entity_id}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to update {self.entity_type}"
-            )
-        
-        # Convert to SCIM response format
-        response = self.converter.to_scim_response(updated_entity)
-        
-        logger.info(f"{self.entity_type} updated successfully: {entity_id} in server: {server_id}")
-        return response
+            # Check if entity exists
+            existing_entity = self.crud.get_by_id(db, entity_id, server_id)
+            if not existing_entity:
+                logger.warning(f"{self.entity_type} not found: {entity_id}")
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"{self.entity_type} not found"
+                )
+            
+            # Create schema validator
+            validator = create_schema_validator(db)
+            
+            # Convert Pydantic model to dict for validation
+            if hasattr(entity_data, 'model_dump'):
+                data_dict = entity_data.model_dump(exclude_unset=True)
+            else:
+                # Handle case where entity_data is already a dict
+                data_dict = entity_data
+            
+            # Convert existing entity to dict for validation
+            existing_data = self.converter.to_scim_response(existing_entity)
+            
+            # Validate against schema
+            validated_data = validator.validate_update_request(self.entity_type, data_dict, existing_data)
+            
+            # Update entity using the appropriate method with validated data
+            if self.entity_type == "User":
+                updated_entity = self.crud.update_user(db, entity_id, validated_data, server_id)
+            elif self.entity_type == "Group":
+                updated_entity = self.crud.update_group(db, entity_id, validated_data, server_id)
+            elif self.entity_type == "Entitlement":
+                updated_entity = self.crud.update_entitlement(db, entity_id, validated_data, server_id)
+            
+            else:
+                raise ValueError(f"Unsupported entity type: {self.entity_type}")
+                
+            if not updated_entity:
+                logger.error(f"Failed to update {self.entity_type}: {entity_id}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to update {self.entity_type}"
+                )
+            
+            # Convert to SCIM response format
+            response = self.converter.to_scim_response(updated_entity)
+            
+            logger.info(f"{self.entity_type} updated successfully: {entity_id} in server: {server_id}")
+            return response
+            
+        except HTTPException:
+            # Re-raise HTTP exceptions (validation errors)
+            raise
+        except Exception as e:
+            logger.error(f"Error updating {self.entity_type}: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to update {self.entity_type}")
     
     async def _patch_entity(self, entity_id: str, entity_data: UpdateSchema, server_id: str, db: Session) -> ResponseSchema:
         """Generic patch entity endpoint."""
         logger.info(f"Patching {self.entity_type}: {entity_id} in server: {server_id}")
         
-        # Validate SCIM ID format
+        # Validate SCIM ID format first
         if not validate_scim_id(entity_id):
             logger.warning(f"Invalid SCIM ID format: {entity_id}")
             raise HTTPException(
@@ -318,8 +383,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
             updated_entity = self.crud.update_group(db, entity_id, entity_data, server_id)
         elif self.entity_type == "Entitlement":
             updated_entity = self.crud.update_entitlement(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Role":
-            updated_entity = self.crud.update_role(db, entity_id, entity_data, server_id)
+
         else:
             raise ValueError(f"Unsupported entity type: {self.entity_type}")
             
@@ -340,7 +404,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         """Generic delete entity endpoint."""
         logger.info(f"Deleting {self.entity_type}: {entity_id} in server: {server_id}")
         
-        # Validate SCIM ID format
+        # Validate SCIM ID format first
         if not validate_scim_id(entity_id):
             logger.warning(f"Invalid SCIM ID format: {entity_id}")
             raise HTTPException(
