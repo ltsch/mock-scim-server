@@ -27,6 +27,35 @@ class Settings:
     # API Key settings
     default_api_key: str = "dev-api-key-12345"
     test_api_key: str = "test-api-key-12345"
+    
+    # CLI Tool settings - Default counts for virtual server creation
+    cli_default_users: int = 10
+    cli_default_groups: int = 5
+    cli_default_entitlements: int = 8
+    cli_default_roles: int = 4
+    
+    # CLI Tool settings - Predefined test data names and types
+    cli_group_names: list = [
+        "Engineering Team", "Marketing Team", "Sales Team", "HR Team", "Finance Team",
+        "Product Team", "Design Team", "Support Team", "Operations Team", "Legal Team"
+    ]
+    
+    cli_entitlement_types: list = [
+        ("Office 365 License", "License"),
+        ("Salesforce Access", "Profile"),
+        ("GitHub Access", "Profile"),
+        ("Slack Access", "Profile"),
+        ("Jira Access", "Profile"),
+        ("Confluence Access", "Profile"),
+        ("AWS Access", "Profile"),
+        ("GCP Access", "Profile"),
+        ("Azure Access", "Profile"),
+        ("VPN Access", "Profile")
+    ]
+    
+    cli_role_names: list = [
+        "Developer", "Manager", "Admin", "Analyst", "Designer"
+    ]
 
 # Global settings instance
 settings = Settings() 
