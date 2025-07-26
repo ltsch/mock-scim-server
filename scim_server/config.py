@@ -10,10 +10,10 @@ class Settings:
     max_count_limit: int = 1000  # Maximum limit for counting total results
     
     # Security settings
-    rate_limit_requests: int = 100
-    rate_limit_window: int = 60  # seconds
-    rate_limit_create: int = 10  # requests per window for create operations
-    rate_limit_read: int = 100   # requests per window for read operations
+    rate_limit_requests: int = 500
+    rate_limit_window: int = 30  # seconds
+    rate_limit_create: int = 60  # requests per window for create operations
+    rate_limit_read: int = 500   # requests per window for read operations
     
     # Server settings
     host: str = "0.0.0.0"

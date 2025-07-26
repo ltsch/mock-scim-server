@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -21,14 +21,21 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     scim_id = Column(String(255), unique=True, index=True, nullable=False)
     external_id = Column(String(255), index=True, nullable=True)
-    user_name = Column(String(255), unique=True, index=True, nullable=False)
+    user_name = Column(String(255), nullable=False)  # Remove global unique constraint
     display_name = Column(String(255), nullable=True)
     given_name = Column(String(100), nullable=True)
     family_name = Column(String(100), nullable=True)
-    email = Column(String(255), unique=True, index=True, nullable=True)
+    email = Column(String(255), nullable=True)  # Remove global unique constraint
     active = Column(Boolean, default=True)
+    server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Add composite unique constraints for server-specific uniqueness
+    __table_args__ = (
+        UniqueConstraint('user_name', 'server_id', name='uq_user_name_server'),
+        UniqueConstraint('email', 'server_id', name='uq_user_email_server'),
+    )
 
 class Group(Base):
     """SCIM Group entity."""
@@ -38,6 +45,7 @@ class Group(Base):
     scim_id = Column(String(255), unique=True, index=True, nullable=False)
     display_name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
+    server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -50,6 +58,7 @@ class Entitlement(Base):
     display_name = Column(String(255), nullable=False)
     type = Column(String(100), nullable=False)  # e.g., "License", "Profile"
     description = Column(Text, nullable=True)
+    server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -61,6 +70,7 @@ class Role(Base):
     scim_id = Column(String(255), unique=True, index=True, nullable=False)
     display_name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
+    server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -73,6 +83,7 @@ class Schema(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     schema_definition = Column(Text, nullable=False)  # JSON schema definition
+    server_id = Column(String(255), index=True, nullable=False, default="default")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

@@ -6,11 +6,58 @@
 
 This project is ideal for developers who need a mock SCIM server for integration testing, development, or demonstration purposes. It is not intended for production use.
 
+**🚀 Multi-Server Branch**: This branch extends the application to support multiple virtual SCIM servers, allowing developers to run multiple isolated SCIM instances on the same web port for comparison and validation purposes.
+
+---
+
+## Multi-Server Functionality
+
+### **Virtual SCIM Servers**
+
+The multi-server branch introduces support for multiple virtual SCIM servers that can run simultaneously on the same web port. This allows developers to:
+
+- **Compare Different Configurations**: Run multiple SCIM servers with different data sets or configurations
+- **Validate Integration**: Test against multiple SCIM endpoints without tearing down and recreating instances
+- **Isolated Testing**: Each virtual server maintains its own data isolation
+- **Development Efficiency**: Switch between different SCIM configurations quickly
+
+### **URL Patterns**
+
+Virtual SCIM servers can be accessed using two URL patterns:
+
+1. **Query Parameter Pattern**: `http://host/api/scim/v2?serverID=12345`
+2. **Path Parameter Pattern**: `http://host/api/scim-identifier/<serverid-UUID>/scim/v2`
+
+Both patterns support standard SCIM endpoints:
+- `/Users` - User management
+- `/Groups` - Group management  
+- `/Entitlements` - Entitlement management
+- `/Roles` - Role management
+- `/ResourceTypes` - Schema discovery
+- `/Schemas` - Custom schema extensions
+
+### **Database Strategy**
+
+Virtual SCIM servers can use either:
+- **Shared Database**: All virtual servers share the same SQLite database with server-specific data isolation
+- **Separate Databases**: Each virtual server uses its own database file
+
+The implementation will choose the approach that provides:
+- Fastest performance
+- Easiest implementation
+- Least code breaking risk
+- Best practices compliance
+
+### **Authentication**
+
+All virtual SCIM servers share the same API key authentication system, which is appropriate for development purposes. Each virtual server instance will validate against the same API key store.
+
 ---
 
 ## Project Goals
 
 - **SCIM 2.0 Compliance:** Implement all core SCIM endpoints and behaviors, with a focus on Okta's unique requirements for ResourceTypes, entitlements, and schema discovery. ([SCIM 2.0 RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644), [Okta SCIM with Entitlements Guide](https://developer.okta.com/docs/guides/scim-with-entitlements/main/))
+- **Multi-Server Support:** Enable multiple virtual SCIM servers on the same web port for development and testing scenarios
 - **Standalone & Self-Contained:** No external dependencies or services. All data and configuration are stored in a local SQLite database.
 - **Developer Experience:** Extensive logging, debugging, and comprehensive testing infrastructure.
 - **Extensibility:** Designed for easy extension and modification, including support for custom schemas and attributes.
@@ -57,6 +104,7 @@ This project is ideal for developers who need a mock SCIM server for integration
 
 ### **🔄 Planned Features**
 
+- **Multi-Server Support:** Multiple virtual SCIM servers accessible via different URL patterns
 - **Web Frontend:** A minimal web UI for browsing and editing database contents
 - **Custom Schemas:** Support for custom SCIM schema extensions
 - **Advanced Filtering:** Additional SCIM filter operators and complex queries
@@ -87,6 +135,7 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
    ```bash
    git clone <repository-url>
    cd scim-server
+   git checkout multi-server
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
@@ -126,10 +175,46 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
 
 ---
 
+## Multi-Server Usage Examples
+
+### **Query Parameter Pattern**
+```bash
+# Access virtual server with ID "12345"
+curl -H "Authorization: Bearer dev-api-key-12345" \
+  "http://localhost:6000/v2/Users?serverID=12345"
+
+# Access virtual server with ID "test-env"
+curl -H "Authorization: Bearer dev-api-key-12345" \
+  "http://localhost:6000/v2/Groups?serverID=test-env"
+```
+
+### **Path Parameter Pattern**
+```bash
+# Access virtual server with UUID "550e8400-e29b-41d4-a716-446655440000"
+curl -H "Authorization: Bearer dev-api-key-12345" \
+  "http://localhost:6000/scim-identifier/550e8400-e29b-41d4-a716-446655440000/scim/v2/Users"
+
+# Access virtual server with UUID "test-uuid-123"
+curl -H "Authorization: Bearer dev-api-key-12345" \
+  "http://localhost:6000/scim-identifier/test-uuid-123/scim/v2/Groups"
+```
+
+### **Standard SCIM Endpoints**
+All virtual servers support the same SCIM endpoints:
+- `/Users` - User CRUD operations
+- `/Groups` - Group CRUD operations
+- `/Entitlements` - Entitlement CRUD operations
+- `/Roles` - Role CRUD operations
+- `/ResourceTypes` - Schema discovery
+- `/Schemas` - Custom schema extensions
+
+---
+
 ## Design Philosophies
 
 - **Simplicity First:** Prioritize clear, maintainable code and a simple, functional UI (for the planned frontend). Avoid unnecessary complexity or "fancy" features.
 - **Centralized Data:** All configuration and data are stored in SQLite. No hardcoded users, groups, or entitlements outside the database.
+- **Multi-Server Isolation:** Virtual SCIM servers maintain data isolation while sharing the same web port and authentication system.
 - **Extensive Logging:** All actions, errors, and API calls are logged in detail to aid development and debugging.
 - **Okta Compatibility:** Special attention to Okta's SCIM extension requirements, including `/ResourceTypes`, `/Schemas`, and entitlement/role endpoints.
 - **Stateless API:** All state is persisted in the database; the server itself is stateless between requests.
@@ -150,7 +235,9 @@ scim-server/
 │   ├── models.py         # Database models for all SCIM entities
 │   ├── auth.py           # API key authentication
 │   ├── schemas.py        # Pydantic models for SCIM entities
-│   ├── crud.py           # CRUD operations for all entities
+│   ├── crud_base.py      # Base CRUD operations (generic)
+│   ├── crud_entities.py  # Entity-specific CRUD operations
+│   ├── crud_simple.py    # Simplified CRUD interface
 │   ├── utils.py          # Utility functions for SCIM operations
 │   ├── scim_endpoints.py # SCIM 2.0 discovery endpoints
 │   ├── user_endpoints.py # User CRUD endpoints
@@ -198,6 +285,12 @@ The SCIM server uses a simple configuration file (`scim_server/config.py`) with 
 - `default_api_key`: Development API key (default: `dev-api-key-12345`)
 - `test_api_key`: Test API key (default: `test-api-key-12345`)
 
+### **Multi-Server Configuration:**
+Additional settings for multi-server functionality will be added to support:
+- Virtual server management
+- Database isolation strategies
+- URL pattern configuration
+
 ### **Customization:**
 Simply edit `scim_server/config.py` to change any settings:
 
@@ -215,6 +308,7 @@ test_api_key: str = "my-custom-test-key"
 - Requests without a valid API key will receive a 401 Unauthorized response.
 - Default development API key: Configurable in `scim_server/config.py` (default: `dev-api-key-12345`)
 - Test API key: Configurable in `scim_server/config.py` (default: `test-api-key-12345`)
+- **Multi-Server Note**: All virtual SCIM servers share the same API key authentication system.
 
 ---
 
@@ -256,6 +350,7 @@ curl -H "Authorization: Bearer dev-api-key-12345" \
 - Debug endpoints and detailed error messages are provided for developer convenience.
 - Real-time test execution logging shows exactly what's happening during tests.
 - Logging verbosity can be configured via environment variables or config file.
+- **Multi-Server Note**: Virtual server identification will be included in all log entries for proper debugging.
 
 ---
 
@@ -265,6 +360,7 @@ curl -H "Authorization: Bearer dev-api-key-12345" \
 - All entities (users, groups, entitlements, roles, schemas, API keys, etc.) are stored in the database.
 - Database schema is designed for extensibility and easy inspection.
 - Comprehensive relationship management between entities.
+- **Multi-Server Note**: Database strategy (shared vs. separate) will be determined based on performance and implementation complexity analysis.
 
 ---
 
@@ -286,6 +382,13 @@ Before running tests, the environment is automatically validated to ensure:
 - ✅ Required test users (`john.doe@example.com`, `jane.smith@example.com`, etc.) are present
 - ✅ Required test groups (`Engineering Team`, `Marketing Team`, etc.) are present
 - ✅ Test API key (configurable in `scim_server/config.py`) is available
+
+### **Multi-Server Testing:**
+The test suite will be extended to support:
+- Virtual server creation and management
+- Data isolation validation
+- Cross-server data integrity testing
+- URL pattern validation for both query and path parameter approaches
 
 ### **Running Tests:**
 
@@ -322,6 +425,7 @@ python scripts/run_comprehensive_tests.py
 - Custom schemas and attributes are supported via the `/Schemas` endpoint and database extensions.
 - Designed to be easily modifiable for new resource types or attributes.
 - Modular endpoint structure allows easy addition of new SCIM resources.
+- **Multi-Server Note**: Virtual server functionality is designed to be extensible for additional server management features.
 
 ---
 
@@ -330,6 +434,7 @@ python scripts/run_comprehensive_tests.py
 - A minimal web UI for browsing and editing users, groups, entitlements, and other data in the SQLite database.
 - Intended for debugging and development only; not for production use.
 - Will be implemented in a later phase.
+- **Multi-Server Note**: The frontend will include virtual server management and switching capabilities.
 
 ---
 
@@ -414,6 +519,7 @@ python scripts/run_comprehensive_tests.py
 - All new features and bugfixes must include automated tests covering all endpoints.
 - Tests must use dynamic data and avoid hardcoded values.
 - Update this README as new decisions are made or features are added.
+- **Multi-Server Note**: All multi-server functionality must maintain SCIM 2.0 compliance and backward compatibility.
 
 ---
 
