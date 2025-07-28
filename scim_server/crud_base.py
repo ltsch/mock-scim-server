@@ -17,7 +17,7 @@ class BaseCRUD(Generic[T]):
     def __init__(self, model: Type[T]):
         self.model = model
     
-    def create(self, db: Session, data: dict, server_id: str = "default") -> T:
+    def create(self, db: Session, data: dict, server_id: str) -> T:
         """Create a new entity with server_id."""
         logger.info(f"Creating {self.model.__name__} in server: {server_id}")
         
@@ -33,22 +33,22 @@ class BaseCRUD(Generic[T]):
         logger.info(f"{self.model.__name__} created successfully: {getattr(db_entity, 'scim_id', 'unknown')} in server: {server_id}")
         return db_entity
     
-    def get_by_id(self, db: Session, entity_id: str, server_id: str = "default") -> Optional[T]:
+    def get_by_id(self, db: Session, entity_id: str, server_id: str) -> Optional[T]:
         """Get entity by SCIM ID within a specific server."""
         return db.query(self.model).filter(
             getattr(self.model, 'scim_id') == entity_id,
             getattr(self.model, 'server_id') == server_id
         ).first()
     
-    def get_by_field(self, db: Session, field_name: str, field_value: Any, server_id: str = "default") -> Optional[T]:
+    def get_by_field(self, db: Session, field_name: str, field_value: Any, server_id: str) -> Optional[T]:
         """Get entity by a specific field within a specific server."""
         return db.query(self.model).filter(
             getattr(self.model, field_name) == field_value,
             getattr(self.model, 'server_id') == server_id
         ).first()
     
-    def get_list(self, db: Session, skip: int = 0, limit: Optional[int] = None, 
-                 filter_query: Optional[str] = None, server_id: str = "default") -> List[T]:
+    def get_list(self, db: Session, server_id: str, skip: int = 0, limit: Optional[int] = None, 
+                 filter_query: Optional[str] = None) -> List[T]:
         """Get list of entities with optional filtering within a specific server."""
         from .config import settings
         if limit is None:
@@ -64,7 +64,7 @@ class BaseCRUD(Generic[T]):
         logger.info(f"Query returned {len(result)} {self.model.__name__}s")
         return result
     
-    def update(self, db: Session, entity_id: str, update_data: dict, server_id: str = "default") -> Optional[T]:
+    def update(self, db: Session, entity_id: str, update_data: dict, server_id: str) -> Optional[T]:
         """Update entity within a specific server."""
         logger.info(f"Updating {self.model.__name__}: {entity_id} in server: {server_id}")
         
@@ -83,7 +83,7 @@ class BaseCRUD(Generic[T]):
         logger.info(f"{self.model.__name__} updated successfully: {entity_id}")
         return db_entity
     
-    def delete(self, db: Session, entity_id: str, server_id: str = "default") -> bool:
+    def delete(self, db: Session, entity_id: str, server_id: str) -> bool:
         """Delete entity within a specific server."""
         logger.info(f"Deleting {self.model.__name__}: {entity_id} in server: {server_id}")
         
@@ -97,7 +97,7 @@ class BaseCRUD(Generic[T]):
         logger.info(f"{self.model.__name__} deleted successfully: {entity_id}")
         return True
     
-    def count(self, db: Session, server_id: str = "default") -> int:
+    def count(self, db: Session, server_id: str) -> int:
         """Count entities in a specific server."""
         return db.query(self.model).filter(getattr(self.model, 'server_id') == server_id).count()
     

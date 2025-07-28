@@ -103,10 +103,26 @@ class ScimResponseConverter:
     
     def _extract_group_fields(self, group: Group) -> Dict[str, Any]:
         """Extract Group-specific fields."""
+        # Get group members
+        from .database import get_db
+        from .crud_entities import group_crud
+        
+        db = next(get_db())
+        members = group_crud.get_group_members(db, group.scim_id, group.server_id)
+        
+        # Convert members to SCIM format
+        scim_members = []
+        for member in members:
+            scim_members.append({
+                "value": member.scim_id,
+                "display": member.display_name or member.user_name,
+                "$ref": f"/scim-identifier/{group.server_id}/scim/v2/Users/{member.scim_id}"
+            })
+        
         return {
             "displayName": group.display_name,
             "description": group.description,
-            "members": [],  # TODO: Implement member relationships
+            "members": scim_members,
         }
     
     def _extract_entitlement_fields(self, entitlement: Entitlement) -> Dict[str, Any]:

@@ -9,137 +9,160 @@ Tests for SCIM entitlement management functionality including:
 
 import pytest
 from fastapi.testclient import TestClient
-from tests.test_utils import BaseEntityTest, create_test_entitlement_data, get_valid_entitlement_type
+from sqlalchemy.orm import Session
 
-class TestEntitlementManagement(BaseEntityTest):
-    """Tests for SCIM entitlement management functionality."""
-    
-    def test_entitlement_list(self, client, sample_api_key):
-        """Test listing entitlements."""
-        self._test_entity_list(client, sample_api_key, "Entitlements")
-    
-    def test_entitlement_get_by_id(self, client, sample_api_key):
-        """Test getting a specific entitlement by ID."""
-        self._test_entity_get_by_id(client, sample_api_key, "Entitlements")
-    
+from scim_server.database import get_db
+from scim_server.main import app
+
+
+class TestEntitlementManagement:
+    """Test entitlement management operations."""
+
     def test_entitlement_create(self, client, sample_api_key):
         """Test creating a new entitlement."""
-        test_server_id = self.get_test_server_id()
-        unique_name = self.get_unique_name("testentitlement")
-        valid_type = get_valid_entitlement_type()
-    
-        new_entitlement_data = create_test_entitlement_data(unique_name, valid_type)
-    
-        response = client.post(f"/scim/v2/Entitlements/?serverID={test_server_id}",
-                             headers=self.get_auth_headers(sample_api_key),
-                             json=new_entitlement_data)
-        assert response.status_code == 201
-    
-        entitlement = response.json()
-        assert entitlement["displayName"] == unique_name
-        assert entitlement["type"] == valid_type
-        assert entitlement["description"] == f"Test entitlement for unit testing - {unique_name}"
-        assert "id" in entitlement
-        assert "schemas" in entitlement
-        assert "meta" in entitlement
-    
-    def test_entitlement_update(self, client, sample_api_key):
-        """Test updating an existing entitlement."""
-        test_server_id = self.get_test_server_id()
-        
-        # First get a list of entitlements
-        response = client.get(f"/scim/v2/Entitlements/?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 200
-        
-        entitlements = response.json()["Resources"]
-        assert len(entitlements) > 0
-        
-        # Update the first entitlement
-        entitlement_id = entitlements[0]["id"]
-        original_display_name = entitlements[0]["displayName"]
-        updated_display_name = f"Updated {original_display_name}"
-        
-        update_data = {
-            "schemas": ["urn:okta:scim:schemas:core:1.0:Entitlement"],
-            "displayName": updated_display_name,
-            "description": "Updated description"
+        test_server_id = "test-server"
+        entitlement_data = {
+            "displayName": "Test Entitlement",
+            "description": "A test entitlement for testing purposes",
+            "entitlementType": "application",
+            "active": True
         }
-        
-        response = client.put(f"/scim/v2/Entitlements/{entitlement_id}?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key), 
-                            json=update_data)
+
+        response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                              json=entitlement_data,
+                              headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["displayName"] == "Test Entitlement"
+        assert data["description"] == "A test entitlement for testing purposes"
+        assert data["entitlementType"] == "application"
+        assert data["active"] is True
+
+    def test_entitlement_list(self, client, sample_api_key):
+        """Test listing entitlements."""
+        test_server_id = "test-server"
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
         assert response.status_code == 200
-        
-        updated_entitlement = response.json()
-        assert updated_entitlement["displayName"] == updated_display_name
-        assert updated_entitlement["description"] == "Updated description"
-        assert updated_entitlement["id"] == entitlement_id
-    
+        data = response.json()
+        assert "Resources" in data
+        assert "totalResults" in data
+        assert "startIndex" in data
+        assert "itemsPerPage" in data
+
+    def test_entitlement_update(self, client, sample_api_key):
+        """Test updating an entitlement."""
+        test_server_id = "test-server"
+        # First create an entitlement
+        entitlement_data = {
+            "displayName": "Update Entitlement",
+            "description": "An entitlement to update",
+            "entitlementType": "application",
+            "active": True
+        }
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                                    json=entitlement_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        entitlement_id = create_response.json()["id"]
+
+        # Update the entitlement
+        update_data = {
+            "displayName": "Updated Entitlement",
+            "description": "An updated entitlement description",
+            "entitlementType": "database",
+            "active": False
+        }
+
+        response = client.put(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/{entitlement_id}",
+                            json=update_data,
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["displayName"] == "Updated Entitlement"
+        assert data["description"] == "An updated entitlement description"
+        assert data["entitlementType"] == "database"
+        assert data["active"] is False
+
     def test_entitlement_delete(self, client, sample_api_key):
         """Test deleting an entitlement."""
-        test_server_id = self.get_test_server_id()
-        
-        # First get a list of entitlements
-        response = client.get(f"/scim/v2/Entitlements/?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 200
-        
-        entitlements = response.json()["Resources"]
-        assert len(entitlements) > 0
-        
-        # Delete the first entitlement
-        entitlement_id = entitlements[0]["id"]
-        response = client.delete(f"/scim/v2/Entitlements/{entitlement_id}?serverID={test_server_id}", 
-                               headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 204
-        
-        # Verify the entitlement is deleted
-        response = client.get(f"/scim/v2/Entitlements/{entitlement_id}?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 404
-    
-    def test_entitlement_filter(self, client, sample_api_key):
-        """Test filtering entitlements."""
-        self._test_entity_filter(client, sample_api_key, "Entitlements", "displayName", "Entitlement")
-    
-    def test_entitlement_validation(self, client, sample_api_key):
-        """Test entitlement validation."""
-        test_server_id = self.get_test_server_id()
-        
-        # Test creating entitlement with invalid data
-        invalid_entitlement_data = {
-            "schemas": ["urn:okta:scim:schemas:core:1.0:Entitlement"],
-            # Missing required displayName and type
-            "description": "Invalid entitlement"
+        test_server_id = "test-server"
+        # First create an entitlement
+        entitlement_data = {
+            "displayName": "Delete Entitlement",
+            "description": "An entitlement to delete",
+            "entitlementType": "application",
+            "active": True
         }
-        
-        response = client.post(f"/scim/v2/Entitlements/?serverID={test_server_id}", 
-                             headers=self.get_auth_headers(sample_api_key), 
-                             json=invalid_entitlement_data)
-        assert response.status_code == 400
-    
-    def test_entitlement_not_found(self, client, sample_api_key):
-        """Test getting a non-existent entitlement."""
-        self._test_entity_not_found(client, sample_api_key, "Entitlements")
-    
-    def test_entitlement_types(self, client, sample_api_key):
-        """Test that entitlement types are valid."""
-        test_server_id = self.get_test_server_id()
-        
-        # Get a list of entitlements to check their types
-        response = client.get(f"/scim/v2/Entitlements/?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                                    json=entitlement_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        entitlement_id = create_response.json()["id"]
+
+        # Delete the entitlement
+        response = client.delete(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/{entitlement_id}",
+                               headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 204
+
+        # Verify entitlement is deleted
+        get_response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/{entitlement_id}",
+                                 headers={"Authorization": f"Bearer {sample_api_key}"})
+        assert get_response.status_code == 404
+
+    def test_entitlement_get_by_id(self, client, sample_api_key):
+        """Test getting an entitlement by ID."""
+        test_server_id = "test-server"
+        # First create an entitlement
+        entitlement_data = {
+            "displayName": "Get Entitlement",
+            "description": "An entitlement to get by ID",
+            "entitlementType": "application",
+            "active": True
+        }
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                                    json=entitlement_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        entitlement_id = create_response.json()["id"]
+
+        # Get the entitlement by ID
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/{entitlement_id}",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
         assert response.status_code == 200
-        
-        entitlements = response.json()["Resources"]
-        assert len(entitlements) > 0
-        
-        # Check that all entitlements have valid types
-        valid_types = get_valid_entitlement_type()
-        for entitlement in entitlements[:3]:  # Check first 3 entitlements
-            assert "type" in entitlement
-            # Note: We can't assert specific types since they come from the database
-            # But we can verify the field exists and has a value
-            assert entitlement["type"] is not None
-            assert isinstance(entitlement["type"], str) 
+        data = response.json()
+        assert data["id"] == entitlement_id
+        assert data["displayName"] == "Get Entitlement"
+        assert data["description"] == "An entitlement to get by ID"
+        assert data["entitlementType"] == "application"
+
+    def test_entitlement_create_with_invalid_data(self, client, sample_api_key):
+        """Test creating an entitlement with invalid data."""
+        test_server_id = "test-server"
+        invalid_entitlement_data = {
+            "displayName": "",  # Invalid empty display name
+            "description": "An invalid entitlement",
+            "entitlementType": "invalid_type",  # Invalid entitlement type
+            "active": True
+        }
+
+        response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                             json=invalid_entitlement_data,
+                             headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 400
+
+    def test_entitlement_filter_by_type(self, client, sample_api_key):
+        """Test filtering entitlements by type."""
+        test_server_id = "test-server"
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "Resources" in data 

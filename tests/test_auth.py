@@ -70,11 +70,11 @@ class TestAuthentication(BaseEntityTest):
     def test_all_scim_endpoints_require_auth(self, client):
         """Test that all SCIM endpoints require authentication."""
         endpoints = [
-            "/scim/v2/ResourceTypes",
-            "/scim/v2/Schemas",
-            "/scim/v2/Users/",
-            "/scim/v2/Groups/",
-            "/scim/v2/Entitlements/"
+            "/scim-identifier/test-server/scim/v2/ResourceTypes",
+            "/scim-identifier/test-server/scim/v2/Schemas",
+            "/scim-identifier/test-server/scim/v2/Users/",
+            "/scim-identifier/test-server/scim/v2/Groups/",
+            "/scim-identifier/test-server/scim/v2/Entitlements/"
         ]
         
         for endpoint in endpoints:
@@ -84,11 +84,11 @@ class TestAuthentication(BaseEntityTest):
     def test_all_scim_endpoints_reject_invalid_auth(self, client):
         """Test that all SCIM endpoints reject invalid authentication."""
         endpoints = [
-            "/scim/v2/ResourceTypes",
-            "/scim/v2/Schemas",
-            "/scim/v2/Users/",
-            "/scim/v2/Groups/",
-            "/scim/v2/Entitlements/"
+            "/scim-identifier/test-server/scim/v2/ResourceTypes",
+            "/scim-identifier/test-server/scim/v2/Schemas",
+            "/scim-identifier/test-server/scim/v2/Users/",
+            "/scim-identifier/test-server/scim/v2/Groups/",
+            "/scim-identifier/test-server/scim/v2/Entitlements/"
         ]
         
         invalid_headers = [
@@ -109,11 +109,11 @@ class TestAuthentication(BaseEntityTest):
         test_server_id = self.get_test_server_id()
         
         endpoints = [
-            f"/scim/v2/ResourceTypes",
-            f"/scim/v2/Schemas",
-            f"/scim/v2/Users/?serverID={test_server_id}",
-            f"/scim/v2/Groups/?serverID={test_server_id}",
-            f"/scim/v2/Entitlements/?serverID={test_server_id}"
+            f"/scim-identifier/{test_server_id}/scim/v2/ResourceTypes",
+            f"/scim-identifier/{test_server_id}/scim/v2/Schemas",
+            f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+            f"/scim-identifier/{test_server_id}/scim/v2/Groups/",
+            f"/scim-identifier/{test_server_id}/scim/v2/Entitlements/"
         ]
         
         for endpoint in endpoints:
@@ -132,7 +132,7 @@ class TestAuthentication(BaseEntityTest):
         ]
         
         for headers in headers_variations:
-            response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", headers=headers)
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/", headers=headers)
             assert response.status_code == 200, f"Should accept case variations: {headers}"
         
         # Test that lowercase "bearer" is rejected (server is case sensitive for "Bearer")
@@ -142,7 +142,7 @@ class TestAuthentication(BaseEntityTest):
         ]
         
         for headers in invalid_headers:
-            response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", headers=headers)
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/", headers=headers)
             assert response.status_code == 401, f"Should reject invalid bearer case: {headers}"
     
     def test_malformed_bearer_token(self, client):
@@ -162,7 +162,7 @@ class TestAuthentication(BaseEntityTest):
         ]
         
         for token in malformed_tokens:
-            response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", 
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/", 
                                 headers={"Authorization": token})
             assert response.status_code == 401, f"Should reject malformed token: {token}"
     
@@ -176,7 +176,7 @@ class TestAuthentication(BaseEntityTest):
             "authorization": "Bearer invalid-token"
         }
         
-        response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", headers=headers)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/", headers=headers)
         assert response.status_code == 200, "Should use first Authorization header"
     
     def test_auth_with_extra_headers(self, client, sample_api_key):
@@ -191,5 +191,5 @@ class TestAuthentication(BaseEntityTest):
             "X-Custom-Header": "test-value"
         }
         
-        response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", headers=headers)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/", headers=headers)
         assert response.status_code == 200, "Should accept valid auth with extra headers" 

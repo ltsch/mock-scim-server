@@ -5,49 +5,23 @@ Creates initial API key and sample data for development.
 """
 import sys
 import os
-import hashlib
+# Removed hashlib import - no longer needed
 from loguru import logger
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scim_server.database import init_db, SessionLocal
-from scim_server.models import ApiKey
+# Removed ApiKey import - no longer needed
 
 def create_default_api_key():
-    """Create a default API key for development."""
+    """Display API key information for development."""
     from scim_server.config import settings
     
-    db = SessionLocal()
-    try:
-        # Check if default API key already exists
-        existing_key = db.query(ApiKey).filter(ApiKey.name == "default-dev-key").first()
-        if existing_key:
-            logger.info("Default API key already exists")
-            return
-        
-        # Create default API key using configuration
-        default_token = settings.default_api_key
-        key_hash = hashlib.sha256(default_token.encode()).hexdigest()
-        
-        api_key = ApiKey(
-            key_hash=key_hash,
-            name="default-dev-key",
-            is_active=True
-        )
-        
-        db.add(api_key)
-        db.commit()
-        
-        logger.info("Default API key created successfully")
-        logger.info(f"Token: {default_token}")
-        logger.info(f"Use this token in Authorization header: Bearer {default_token}")
-        
-    except Exception as e:
-        logger.error(f"Error creating default API key: {e}")
-        db.rollback()
-    finally:
-        db.close()
+    logger.info("API key validation is now centralized in config")
+    logger.info(f"Default API key: {settings.default_api_key}")
+    logger.info(f"Test API key: {settings.test_api_key}")
+    logger.info(f"Use these tokens in Authorization header: Bearer <key>")
 
 def main():
     """Main initialization function."""

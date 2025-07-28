@@ -16,13 +16,13 @@ class TestSchemaDiscovery:
     
     def test_resource_types_no_auth(self, client):
         """Test ResourceTypes endpoint without authentication."""
-        response = client.get("/scim/v2/ResourceTypes")
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes")
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
 
     def test_resource_types_with_auth(self, client, sample_api_key):
         """Test ResourceTypes endpoint with valid authentication."""
-        response = client.get("/scim/v2/ResourceTypes", headers={"Authorization": f"Bearer {sample_api_key}"})
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes", headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         
         data = response.json()
@@ -54,13 +54,13 @@ class TestSchemaDiscovery:
 
     def test_schemas_no_auth(self, client):
         """Test Schemas endpoint without authentication."""
-        response = client.get("/scim/v2/Schemas")
+        response = client.get("/scim-identifier/test-server/scim/v2/Schemas")
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
 
     def test_schemas_with_auth(self, client, sample_api_key):
         """Test Schemas endpoint with valid authentication."""
-        response = client.get("/scim/v2/Schemas", headers={"Authorization": f"Bearer {sample_api_key}"})
+        response = client.get("/scim-identifier/test-server/scim/v2/Schemas", headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         
         data = response.json()
@@ -86,7 +86,7 @@ class TestSchemaDiscovery:
     def test_schema_by_urn(self, client, sample_api_key):
         """Test getting a specific schema by URN."""
         # Test User schema
-        response = client.get("/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User", 
+        response = client.get("/scim-identifier/test-server/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:User", 
                             headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         
@@ -98,7 +98,7 @@ class TestSchemaDiscovery:
 
     def test_schema_by_urn_not_found(self, client, sample_api_key):
         """Test getting a non-existent schema by URN."""
-        response = client.get("/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:NonExistent", 
+        response = client.get("/scim-identifier/test-server/scim/v2/Schemas/urn:ietf:params:scim:schemas:core:2.0:NonExistent", 
                             headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 404
 
@@ -107,7 +107,7 @@ class TestSchemaDiscovery:
         config = get_config_settings()
         
         # Test ResourceTypes endpoint
-        response = client.get("/scim/v2/ResourceTypes", headers={"Authorization": f"Bearer {sample_api_key}"})
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes", headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         
         data = response.json()

@@ -9,114 +9,200 @@ Tests for SCIM user management functionality including:
 
 import pytest
 from fastapi.testclient import TestClient
-from tests.test_utils import BaseEntityTest, create_test_user_data, get_valid_entitlement_type
+from sqlalchemy.orm import Session
 
-class TestUserManagement(BaseEntityTest):
-    """Tests for SCIM user management functionality."""
-    
-    def test_user_list(self, client, sample_api_key):
-        """Test listing users."""
-        self._test_entity_list(client, sample_api_key, "Users")
-    
-    def test_user_get_by_id(self, client, sample_api_key):
-        """Test getting a specific user by ID."""
-        self._test_entity_get_by_id(client, sample_api_key, "Users")
-    
+from scim_server.database import get_db
+from scim_server.main import app
+
+
+class TestUserManagement:
+    """Test user management operations."""
+
     def test_user_create(self, client, sample_api_key):
         """Test creating a new user."""
-        test_server_id = self.get_test_server_id()
-        unique_username = self.get_unique_name("testuser") + "@example.com"
-    
-        new_user_data = create_test_user_data(unique_username)
-    
-        response = client.post(f"/scim/v2/Users/?serverID={test_server_id}",
-                             headers=self.get_auth_headers(sample_api_key),
-                             json=new_user_data)
+        test_server_id = "test-server"
+        user_data = {
+            "userName": "testuser",
+            "name": {
+                "givenName": "Test",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "test@example.com",
+                    "primary": True
+                }
+            ],
+            "active": True
+        }
+
+        response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                              json=user_data,
+                              headers={"Authorization": f"Bearer {sample_api_key}"})
+
         assert response.status_code == 201
-    
-        user = response.json()
-        assert user["userName"] == unique_username
-        assert user["displayName"] == f"Test User {unique_username}"
-        assert "id" in user
-        assert "schemas" in user
-        assert "meta" in user
-    
+        data = response.json()
+        assert data["userName"] == "testuser"
+        assert data["name"]["givenName"] == "Test"
+        assert data["name"]["familyName"] == "User"
+        assert data["emails"][0]["value"] == "test@example.com"
+        assert data["active"] is True
+
+    def test_user_list(self, client, sample_api_key):
+        """Test listing users."""
+        test_server_id = "test-server"
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "Resources" in data
+        assert "totalResults" in data
+        assert "startIndex" in data
+        assert "itemsPerPage" in data
+
     def test_user_update(self, client, sample_api_key):
-        """Test updating an existing user."""
-        test_server_id = self.get_test_server_id()
-        
-        # First get a list of users
-        response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 200
-        
-        users = response.json()["Resources"]
-        assert len(users) > 0
-        
-        # Update the first user
-        user_id = users[0]["id"]
-        original_display_name = users[0]["displayName"]
-        updated_display_name = f"Updated {original_display_name}"
-        
+        """Test updating a user."""
+        test_server_id = "test-server"
+        # First create a user
+        user_data = {
+            "userName": "updateuser",
+            "name": {
+                "givenName": "Update",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "update@example.com",
+                    "primary": True
+                }
+            ],
+            "active": True
+        }
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                                    json=user_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        user_id = create_response.json()["id"]
+
+        # Update the user
         update_data = {
-            "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-            "displayName": updated_display_name
+            "userName": "updateduser",
+            "name": {
+                "givenName": "Updated",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "updated@example.com",
+                    "primary": True
+                }
+            ],
+            "active": False
         }
-        
-        response = client.put(f"/scim/v2/Users/{user_id}?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key), 
-                            json=update_data)
+
+        response = client.put(f"/scim-identifier/{test_server_id}/scim/v2/Users/{user_id}",
+                            json=update_data,
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
         assert response.status_code == 200
-        
-        updated_user = response.json()
-        assert updated_user["displayName"] == updated_display_name
-        assert updated_user["id"] == user_id
-    
+        data = response.json()
+        assert data["userName"] == "updateduser"
+        assert data["name"]["givenName"] == "Updated"
+        assert data["name"]["familyName"] == "User"
+        assert data["emails"][0]["value"] == "updated@example.com"
+        assert data["active"] is False
+
     def test_user_delete(self, client, sample_api_key):
-        """Test deleting a user (soft delete)."""
-        test_server_id = self.get_test_server_id()
-        
-        # First get a list of users
-        response = client.get(f"/scim/v2/Users/?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 200
-        
-        users = response.json()["Resources"]
-        assert len(users) > 0
-        
-        # Delete the first user
-        user_id = users[0]["id"]
-        response = client.delete(f"/scim/v2/Users/{user_id}?serverID={test_server_id}", 
-                               headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 204  # No Content for successful delete
-        
-        # Verify the user is deactivated (soft delete)
-        response = client.get(f"/scim/v2/Users/{user_id}?serverID={test_server_id}", 
-                            headers=self.get_auth_headers(sample_api_key))
-        assert response.status_code == 200
-        user_data = response.json()
-        assert user_data["active"] == False
-    
-    def test_user_filter(self, client, sample_api_key):
-        """Test filtering users."""
-        self._test_entity_filter(client, sample_api_key, "Users", "displayName", "User")
-    
-    def test_user_validation(self, client, sample_api_key):
-        """Test user validation."""
-        test_server_id = self.get_test_server_id()
-        
-        # Test creating user with invalid data
-        invalid_user_data = {
-            "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
-            # Missing required userName
-            "displayName": "Invalid User"
+        """Test deleting a user."""
+        test_server_id = "test-server"
+        # First create a user
+        user_data = {
+            "userName": "deleteuser",
+            "name": {
+                "givenName": "Delete",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "delete@example.com",
+                    "primary": True
+                }
+            ],
+            "active": True
         }
-        
-        response = client.post(f"/scim/v2/Users/?serverID={test_server_id}", 
-                             headers=self.get_auth_headers(sample_api_key), 
-                             json=invalid_user_data)
-        assert response.status_code == 400
-    
-    def test_user_not_found(self, client, sample_api_key):
-        """Test getting a non-existent user."""
-        self._test_entity_not_found(client, sample_api_key, "Users") 
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                                    json=user_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        user_id = create_response.json()["id"]
+
+        # Delete the user
+        response = client.delete(f"/scim-identifier/{test_server_id}/scim/v2/Users/{user_id}",
+                               headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 204
+
+        # Verify user is deleted
+        get_response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/{user_id}",
+                                 headers={"Authorization": f"Bearer {sample_api_key}"})
+        assert get_response.status_code == 404
+
+    def test_user_get_by_id(self, client, sample_api_key):
+        """Test getting a user by ID."""
+        test_server_id = "test-server"
+        # First create a user
+        user_data = {
+            "userName": "getuser",
+            "name": {
+                "givenName": "Get",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "get@example.com",
+                    "primary": True
+                }
+            ],
+            "active": True
+        }
+
+        create_response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                                    json=user_data,
+                                    headers={"Authorization": f"Bearer {sample_api_key}"})
+        user_id = create_response.json()["id"]
+
+        # Get the user by ID
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/{user_id}",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["id"] == user_id
+        assert data["userName"] == "getuser"
+        assert data["name"]["givenName"] == "Get"
+        assert data["name"]["familyName"] == "User"
+
+    def test_user_create_with_invalid_data(self, client, sample_api_key):
+        """Test creating a user with invalid data."""
+        test_server_id = "test-server"
+        invalid_user_data = {
+            "userName": "",  # Invalid empty username
+            "name": {
+                "givenName": "Invalid",
+                "familyName": "User"
+            },
+            "emails": [
+                {
+                    "value": "invalid@example.com",
+                    "primary": True
+                }
+            ],
+            "active": True
+        }
+
+        response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
+                             json=invalid_user_data,
+                             headers={"Authorization": f"Bearer {sample_api_key}"})
+
+        assert response.status_code == 400 

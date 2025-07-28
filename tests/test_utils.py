@@ -15,25 +15,31 @@ import pytest
 
 def get_expected_resource_types() -> List[Dict[str, Any]]:
     """Dynamically get expected resource types from the codebase."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         return schema_generator.get_resource_types()
     finally:
         db.close()
 
 def get_expected_schemas() -> List[Dict[str, Any]]:
     """Dynamically get expected schemas from the codebase."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         return schema_generator.get_all_schemas()
     finally:
         db.close()
 
 def get_available_servers() -> List[str]:
     """Get all available server IDs from the database."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
         return list(set(u.server_id for u in db.query(User).all()))
     finally:
@@ -41,7 +47,9 @@ def get_available_servers() -> List[str]:
 
 def get_server_user_counts() -> Dict[str, int]:
     """Get user counts for each server."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
         return dict(Counter(u.server_id for u in db.query(User).all()))
     finally:
@@ -49,7 +57,9 @@ def get_server_user_counts() -> Dict[str, int]:
 
 def get_server_group_counts() -> Dict[str, int]:
     """Get group counts for each server."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
         return dict(Counter(g.server_id for g in db.query(Group).all()))
     finally:
@@ -57,7 +67,9 @@ def get_server_group_counts() -> Dict[str, int]:
 
 def get_server_entitlement_counts() -> Dict[str, int]:
     """Get entitlement counts for each server."""
-    db = SessionLocal()
+    # Import here to avoid circular imports
+    from tests.conftest import TestingSessionLocal
+    db = TestingSessionLocal()
     try:
         return dict(Counter(e.server_id for e in db.query(Entitlement).all()))
     finally:
@@ -187,7 +199,7 @@ class BaseEntityTest:
         """Test listing entities of the specified type."""
         test_server_id = self.get_test_server_id()
         
-        response = client.get(f"/scim/v2/{entity_type}/?serverID={test_server_id}", 
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/", 
                             headers=self.get_auth_headers(sample_api_key))
         assert response.status_code == 200
         
@@ -213,7 +225,7 @@ class BaseEntityTest:
         test_server_id = self.get_test_server_id()
         
         # First get a list of entities
-        response = client.get(f"/scim/v2/{entity_type}/?serverID={test_server_id}", 
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/", 
                             headers=self.get_auth_headers(sample_api_key))
         assert response.status_code == 200
         
@@ -222,7 +234,7 @@ class BaseEntityTest:
         
         # Get the first entity by ID
         entity_id = entities[0]["id"]
-        response = client.get(f"/scim/v2/{entity_type}/{entity_id}?serverID={test_server_id}", 
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/{entity_id}", 
                             headers=self.get_auth_headers(sample_api_key))
         assert response.status_code == 200
         
@@ -236,7 +248,7 @@ class BaseEntityTest:
         test_server_id = self.get_test_server_id()
         fake_id = get_fake_uuid()
         
-        response = client.get(f"/scim/v2/{entity_type}/{fake_id}?serverID={test_server_id}", 
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/{fake_id}", 
                             headers=self.get_auth_headers(sample_api_key))
         assert response.status_code == 404
     
@@ -245,7 +257,7 @@ class BaseEntityTest:
         test_server_id = self.get_test_server_id()
         
         # Try the specific filter first
-        response = client.get(f"/scim/v2/{entity_type}/?serverID={test_server_id}&filter={filter_field} eq \"{filter_value}\"", 
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/?filter={filter_field} eq \"{filter_value}\"", 
                             headers=self.get_auth_headers(sample_api_key))
         assert response.status_code == 200
         
@@ -253,7 +265,7 @@ class BaseEntityTest:
         
         # If no results, try a more generic filter
         if data["totalResults"] == 0:
-            response = client.get(f"/scim/v2/{entity_type}/?serverID={test_server_id}&filter={filter_field} sw \"{filter_value[:4]}\"", 
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{entity_type}/?filter={filter_field} sw \"{filter_value[:4]}\"", 
                                 headers=self.get_auth_headers(sample_api_key))
             assert response.status_code == 200
             data = response.json()

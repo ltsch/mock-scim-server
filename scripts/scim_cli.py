@@ -10,7 +10,7 @@ import sys
 import os
 import uuid
 import argparse
-import hashlib
+# Removed hashlib import - no longer needed
 import random
 import json
 from typing import Optional, List, Dict, Any
@@ -27,7 +27,7 @@ except ImportError:
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scim_server.database import SessionLocal, init_db, Base
-from scim_server.models import ApiKey, User, Group, Entitlement, UserGroup, UserEntitlement
+from scim_server.models import User, Group, Entitlement, UserGroup, UserEntitlement, Schema
 from scim_server.crud_simple import (
     create_user, create_group, create_entitlement,
     get_users, get_groups, get_entitlements,
@@ -35,6 +35,7 @@ from scim_server.crud_simple import (
 )
 from scim_server.schemas import UserCreate, GroupCreate, EntitlementCreate
 from scim_server.config import settings
+from scim_server.server_config import get_server_config_manager
 from loguru import logger
 
 class SCIMCLI:
@@ -119,27 +120,15 @@ class SCIMCLI:
         return str(uuid.uuid4())
     
     def create_test_api_keys(self) -> None:
-        """Create test API keys if they don't exist."""
+        """Display API key information (no longer stored in database)."""
         try:
-            # Create test API key using configuration
-            test_key = settings.test_api_key
-            test_key_hash = hashlib.sha256(test_key.encode()).hexdigest()
-            
-            existing_key = self.db.query(ApiKey).filter(ApiKey.key_hash == test_key_hash).first()
-            if not existing_key:
-                api_key = ApiKey(
-                    key_hash=test_key_hash,
-                    name="Test API Key"
-                )
-                self.db.add(api_key)
-                logger.info(f"Created test API key: {test_key}")
-            
-            self.db.commit()
-            logger.info("Test API keys created successfully")
+            logger.info("API key validation is now centralized in config")
+            logger.info(f"Default API key: {settings.default_api_key}")
+            logger.info(f"Test API key: {settings.test_api_key}")
+            logger.info("API keys are validated against config, not stored in database")
             
         except Exception as e:
-            logger.error(f"Error creating test API keys: {e}")
-            self.db.rollback()
+            logger.error(f"Error displaying API key info: {e}")
     
     def create_test_users(self, server_id: str, count: int) -> None:
         """Create realistic test users for a specific server with diverse attributes."""
@@ -578,6 +567,54 @@ class SCIMCLI:
             logger.error(f"Error deleting server: {e}")
             return {"error": str(e)}
     
+    def get_server_config(self, server_id: str) -> Dict[str, Any]:
+        """Get configuration for a specific server."""
+        try:
+            config_manager = get_server_config_manager(self.db)
+            config = config_manager.get_server_config(server_id)
+            return config
+        except Exception as e:
+            logger.error(f"Error getting server config for {server_id}: {e}")
+            return {"error": str(e)}
+    
+    def update_server_config(self, server_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        """Update configuration for a specific server."""
+        try:
+            config_manager = get_server_config_manager(self.db)
+            config_manager.update_server_config(server_id, updates)
+            logger.info(f"Updated configuration for server: {server_id}")
+            return {"success": True, "server_id": server_id}
+        except Exception as e:
+            logger.error(f"Error updating server config for {server_id}: {e}")
+            return {"error": str(e)}
+    
+    def list_server_configs(self) -> Dict[str, Any]:
+        """List all server configurations."""
+        try:
+            server_ids = self.get_unique_server_ids()
+            configs = {}
+            
+            for server_id in server_ids:
+                config = self.get_server_config(server_id)
+                if "error" not in config:
+                    configs[server_id] = config
+            
+            return {"configs": configs, "total": len(configs)}
+        except Exception as e:
+            logger.error(f"Error listing server configs: {e}")
+            return {"error": str(e)}
+    
+    def create_server_config(self, server_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a new server configuration."""
+        try:
+            config_manager = get_server_config_manager(self.db)
+            config_manager._save_server_config(server_id, config)
+            logger.info(f"Created configuration for server: {server_id}")
+            return {"success": True, "server_id": server_id}
+        except Exception as e:
+            logger.error(f"Error creating server config for {server_id}: {e}")
+            return {"error": str(e)}
+    
     def output_json(self, data: Dict[str, Any]) -> None:
         """Shared function to output data in JSON format."""
         print(json.dumps(data, indent=2))
@@ -607,6 +644,15 @@ Examples:
   
   # Reset entire database
   python scripts/scim_cli.py reset
+  
+  # Get server configuration
+  python scripts/scim_cli.py config get --server-id abc123
+  
+  # List all server configurations
+  python scripts/scim_cli.py config list
+  
+  # Update server configuration from JSON file
+  python scripts/scim_cli.py config update --server-id abc123 --config-file config.json
         """
     )
     
@@ -638,6 +684,25 @@ Examples:
     # Reset command
     reset_parser = subparsers.add_parser('reset', help='Reset the entire database (delete all data except API keys)')
     reset_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Config command
+    config_parser = subparsers.add_parser('config', help='Manage server configurations')
+    config_subparsers = config_parser.add_subparsers(dest='config_command', help='Config subcommands')
+    
+    # Get config command
+    get_config_parser = config_subparsers.add_parser('get', help='Get server configuration')
+    get_config_parser.add_argument('--server-id', required=True, help='Server ID to get config for')
+    get_config_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # List configs command
+    list_configs_parser = config_subparsers.add_parser('list', help='List all server configurations')
+    list_configs_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Update config command
+    update_config_parser = config_subparsers.add_parser('update', help='Update server configuration')
+    update_config_parser.add_argument('--server-id', required=True, help='Server ID to update config for')
+    update_config_parser.add_argument('--config-file', help='JSON file containing configuration updates')
+    update_config_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
     
     args = parser.parse_args()
     
@@ -703,6 +768,46 @@ Examples:
             result = cli.reset_database()
             if args.json:
                 cli.output_json(result)
+        
+        elif args.command == 'config':
+            if args.config_command == 'get':
+                result = cli.get_server_config(args.server_id)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    logger.info(f"Configuration for server {args.server_id}:")
+                    logger.info(json.dumps(result, indent=2))
+            
+            elif args.config_command == 'list':
+                result = cli.list_server_configs()
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    logger.info(f"Found {result.get('total', 0)} server configurations:")
+                    for server_id, config in result.get('configs', {}).items():
+                        logger.info(f"\nServer: {server_id}")
+                        logger.info(f"  Enabled Resources: {config.get('enabled_resource_types', [])}")
+                        logger.info(f"  Validation Rules: {config.get('validation_rules', {})}")
+            
+            elif args.config_command == 'update':
+                if args.config_file:
+                    try:
+                        with open(args.config_file, 'r') as f:
+                            updates = json.load(f)
+                        result = cli.update_server_config(args.server_id, updates)
+                        if args.json:
+                            cli.output_json(result)
+                        else:
+                            if "success" in result:
+                                logger.info(f"Successfully updated configuration for server {args.server_id}")
+                            else:
+                                logger.error(f"Failed to update configuration: {result.get('error', 'Unknown error')}")
+                    except FileNotFoundError:
+                        logger.error(f"Config file not found: {args.config_file}")
+                    except json.JSONDecodeError:
+                        logger.error(f"Invalid JSON in config file: {args.config_file}")
+                else:
+                    logger.error("Please provide a config file with --config-file")
     
     except KeyboardInterrupt:
         logger.info("\nOperation cancelled by user.")

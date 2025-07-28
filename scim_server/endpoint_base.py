@@ -11,10 +11,10 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from .database import get_db
-from .auth import get_api_key
-from .models import ApiKey
+from .auth import get_api_key, get_validated_server_id
+# Removed ApiKey import - no longer needed
 from .config import settings
-from .server_context import get_server_id
+from .server_context import get_server_id_from_path
 from .utils import validate_scim_id, create_scim_list_response
 from .schema_validator import create_schema_validator
 
@@ -44,7 +44,8 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         response_schema: Type[ResponseSchema],
         list_response_schema: Type[ListResponseSchema],
         schema_uri: str,
-        supports_multi_server: bool = True
+        supports_multi_server: bool = True,
+        server_id_dependency = None
     ):
         self.entity_type = entity_type
         self.router = router
@@ -56,6 +57,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         self.list_response_schema = list_response_schema
         self.schema_uri = schema_uri
         self.supports_multi_server = supports_multi_server
+        self.server_id_dependency = server_id_dependency or get_validated_server_id
         
         # Initialize rate limiter
         self.limiter = Limiter(key_func=get_remote_address)
@@ -68,26 +70,28 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         
         # Create endpoint
         @self.router.post("/", response_model=self.response_schema, status_code=201)
+        @self.router.post("", response_model=self.response_schema, status_code=201)  # Without trailing slash
         @self.limiter.limit(f"{settings.rate_limit_create}/{settings.rate_limit_window}minute")
         async def create_entity_endpoint(
             request: Request,
             entity_data: dict,
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._create_entity_raw(entity_data, server_id, db)
         
-        # List endpoint
+        # List endpoint - support both with and without trailing slash
         @self.router.get("/", response_model=self.list_response_schema)
+        @self.router.get("", response_model=self.list_response_schema)  # Without trailing slash
         @self.limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
         async def get_entities_endpoint(
             request: Request,
             start_index: int = Query(1, ge=1, alias="startIndex", description="1-based index of the first result"),
             count: int = Query(settings.default_page_size, ge=1, le=settings.max_results_per_page, description="Number of results to return"),
             filter: Optional[str] = Query(None, alias="filter", description="SCIM filter query"),
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._get_entities(start_index, count, filter, server_id, db)
@@ -97,8 +101,8 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         async def get_entity_endpoint(
             entity_id: str,
             request: Request,
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._get_entity(entity_id, server_id, db)
@@ -107,10 +111,10 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         @self.router.put("/{entity_id}", response_model=self.response_schema)
         async def update_entity_endpoint(
             entity_id: str,
-            entity_data: self.update_schema,
+            entity_data: dict,  # Accept raw JSON instead of Pydantic model
             request: Request,
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._update_entity(entity_id, entity_data, server_id, db)
@@ -119,10 +123,10 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         @self.router.patch("/{entity_id}", response_model=self.response_schema)
         async def patch_entity_endpoint(
             entity_id: str,
-            entity_data: self.update_schema,
+            entity_data: dict,  # Accept raw JSON instead of Pydantic model
             request: Request,
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._patch_entity(entity_id, entity_data, server_id, db)
@@ -131,8 +135,8 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         @self.router.delete("/{entity_id}", status_code=204)
         async def delete_entity_endpoint(
             entity_id: str,
-            server_id: str = Depends(get_server_id) if self.supports_multi_server else None,
-            api_key: ApiKey = Depends(get_api_key),
+            server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
+            api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
             return await self._delete_entity(entity_id, server_id, db)
@@ -143,7 +147,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         
         try:
             # Create schema validator
-            validator = create_schema_validator(db)
+            validator = create_schema_validator(db, server_id)
             
             # Validate against schema (entity_data is already a dict)
             validated_data = validator.validate_create_request(self.entity_type, entity_data)
@@ -286,7 +290,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         logger.info(f"{self.entity_type} retrieved successfully: {entity_id} from server: {server_id}")
         return response
     
-    async def _update_entity(self, entity_id: str, entity_data: UpdateSchema, server_id: str, db: Session) -> ResponseSchema:
+    async def _update_entity(self, entity_id: str, entity_data: dict, server_id: str, db: Session) -> ResponseSchema:
         """Generic update entity endpoint with schema validation."""
         logger.info(f"Updating {self.entity_type}: {entity_id} in server: {server_id}")
         
@@ -309,20 +313,20 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
                 )
             
             # Create schema validator
-            validator = create_schema_validator(db)
-            
-            # Convert Pydantic model to dict for validation
-            if hasattr(entity_data, 'model_dump'):
-                data_dict = entity_data.model_dump(exclude_unset=True)
-            else:
-                # Handle case where entity_data is already a dict
-                data_dict = entity_data
+            validator = create_schema_validator(db, server_id)
             
             # Convert existing entity to dict for validation
             existing_data = self.converter.to_scim_response(existing_entity)
             
+            # Debug logging
+            logger.info(f"Validating UPDATE for {self.entity_type}: {entity_data}")
+            logger.info(f"Existing data: {existing_data}")
+            
             # Validate against schema
-            validated_data = validator.validate_update_request(self.entity_type, data_dict, existing_data)
+            validated_data = validator.validate_update_request(self.entity_type, entity_data, existing_data)
+            
+            # Debug logging
+            logger.info(f"Validation passed, validated data: {validated_data}")
             
             # Update entity using the appropriate method with validated data
             if self.entity_type == "User":
@@ -355,7 +359,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
             logger.error(f"Error updating {self.entity_type}: {e}")
             raise HTTPException(status_code=500, detail=f"Failed to update {self.entity_type}")
     
-    async def _patch_entity(self, entity_id: str, entity_data: UpdateSchema, server_id: str, db: Session) -> ResponseSchema:
+    async def _patch_entity(self, entity_id: str, entity_data: dict, server_id: str, db: Session) -> ResponseSchema:
         """Generic patch entity endpoint."""
         logger.info(f"Patching {self.entity_type}: {entity_id} in server: {server_id}")
         
@@ -376,29 +380,51 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
                 detail=f"{self.entity_type} not found"
             )
         
-        # Update entity using the appropriate method
-        if self.entity_type == "User":
-            updated_entity = self.crud.update_user(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Group":
-            updated_entity = self.crud.update_group(db, entity_id, entity_data, server_id)
-        elif self.entity_type == "Entitlement":
-            updated_entity = self.crud.update_entitlement(db, entity_id, entity_data, server_id)
-
-        else:
-            raise ValueError(f"Unsupported entity type: {self.entity_type}")
+        try:
+            # Convert existing entity to dict for validation
+            existing_data = self.converter.to_scim_response(existing_entity)
             
-        if not updated_entity:
-            logger.error(f"Failed to patch {self.entity_type}: {entity_id}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to patch {self.entity_type}"
-            )
-        
-        # Convert to SCIM response format
-        response = self.converter.to_scim_response(updated_entity)
-        
-        logger.info(f"{self.entity_type} patched successfully: {entity_id} in server: {server_id}")
-        return response
+            # Create schema validator
+            validator = create_schema_validator(db, server_id)
+            
+            # Validate PATCH operations against schema
+            if "Operations" in entity_data:
+                # This is a SCIM PATCH request with operations
+                operations = entity_data["Operations"]
+                validated_data = validator.validate_patch_request(self.entity_type, operations, existing_data)
+            else:
+                # This is a regular update (fallback)
+                validated_data = validator.validate_update_request(self.entity_type, entity_data, existing_data)
+            
+            # Update entity using the appropriate method with validated data
+            if self.entity_type == "User":
+                updated_entity = self.crud.update_user(db, entity_id, validated_data, server_id)
+            elif self.entity_type == "Group":
+                updated_entity = self.crud.update_group(db, entity_id, validated_data, server_id)
+            elif self.entity_type == "Entitlement":
+                updated_entity = self.crud.update_entitlement(db, entity_id, validated_data, server_id)
+            else:
+                raise ValueError(f"Unsupported entity type: {self.entity_type}")
+                
+            if not updated_entity:
+                logger.error(f"Failed to patch {self.entity_type}: {entity_id}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to patch {self.entity_type}"
+                )
+            
+            # Convert to SCIM response format
+            response = self.converter.to_scim_response(updated_entity)
+            
+            logger.info(f"{self.entity_type} patched successfully: {entity_id} in server: {server_id}")
+            return response
+            
+        except HTTPException:
+            # Re-raise HTTP exceptions (validation errors)
+            raise
+        except Exception as e:
+            logger.error(f"Error patching {self.entity_type}: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to patch {self.entity_type}")
     
     async def _delete_entity(self, entity_id: str, server_id: str, db: Session) -> None:
         """Generic delete entity endpoint."""

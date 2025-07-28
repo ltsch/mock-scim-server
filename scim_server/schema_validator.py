@@ -1,114 +1,141 @@
 """
-SCIM Schema Validation System
+SCIM Schema Validator
 
-This module provides validation and enforcement of SCIM schema requirements:
-- Required fields validation
-- Mutability enforcement (readOnly vs readWrite)
-- Multi-valued attribute handling
-- Canonical values validation
-- Type validation
-- Uniqueness constraints
-
-The validator ensures that all endpoints honor the schema requirements
-without overcomplicating the developer experience.
+This module provides comprehensive SCIM schema validation that is dynamic based on
+server-specific configurations. Each server ID can have unique attributes and validation rules.
 """
 
-from typing import Dict, Any, List, Optional, Union
-from loguru import logger
+from typing import Dict, Any, List, Optional
 from fastapi import HTTPException
+from loguru import logger
 
 from .schema_definitions import DynamicSchemaGenerator
+from .server_config import get_server_config_manager
 
 
 class SchemaValidator:
-    """Validates and enforces SCIM schema requirements."""
+    """Validates SCIM data against server-specific schemas."""
     
     def __init__(self, schema_generator: DynamicSchemaGenerator):
         self.schema_generator = schema_generator
-        self._schema_cache = {}
+        self.server_id = schema_generator.server_id
+        self.server_config = get_server_config_manager(schema_generator.db).get_server_config(self.server_id)
+        self.validation_rules = self.server_config.get("validation_rules", {})
     
     def get_schema(self, resource_type: str) -> Dict[str, Any]:
-        """Get schema for a resource type with caching."""
-        if resource_type not in self._schema_cache:
-            schema_map = {
-                "User": self.schema_generator.get_user_schema,
-                "Group": self.schema_generator.get_group_schema,
-                "Entitlement": self.schema_generator.get_entitlement_schema
-            }
-            if resource_type in schema_map:
-                self._schema_cache[resource_type] = schema_map[resource_type]()
-            else:
-                raise ValueError(f"Unknown resource type: {resource_type}")
+        """Get server-specific schema for a resource type."""
+        schema_map = {
+            "User": self.schema_generator.get_user_schema,
+            "Group": self.schema_generator.get_group_schema,
+            "Entitlement": self.schema_generator.get_entitlement_schema
+        }
         
-        return self._schema_cache[resource_type]
+        if resource_type in schema_map:
+            return schema_map[resource_type]()
+        
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "SCIM_VALIDATION_ERROR",
+                "message": f"Unknown resource type '{resource_type}'",
+                "resource_type": resource_type,
+                "server_id": self.server_id,
+                "help": f"Resource type '{resource_type}' is not supported by this server."
+            }
+        )
     
     def validate_create_request(self, resource_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate a CREATE request against the schema.
+        Validate a CREATE request against the server-specific schema.
         Returns cleaned/validated data.
         """
         schema = self.get_schema(resource_type)
         validated_data = {}
         
-        for attr in schema["attributes"]:
-            attr_name = attr["name"]
-            attr_required = attr.get("required", False)
-            attr_mutability = attr.get("mutability", "readWrite")
-            
-            # Skip readOnly attributes in create requests
-            if attr_mutability == "readOnly":
-                continue
-            
-            # Check required fields
-            if attr_required and attr_name not in data:
-                # Get field description for better error message
-                attr_description = attr.get("description", "No description available")
+        # Create attribute lookup for quick access
+        attr_lookup = {attr["name"]: attr for attr in schema["attributes"]}
+        
+        # Check if unknown attributes are allowed
+        allow_unknown = self.validation_rules.get("allow_unknown_attributes", False)
+        
+        for field_name, field_value in data.items():
+            if field_name in attr_lookup:
+                attr = attr_lookup[field_name]
+                validated_value = self._validate_attribute(attr, field_value, resource_type)
+                validated_data[field_name] = validated_value
+            elif not allow_unknown:
                 raise HTTPException(
                     status_code=400,
                     detail={
                         "error": "SCIM_VALIDATION_ERROR",
-                        "message": f"Required field '{attr_name}' is missing",
-                        "field": attr_name,
-                        "description": attr_description,
-                        "type": "required_field_missing",
+                        "message": f"Unknown field '{field_name}'",
+                        "field": field_name,
                         "resource_type": resource_type,
-                        "help": f"Add the '{attr_name}' field to your request. This field is required for {resource_type} creation."
+                        "server_id": self.server_id,
+                        "type": "unknown_field",
+                        "help": f"The field '{field_name}' does not exist in the {resource_type} schema for this server."
                     }
                 )
-            
-            # Validate field if present
-            if attr_name in data:
-                validated_value = self._validate_attribute(attr, data[attr_name], resource_type)
-                validated_data[attr_name] = validated_value
+            # If allow_unknown is True, skip unknown fields
+        
+        # Validate required fields
+        if self.validation_rules.get("validate_required_fields", True):
+            self._validate_required_fields(schema, validated_data, resource_type, "create")
         
         return validated_data
     
     def validate_update_request(self, resource_type: str, data: Dict[str, Any], existing_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate an UPDATE request against the schema.
-        Returns cleaned/validated data merged with existing data.
+        Validate an UPDATE request against the server-specific schema.
+        Returns cleaned/validated data after merging with existing data.
         """
         schema = self.get_schema(resource_type)
         validated_data = existing_data.copy()
         
-        for attr in schema["attributes"]:
-            attr_name = attr["name"]
-            attr_mutability = attr.get("mutability", "readWrite")
-            
-            # Skip readOnly attributes in update requests
-            if attr_mutability == "readOnly":
-                continue
-            
-            # Update field if present in request
-            if attr_name in data:
-                validated_value = self._validate_attribute(attr, data[attr_name], resource_type)
-                validated_data[attr_name] = validated_value
+        # Create attribute lookup for quick access
+        attr_lookup = {attr["name"]: attr for attr in schema["attributes"]}
+        
+        # Check if unknown attributes are allowed
+        allow_unknown = self.validation_rules.get("allow_unknown_attributes", False)
+        
+        for field_name, field_value in data.items():
+            if field_name in attr_lookup:
+                attr = attr_lookup[field_name]
+                if attr.get("mutability") != "readOnly":
+                    validated_value = self._validate_attribute(attr, field_value, resource_type)
+                    validated_data[field_name] = validated_value
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail={
+                            "error": "SCIM_VALIDATION_ERROR",
+                            "message": f"Cannot modify readOnly field '{field_name}'",
+                            "field": field_name,
+                            "resource_type": resource_type,
+                            "server_id": self.server_id,
+                            "type": "readonly_field_modification",
+                            "help": f"The field '{field_name}' is read-only and cannot be modified."
+                        }
+                    )
+            elif not allow_unknown:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "SCIM_VALIDATION_ERROR",
+                        "message": f"Unknown field '{field_name}'",
+                        "field": field_name,
+                        "resource_type": resource_type,
+                        "server_id": self.server_id,
+                        "type": "unknown_field",
+                        "help": f"The field '{field_name}' does not exist in the {resource_type} schema for this server."
+                    }
+                )
         
         return validated_data
     
     def validate_patch_request(self, resource_type: str, operations: List[Dict[str, Any]], existing_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate a PATCH request against the schema.
+        Validate a PATCH request against the server-specific schema.
         Returns cleaned/validated data after applying patches.
         """
         schema = self.get_schema(resource_type)
@@ -139,24 +166,29 @@ class SchemaValidator:
                                     "message": f"Cannot modify readOnly field '{attr_name}'",
                                     "field": attr_name,
                                     "operation": "PATCH",
-                                    "type": "readonly_field_modification",
                                     "resource_type": resource_type,
+                                    "server_id": self.server_id,
+                                    "type": "readonly_field_modification",
                                     "help": f"The field '{attr_name}' is read-only and cannot be modified. Remove this field from your request."
                                 }
                             )
                     else:
-                        raise HTTPException(
-                            status_code=400,
-                            detail={
-                                "error": "SCIM_VALIDATION_ERROR",
-                                "message": f"Unknown field '{attr_name}'",
-                                "field": attr_name,
-                                "operation": "PATCH",
-                                "type": "unknown_field",
-                                "resource_type": resource_type,
-                                "help": f"The field '{attr_name}' does not exist in the {resource_type} schema. Check the schema definition for valid fields."
-                            }
-                        )
+                        # Check if unknown attributes are allowed
+                        allow_unknown = self.validation_rules.get("allow_unknown_attributes", False)
+                        if not allow_unknown:
+                            raise HTTPException(
+                                status_code=400,
+                                detail={
+                                    "error": "SCIM_VALIDATION_ERROR",
+                                    "message": f"Unknown field '{attr_name}'",
+                                    "field": attr_name,
+                                    "operation": "PATCH",
+                                    "resource_type": resource_type,
+                                    "server_id": self.server_id,
+                                    "type": "unknown_field",
+                                    "help": f"The field '{attr_name}' does not exist in the {resource_type} schema for this server. Check the schema definition for valid fields."
+                                }
+                            )
                 else:
                     # Full resource replacement
                     for attr_name, attr_value in value.items():
@@ -191,9 +223,27 @@ class SchemaValidator:
                                     "message": f"Cannot use 'add' operation on single-valued field '{attr_name}'",
                                     "field": attr_name,
                                     "operation": "add",
-                                    "type": "invalid_operation_for_field_type",
                                     "resource_type": resource_type,
+                                    "server_id": self.server_id,
+                                    "type": "invalid_operation_for_field_type",
                                     "help": f"The field '{attr_name}' is single-valued. Use 'replace' operation instead of 'add'."
+                                }
+                            )
+                    else:
+                        # Check if unknown attributes are allowed
+                        allow_unknown = self.validation_rules.get("allow_unknown_attributes", False)
+                        if not allow_unknown:
+                            raise HTTPException(
+                                status_code=400,
+                                detail={
+                                    "error": "SCIM_VALIDATION_ERROR",
+                                    "message": f"Unknown field '{attr_name}'",
+                                    "field": attr_name,
+                                    "operation": "add",
+                                    "resource_type": resource_type,
+                                    "server_id": self.server_id,
+                                    "type": "unknown_field",
+                                    "help": f"The field '{attr_name}' does not exist in the {resource_type} schema for this server."
                                 }
                             )
             
@@ -206,51 +256,60 @@ class SchemaValidator:
                             # Remove from multi-valued attribute
                             existing_values = validated_data[attr_name]
                             if isinstance(existing_values, list):
+                                # Remove specific value if provided
                                 if value in existing_values:
                                     existing_values.remove(value)
-                                else:
-                                    raise HTTPException(
-                                        status_code=400,
-                                        detail={
-                                            "error": "SCIM_VALIDATION_ERROR",
-                                            "message": f"Value '{value}' not found in field '{attr_name}'",
-                                            "field": attr_name,
-                                            "operation": "remove",
-                                            "value_to_remove": value,
-                                            "type": "value_not_found",
-                                            "resource_type": resource_type,
-                                            "help": f"The value '{value}' does not exist in the field '{attr_name}'. Check the current values before removing."
-                                        }
-                                    )
+                                validated_data[attr_name] = existing_values
                         else:
                             # Remove single-valued attribute
-                            del validated_data[attr_name]
+                            validated_data.pop(attr_name, None)
+                    else:
+                        # Check if unknown attributes are allowed
+                        allow_unknown = self.validation_rules.get("allow_unknown_attributes", False)
+                        if not allow_unknown:
+                            raise HTTPException(
+                                status_code=400,
+                                detail={
+                                    "error": "SCIM_VALIDATION_ERROR",
+                                    "message": f"Unknown field '{attr_name}'",
+                                    "field": attr_name,
+                                    "operation": "remove",
+                                    "resource_type": resource_type,
+                                    "server_id": self.server_id,
+                                    "type": "unknown_field",
+                                    "help": f"The field '{attr_name}' does not exist in the {resource_type} schema for this server."
+                                }
+                            )
         
         return validated_data
     
-    def _validate_attribute(self, attr: Dict[str, Any], value: Any, resource_type: str = "Unknown") -> Any:
-        """Validate a single attribute against its schema definition."""
-        attr_name = attr["name"]
-        attr_type = attr["type"]
-        attr_multi_valued = attr.get("multiValued", False)
-        attr_canonical_values = attr.get("canonicalValues", [])
-        
-        # Handle multi-valued attributes
-        if attr_multi_valued:
-            if not isinstance(value, list):
-                value = [value]
-            
-            validated_values = []
-            for item in value:
-                validated_item = self._validate_single_value(attr, item, resource_type)
-                validated_values.append(validated_item)
-            
-            return validated_values
-        else:
-            return self._validate_single_value(attr, value, resource_type)
+    def _validate_required_fields(self, schema: Dict[str, Any], data: Dict[str, Any], resource_type: str, operation: str = "create") -> None:
+        """Validate that all required fields are present."""
+        for attr in schema["attributes"]:
+            if attr.get("required", False):
+                attr_name = attr["name"]
+                mutability = attr.get("mutability", "readWrite")
+                
+                # Skip read-only fields for CREATE operations
+                if operation == "create" and mutability == "readOnly":
+                    continue
+                
+                if attr_name not in data:
+                    raise HTTPException(
+                        status_code=400,
+                        detail={
+                            "error": "SCIM_VALIDATION_ERROR",
+                            "message": f"Required field '{attr_name}' is missing",
+                            "field": attr_name,
+                            "resource_type": resource_type,
+                            "server_id": self.server_id,
+                            "type": "required_field_missing",
+                            "help": f"Add the '{attr_name}' field to your request. This field is required."
+                        }
+                    )
     
     def _validate_single_value(self, attr: Dict[str, Any], value: Any, resource_type: str = "Unknown") -> Any:
-        """Validate a single value against attribute schema."""
+        """Validate a single value against an attribute definition."""
         attr_name = attr["name"]
         attr_type = attr["type"]
         attr_canonical_values = attr.get("canonicalValues", [])
@@ -264,12 +323,12 @@ class SchemaValidator:
                         "error": "SCIM_VALIDATION_ERROR",
                         "message": f"Field '{attr_name}' must be a string",
                         "field": attr_name,
-                        "expected_type": "string",
-                        "provided_type": type(value).__name__,
                         "provided_value": value,
-                        "type": "type_mismatch",
+                        "expected_type": "string",
                         "resource_type": resource_type,
-                        "help": f"Change the value of '{attr_name}' to a string (text) value."
+                        "server_id": self.server_id,
+                        "type": "type_mismatch",
+                        "help": f"Change the value of '{attr_name}' to a string."
                     }
                 )
         elif attr_type == "boolean":
@@ -280,28 +339,12 @@ class SchemaValidator:
                         "error": "SCIM_VALIDATION_ERROR",
                         "message": f"Field '{attr_name}' must be a boolean",
                         "field": attr_name,
+                        "provided_value": value,
                         "expected_type": "boolean",
-                        "provided_type": type(value).__name__,
-                        "provided_value": value,
-                        "type": "type_mismatch",
                         "resource_type": resource_type,
+                        "server_id": self.server_id,
+                        "type": "type_mismatch",
                         "help": f"Change the value of '{attr_name}' to true or false."
-                    }
-                )
-        elif attr_type == "integer":
-            if not isinstance(value, int):
-                raise HTTPException(
-                    status_code=400,
-                    detail={
-                        "error": "SCIM_VALIDATION_ERROR",
-                        "message": f"Field '{attr_name}' must be an integer",
-                        "field": attr_name,
-                        "expected_type": "integer",
-                        "provided_type": type(value).__name__,
-                        "provided_value": value,
-                        "type": "type_mismatch",
-                        "resource_type": resource_type,
-                        "help": f"Change the value of '{attr_name}' to a whole number."
                     }
                 )
         elif attr_type == "complex":
@@ -312,11 +355,11 @@ class SchemaValidator:
                         "error": "SCIM_VALIDATION_ERROR",
                         "message": f"Field '{attr_name}' must be an object",
                         "field": attr_name,
-                        "expected_type": "object",
-                        "provided_type": type(value).__name__,
                         "provided_value": value,
-                        "type": "type_mismatch",
+                        "expected_type": "object",
                         "resource_type": resource_type,
+                        "server_id": self.server_id,
+                        "type": "type_mismatch",
                         "help": f"Change the value of '{attr_name}' to an object with the required sub-attributes."
                     }
                 )
@@ -327,9 +370,24 @@ class SchemaValidator:
             
             for sub_attr in sub_attrs:
                 sub_attr_name = sub_attr["name"]
+                sub_attr_required = sub_attr.get("required", False)
+                
                 if sub_attr_name in value:
-                    validated_sub_value = self._validate_single_value(sub_attr, value[sub_attr_name])
+                    validated_sub_value = self._validate_single_value(sub_attr, value[sub_attr_name], resource_type)
                     validated_complex[sub_attr_name] = validated_sub_value
+                elif sub_attr_required:
+                    raise HTTPException(
+                        status_code=400,
+                        detail={
+                            "error": "SCIM_VALIDATION_ERROR",
+                            "message": f"Required sub-attribute '{sub_attr_name}' is missing in '{attr_name}'",
+                            "field": f"{attr_name}.{sub_attr_name}",
+                            "resource_type": resource_type,
+                            "server_id": self.server_id,
+                            "type": "required_field_missing",
+                            "help": f"Add the '{sub_attr_name}' field to '{attr_name}'. This field is required."
+                        }
+                    )
             
             return validated_complex
         
@@ -343,17 +401,33 @@ class SchemaValidator:
                     "field": attr_name,
                     "provided_value": value,
                     "allowed_values": attr_canonical_values,
-                    "type": "invalid_canonical_value",
                     "resource_type": resource_type,
+                    "server_id": self.server_id,
+                    "type": "invalid_canonical_value",
                     "help": f"Use one of the allowed values: {', '.join(attr_canonical_values)}"
                 }
             )
         
         return value
     
+    def _validate_attribute(self, attr: Dict[str, Any], value: Any, resource_type: str = "Unknown") -> Any:
+        """Validate an attribute value against its definition."""
+        attr_multi_valued = attr.get("multiValued", False)
+        
+        if attr_multi_valued:
+            if not isinstance(value, list):
+                value = [value]
+            validated_values = []
+            for item in value:
+                validated_item = self._validate_single_value(attr, item, resource_type)
+                validated_values.append(validated_item)
+            return validated_values
+        else:
+            return self._validate_single_value(attr, value, resource_type)
+    
     def filter_response_data(self, resource_type: str, data: Dict[str, Any], requested_attributes: Optional[List[str]] = None, excluded_attributes: Optional[List[str]] = None) -> Dict[str, Any]:
         """
-        Filter response data based on schema and requested/excluded attributes.
+        Filter response data based on server-specific schema and requested/excluded attributes.
         """
         schema = self.get_schema(resource_type)
         filtered_data = {}
@@ -391,7 +465,7 @@ class SchemaValidator:
         return filtered_data
 
 
-def create_schema_validator(db_session) -> SchemaValidator:
-    """Factory function to create a schema validator."""
-    schema_generator = DynamicSchemaGenerator(db_session)
+def create_schema_validator(db_session, server_id: str) -> SchemaValidator:
+    """Factory function to create a server-specific schema validator."""
+    schema_generator = DynamicSchemaGenerator(db_session, server_id)
     return SchemaValidator(schema_generator) 

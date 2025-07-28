@@ -27,7 +27,7 @@ class User(Base):
     family_name = Column(String(100), nullable=True)
     email = Column(String(255), nullable=True)  # Remove global unique constraint
     active = Column(Boolean, default=True)
-    server_id = Column(String(255), index=True, nullable=False, default="default")
+    server_id = Column(String(255), index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
@@ -45,7 +45,7 @@ class Group(Base):
     scim_id = Column(String(255), unique=True, index=True, nullable=False)
     display_name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    server_id = Column(String(255), index=True, nullable=False, default="default")
+    server_id = Column(String(255), index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -60,7 +60,7 @@ class Entitlement(Base):
     description = Column(Text, nullable=True)
     entitlement_type = Column(String(100), nullable=True)  # e.g., "application_access", "role_based"
     multi_valued = Column(Boolean, default=False)  # Whether this entitlement supports multiple values
-    server_id = Column(String(255), index=True, nullable=False, default="default")
+    server_id = Column(String(255), index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -75,7 +75,7 @@ class Schema(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     schema_definition = Column(Text, nullable=False)  # JSON schema definition
-    server_id = Column(String(255), index=True, nullable=False, default="default")
+    server_id = Column(String(255), index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

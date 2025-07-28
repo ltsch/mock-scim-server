@@ -1,17 +1,16 @@
 from fastapi import HTTPException, Depends, Header
-from sqlalchemy.orm import Session
 from loguru import logger
-import hashlib
-from .database import get_db
-from .models import ApiKey
+from .config import settings
+from .server_context import get_server_id_from_path
 
-async def get_api_key(
-    authorization: str = Header(None),
-    db: Session = Depends(get_db)
-) -> ApiKey:
+def get_api_key(authorization: str = Header(None)) -> str:
     """
     Validate API key from Authorization header.
-    Returns the API key object if valid, raises 401 if invalid/missing.
+    Returns the API key name if valid, raises 401 if invalid/missing.
+    
+    Simplified for development server - only accepts two API keys from config:
+    - settings.default_api_key for normal server operations
+    - settings.test_api_key for test operations
     """
     if not authorization:
         logger.warning("No Authorization header provided")
@@ -36,21 +35,56 @@ async def get_api_key(
             detail="Bearer token cannot be empty"
         )
     
-    # Hash the token for comparison (security best practice)
-    token_hash = hashlib.sha256(token.encode()).hexdigest()
-    
-    # Look up the API key in the database
-    api_key = db.query(ApiKey).filter(
-        ApiKey.key_hash == token_hash,
-        ApiKey.is_active == True
-    ).first()
-    
-    if not api_key:
-        logger.warning(f"Invalid or inactive API key attempted")
+    # Simple validation against config keys
+    if token == settings.default_api_key:
+        logger.info("Valid default API key used")
+        return "default"
+    elif token == settings.test_api_key:
+        logger.info("Valid test API key used")
+        return "test"
+    else:
+        logger.warning(f"Invalid API key attempted")
         raise HTTPException(
             status_code=401,
             detail="Invalid or inactive API key"
         )
+
+def validate_server_id(server_id: str) -> str:
+    """
+    Validate server ID format and existence.
+    Returns the server_id if valid, raises 400 if invalid.
+    """
+    if not server_id:
+        logger.warning("No server_id provided")
+        raise HTTPException(
+            status_code=400,
+            detail="Server ID is required"
+        )
     
-    logger.info(f"Valid API key used: {api_key.name}")
-    return api_key 
+    if not isinstance(server_id, str):
+        logger.warning(f"Invalid server_id type: {type(server_id)}")
+        raise HTTPException(
+            status_code=400,
+            detail="Server ID must be a string"
+        )
+    
+    # Basic validation - server_id should be a valid UUID or alphanumeric
+    import re
+    if not re.match(r'^[a-zA-Z0-9\-_]+$', server_id):
+        logger.warning(f"Invalid server_id format: {server_id}")
+        raise HTTPException(
+            status_code=400,
+            detail="Server ID must contain only alphanumeric characters, hyphens, and underscores"
+        )
+    
+    logger.info(f"Valid server_id: {server_id}")
+    return server_id
+
+def get_validated_server_id(server_id: str = Depends(get_server_id_from_path)) -> str:
+    """
+    Dependency function that validates server_id from path.
+    This ensures all endpoints that require server_id get proper validation.
+    """
+    return validate_server_id(server_id)
+
+# Import already added at the top 

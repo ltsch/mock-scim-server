@@ -25,7 +25,7 @@ class TestPagination:
         test_server_id = self.get_test_server_id()
         
         # Test first page
-        response = client.get(f"/scim/v2/Users/?startIndex=1&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=1&count=2", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 1
@@ -33,7 +33,7 @@ class TestPagination:
         assert len(data['Resources']) == 2
         
         # Test second page - this would have failed before the fix
-        response = client.get(f"/scim/v2/Users/?startIndex=3&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=3&count=2", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 3  # This was returning 1 before the fix
@@ -41,8 +41,8 @@ class TestPagination:
         assert len(data['Resources']) == 2
         
         # Verify we got different users on different pages
-        first_page_users = set(user['userName'] for user in client.get(f"/scim/v2/Users/?startIndex=1&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS).json()['Resources'])
-        second_page_users = set(user['userName'] for user in client.get(f"/scim/v2/Users/?startIndex=3&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS).json()['Resources'])
+        first_page_users = set(user['userName'] for user in client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=1&count=2", headers=self.AUTH_HEADERS).json()['Resources'])
+        second_page_users = set(user['userName'] for user in client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=3&count=2", headers=self.AUTH_HEADERS).json()['Resources'])
         assert first_page_users != second_page_users, "Different pages should return different users"
     
     def test_pagination_consistency(self, client):
@@ -56,7 +56,7 @@ class TestPagination:
         all_users = []
         page = 1
         while True:
-            response = client.get(f"/scim/v2/Users/?startIndex={page}&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex={page}&count=2", headers=self.AUTH_HEADERS)
             assert response.status_code == 200
             data = response.json()
             
@@ -83,7 +83,7 @@ class TestPagination:
         test_server_id = self.get_test_server_id()
         
         # Test single record per page
-        response = client.get(f"/scim/v2/Users/?startIndex=1&count=1&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=1&count=1", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 1
@@ -91,7 +91,7 @@ class TestPagination:
         assert len(data['Resources']) == 1
         
         # Test middle page
-        response = client.get(f"/scim/v2/Users/?startIndex=5&count=1&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=5&count=1", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 5
@@ -99,7 +99,7 @@ class TestPagination:
         assert len(data['Resources']) == 1
         
         # Test beyond available records
-        response = client.get(f"/scim/v2/Users/?startIndex=999&count=1&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=999&count=1", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 999
@@ -113,7 +113,7 @@ class TestPagination:
         test_server_id = self.get_test_server_id()
         
         # Test pagination with filter - look for users with "John" in display name
-        response = client.get(f"/scim/v2/Users/?startIndex=1&count=2&filter=displayName%20co%20%22John%22&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=1&count=2&filter=displayName%20co%20%22John%22", headers=self.AUTH_HEADERS)
         assert response.status_code == 200
         data = response.json()
         assert data['startIndex'] == 1
@@ -126,7 +126,7 @@ class TestPagination:
                 assert 'John' in user['displayName']
         else:
             # If no users with "John", test with a different filter that should work
-            response = client.get(f"/scim/v2/Users/?startIndex=1&count=2&filter=displayName%20co%20%22User%22&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users/?startIndex=1&count=2&filter=displayName%20co%20%22User%22", headers=self.AUTH_HEADERS)
             assert response.status_code == 200
             data = response.json()
             assert data['startIndex'] == 1
@@ -145,7 +145,7 @@ class TestPagination:
         
         for resource_type in resource_types:
             # Test first page
-            response = client.get(f"/scim/v2/{resource_type}/?startIndex=1&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+            response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{resource_type}/?startIndex=1&count=2", headers=self.AUTH_HEADERS)
             assert response.status_code == 200
             data = response.json()
             assert data['startIndex'] == 1
@@ -153,7 +153,7 @@ class TestPagination:
             
             # Test second page if there are enough records
             if data['totalResults'] > 2:
-                response = client.get(f"/scim/v2/{resource_type}/?startIndex=3&count=2&serverID={test_server_id}", headers=self.AUTH_HEADERS)
+                response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/{resource_type}/?startIndex=3&count=2", headers=self.AUTH_HEADERS)
                 assert response.status_code == 200
                 data = response.json()
                 assert data['startIndex'] == 3

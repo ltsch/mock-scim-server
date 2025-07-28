@@ -48,12 +48,28 @@ def group_to_scim_response(group: Group) -> Dict[str, Any]:
     """Convert Group database model to SCIM response format."""
     meta = create_scim_meta("Group", group.scim_id, group.created_at, group.updated_at)
     
+    # Get group members
+    from .database import get_db
+    from .crud_entities import group_crud
+    
+    db = next(get_db())
+    members = group_crud.get_group_members(db, group.scim_id, group.server_id)
+    
+    # Convert members to SCIM format
+    scim_members = []
+    for member in members:
+        scim_members.append({
+            "value": member.scim_id,
+            "display": member.display_name or member.user_name,
+            "$ref": f"/scim-identifier/{group.server_id}/scim/v2/Users/{member.scim_id}"
+        })
+    
     return {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:Group"],
         "id": group.scim_id,
         "displayName": group.display_name,
         "description": group.description,
-        "members": [],  # TODO: Implement member relationships
+        "members": scim_members,
         "meta": meta.model_dump()
     }
 

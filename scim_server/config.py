@@ -22,6 +22,13 @@ class Settings:
     reload: bool = True
     log_level: str = "debug"
     
+    # Logging settings
+    log_to_file: bool = True
+    log_file_path: str = "./logs/scim_server.log"
+    log_file_rotation: str = "10 MB"  # Rotate when file reaches 10MB
+    log_file_retention: str = "7 days"  # Keep logs for 7 days
+    log_file_compression: str = "gz"  # Compress rotated logs
+    
     # API path settings
     api_base_path: str = ""  # e.g., "/api/v1/scim/dev" - will be combined with "/scim/v2"
     
