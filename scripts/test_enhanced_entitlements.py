@@ -62,7 +62,7 @@ def test_schema_generation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         entitlement_schema = schema_generator.get_entitlement_schema()
         
         # Check for new fields
@@ -109,7 +109,7 @@ def test_schema_validation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test valid entitlement creation

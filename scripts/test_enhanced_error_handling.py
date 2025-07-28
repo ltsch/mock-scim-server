@@ -29,7 +29,7 @@ def test_required_field_error():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test User creation with missing required userName
@@ -72,7 +72,7 @@ def test_canonical_values_error():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test Entitlement creation with invalid type
@@ -120,7 +120,7 @@ def test_type_validation_error():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test User creation with wrong type for userName
@@ -167,7 +167,7 @@ def test_mutability_error():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test PATCH operation on readOnly field
@@ -221,7 +221,7 @@ def test_unknown_field_error():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test PATCH operation with unknown field

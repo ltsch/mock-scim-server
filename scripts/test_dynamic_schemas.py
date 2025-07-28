@@ -28,7 +28,7 @@ def test_resource_types():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         resource_types = schema_generator.get_resource_types()
         
         # Check that we have the expected resource types
@@ -64,7 +64,7 @@ def test_entitlement_schema_canonical_values():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         entitlement_schema = schema_generator.get_entitlement_schema()
         
         # Find the type attribute
@@ -122,7 +122,7 @@ def test_schema_structure():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         
         # Test User schema
         user_schema = schema_generator.get_user_schema()
@@ -165,7 +165,7 @@ def test_schema_by_urn():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         
         test_urns = [
             "urn:ietf:params:scim:schemas:core:2.0:User",
@@ -209,7 +209,7 @@ def test_configuration_reflection():
     # Verify the schema generator uses the same values
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         entitlement_schema = schema_generator.get_entitlement_schema()
         
         # Find the type attribute

@@ -30,7 +30,7 @@ def test_required_fields_validation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test User creation with missing required userName
@@ -80,7 +80,7 @@ def test_canonical_values_validation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test Entitlement creation with invalid type
@@ -131,7 +131,7 @@ def test_mutability_validation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test that readOnly fields are not included in create requests
@@ -186,7 +186,7 @@ def test_type_validation():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test string field with wrong type
@@ -255,7 +255,7 @@ def test_multi_valued_attributes():
     
     db = SessionLocal()
     try:
-        schema_generator = DynamicSchemaGenerator(db)
+        schema_generator = DynamicSchemaGenerator(db, "test-server")
         validator = SchemaValidator(schema_generator)
         
         # Test emails (multi-valued) with single value
