@@ -1,4 +1,4 @@
-# SCIM.Cloud: Development-Friendly SCIM 2.0 Server
+# SCIM Dev Server Built With AI: A Standards Compliant SCIM 2.0 Server
 
 ## Overview
 
