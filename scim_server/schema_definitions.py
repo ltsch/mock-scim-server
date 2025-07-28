@@ -252,6 +252,53 @@ class DynamicSchemaGenerator:
         for attr_name, attr_config in complex_attrs.items():
             attributes.append(attr_config)
         
+        # Add members attribute for group membership
+        attributes.append({
+            "name": "members",
+            "type": "complex",
+            "multiValued": True,
+            "description": "A list of members of the Group",
+            "required": False,
+            "caseExact": False,
+            "mutability": "readWrite",
+            "returned": "default",
+            "subAttributes": [
+                {
+                    "name": "value",
+                    "type": "string",
+                    "multiValued": False,
+                    "description": "Identifier of the member of this Group",
+                    "required": False,
+                    "caseExact": False,
+                    "mutability": "readOnly",
+                    "returned": "default",
+                    "uniqueness": "none"
+                },
+                {
+                    "name": "display",
+                    "type": "string",
+                    "multiValued": False,
+                    "description": "A human-readable name for the member",
+                    "required": False,
+                    "caseExact": False,
+                    "mutability": "readOnly",
+                    "returned": "default",
+                    "uniqueness": "none"
+                },
+                {
+                    "name": "$ref",
+                    "type": "reference",
+                    "multiValued": False,
+                    "description": "The URI of the corresponding resource",
+                    "required": False,
+                    "caseExact": False,
+                    "mutability": "readOnly",
+                    "returned": "default",
+                    "uniqueness": "none"
+                }
+            ]
+        })
+        
         # Server-specific custom attributes
         custom_attrs = group_attrs.get("custom_attributes", {})
         for attr_name, attr_config in custom_attrs.items():

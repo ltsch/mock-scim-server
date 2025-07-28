@@ -37,15 +37,10 @@ class UserCRUD(BaseCRUD[User]):
         """Get user by username within a specific server."""
         return self.get_by_field(db, 'user_name', username, server_id)
     
-    def update_user(self, db: Session, user_id: str, user_data: UserUpdate, server_id: str) -> Optional[User]:
+    def update_user(self, db: Session, user_id: str, user_data: dict, server_id: str) -> Optional[User]:
         """Update user with proper data transformation."""
-        # Transform UserUpdate to dict
+        # Transform validated data to database format
         update_data = {}
-        if hasattr(user_data, 'model_dump'):
-            update_dict = user_data.model_dump(exclude_unset=True)
-        else:
-            # Handle case where user_data is already a dict
-            update_dict = user_data
         
         # Map SCIM field names to database field names
         field_mapping = {
@@ -55,9 +50,21 @@ class UserCRUD(BaseCRUD[User]):
             'active': 'active'
         }
         
-        for scim_field, value in update_dict.items():
+        # Handle simple fields
+        for scim_field, value in user_data.items():
             if scim_field in field_mapping:
                 update_data[field_mapping[scim_field]] = value
+            elif scim_field == 'name' and isinstance(value, dict):
+                # Handle complex name object
+                if 'givenName' in value:
+                    update_data['given_name'] = value['givenName']
+                if 'familyName' in value:
+                    update_data['family_name'] = value['familyName']
+            elif scim_field == 'emails' and isinstance(value, list) and len(value) > 0:
+                # Handle emails array - take the first primary email or first email
+                email_obj = value[0]
+                if isinstance(email_obj, dict) and 'value' in email_obj:
+                    update_data['email'] = email_obj['value']
         
         return self.update(db, user_id, update_data, server_id)
     
@@ -92,21 +99,17 @@ class GroupCRUD(BaseCRUD[Group]):
         
         return self.create(db, data, server_id)
     
-    def update_group(self, db: Session, group_id: str, group_data: GroupUpdate, server_id: str) -> Optional[Group]:
+    def update_group(self, db: Session, group_id: str, group_data: dict, server_id: str) -> Optional[Group]:
         """Update group with proper data transformation."""
         update_data = {}
-        if hasattr(group_data, 'model_dump'):
-            update_dict = group_data.model_dump(exclude_unset=True)
-        else:
-            # Handle case where group_data is already a dict
-            update_dict = group_data
         
+        # Map SCIM field names to database field names
         field_mapping = {
             'displayName': 'display_name',
             'description': 'description'
         }
         
-        for scim_field, value in update_dict.items():
+        for scim_field, value in group_data.items():
             if scim_field in field_mapping:
                 update_data[field_mapping[scim_field]] = value
         
@@ -164,7 +167,7 @@ class GroupCRUD(BaseCRUD[Group]):
     
     def get_group_members(self, db: Session, group_id: str, server_id: str) -> List[User]:
         """Get all members of a group."""
-        group = self.get(db, group_id, server_id)
+        group = self.get_by_id(db, group_id, server_id)
         if not group:
             return []
         
@@ -231,15 +234,11 @@ class EntitlementCRUD(BaseCRUD[Entitlement]):
         
         return self.create(db, data, server_id)
     
-    def update_entitlement(self, db: Session, entitlement_id: str, entitlement_data: EntitlementUpdate, server_id: str) -> Optional[Entitlement]:
+    def update_entitlement(self, db: Session, entitlement_id: str, entitlement_data: dict, server_id: str) -> Optional[Entitlement]:
         """Update entitlement with proper data transformation."""
         update_data = {}
-        if hasattr(entitlement_data, 'model_dump'):
-            update_dict = entitlement_data.model_dump(exclude_unset=True)
-        else:
-            # Handle case where entitlement_data is already a dict
-            update_dict = entitlement_data
         
+        # Map SCIM field names to database field names
         field_mapping = {
             'displayName': 'display_name',
             'type': 'type',
@@ -248,7 +247,7 @@ class EntitlementCRUD(BaseCRUD[Entitlement]):
             'multiValued': 'multi_valued'
         }
         
-        for scim_field, value in update_dict.items():
+        for scim_field, value in entitlement_data.items():
             if scim_field in field_mapping:
                 update_data[field_mapping[scim_field]] = value
         

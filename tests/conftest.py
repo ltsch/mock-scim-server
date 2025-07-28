@@ -24,9 +24,9 @@ def validate_test_environment():
     
     db = TestingSessionLocal()
     try:
-        # Check API keys
-        api_keys = db.query(ApiKey).count()
-        logger.info(f"📋 Found {api_keys} API keys in test database")
+        # API key validation is now handled by config, no database storage needed
+        from scim_server.config import settings
+        logger.info(f"Using test API key from config: {settings.test_api_key}")
         
         # Check test data
         users = db.query(User).count()

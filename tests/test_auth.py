@@ -11,11 +11,9 @@ Tests for SCIM authentication functionality including:
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-import hashlib
 
 from scim_server.main import app
 from scim_server.database import get_db
-from scim_server.models import ApiKey
 from tests.test_utils import BaseEntityTest
 
 class TestAuthentication(BaseEntityTest):

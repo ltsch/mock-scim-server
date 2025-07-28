@@ -39,7 +39,7 @@ class TestValidationCompliance:
         response = client.get("/scim-identifier/test-server/scim/v2/Users", 
                             headers={"Authorization": "Bearer invalid-key"})
         assert response.status_code == 401
-        assert "Invalid API key" in response.json()["detail"]
+        assert "Invalid or inactive API key" in response.json()["detail"]
     
     def test_scim_endpoints_require_server_id(self, client: TestClient):
         """Test that all SCIM endpoints require valid server ID."""
@@ -86,35 +86,37 @@ class TestValidationCompliance:
     def test_crud_endpoints_validation(self, client: TestClient):
         """Test that all CRUD endpoints require both API key and server ID."""
         # Test Users endpoint
+        import uuid
+        unique_id = str(uuid.uuid4())[:8]
         response = client.post("/scim-identifier/test-server/scim/v2/Users", 
-                             json={"userName": "test@example.com"})
+                             json={"userName": f"test_{unique_id}@example.com"})
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
         
         response = client.post("/scim-identifier/test-server/scim/v2/Users", 
-                             json={"userName": "test@example.com"},
+                             json={"userName": f"test_{unique_id}@example.com"},
                              headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 201
         
         # Test Groups endpoint
         response = client.post("/scim-identifier/test-server/scim/v2/Groups", 
-                             json={"displayName": "Test Group"})
+                             json={"displayName": f"Test Group {unique_id}"})
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
         
         response = client.post("/scim-identifier/test-server/scim/v2/Groups", 
-                             json={"displayName": "Test Group"},
+                             json={"displayName": f"Test Group {unique_id}"},
                              headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 201
         
         # Test Entitlements endpoint
         response = client.post("/scim-identifier/test-server/scim/v2/Entitlements", 
-                             json={"displayName": "Test Entitlement", "type": "Administrator"})
+                             json={"displayName": f"Test Entitlement {unique_id}", "type": "Administrator"})
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
         
         response = client.post("/scim-identifier/test-server/scim/v2/Entitlements", 
-                             json={"displayName": "Test Entitlement", "type": "Administrator"},
+                             json={"displayName": f"Test Entitlement {unique_id}", "type": "Administrator"},
                              headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 201
     
@@ -151,12 +153,12 @@ class TestValidationCompliance:
         # Test default API key
         response = client.get("/protected", headers={"Authorization": f"Bearer {settings.default_api_key}"})
         assert response.status_code == 200
-        assert response.json()["api_key_type"] == "default"
+        assert response.json()["api_key_name"] == "Default API Key"
         
         # Test test API key
         response = client.get("/protected", headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 200
-        assert response.json()["api_key_type"] == "test"
+        assert response.json()["api_key_name"] == "Test API Key"
     
     def test_server_id_validation_edge_cases(self, client: TestClient):
         """Test server ID validation with various edge cases."""

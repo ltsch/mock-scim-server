@@ -449,7 +449,7 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         
         # Delete entity using the appropriate method
         if self.entity_type == "User":
-            success = self.crud.deactivate_user(db, entity_id, server_id)
+            success = self.crud.delete(db, entity_id, server_id)
         else:
             success = self.crud.delete(db, entity_id, server_id)
             
