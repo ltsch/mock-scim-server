@@ -2,13 +2,13 @@
 
 ## Overview
 
-**SCIM.Cloud** is a fully self-contained, developer-focused SCIM 2.0 server designed for rapid prototyping, testing, and integration with identity providers such as Okta. It is built to comply with the SCIM 2.0 specification (RFC 7644) and Okta's extension-driven design for ResourceTypes and entitlements ([Okta SCIM with Entitlements Guide](https://developer.okta.com/docs/guides/scim-with-entitlements/main/)).
+**SCIM Test Harness** is a fully self-contained, developer-focused SCIM 2.0 server designed for rapid prototyping, testing, and integration with identity providers such as Okta and Azure. It is built to comply with the SCIM 2.0 specification (RFC 7644) and Okta's extension-driven design for ResourceTypes and entitlements ([Okta SCIM with Entitlements Guide](https://developer.okta.com/docs/guides/scim-with-entitlements/main/)).
 
 This project is ideal for developers who need a mock SCIM server for integration testing, development, or demonstration purposes. It is not intended for production use.
 
 **🚀 Multi-Server Architecture**: The application supports multiple virtual SCIM servers, allowing developers to run multiple isolated SCIM instances on the same web port for comparison and validation purposes.
 
-**✅ Production-Ready**: 100% test pass rate (141/141 tests) with comprehensive SCIM 2.0 compliance and Okta integration validation.
+**✅ Production-Ready**: 100% test pass rate (163/163 tests) with comprehensive SCIM 2.0 compliance and Okta integration validation.
 
 ---
 
