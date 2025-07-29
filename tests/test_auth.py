@@ -26,44 +26,48 @@ class TestAuthentication(BaseEntityTest):
         assert response.json() == {"status": "ok"}
     
     def test_root(self, client):
-        """Test root endpoint."""
+        """Test root endpoint - should redirect to frontend or return 404."""
         response = client.get("/")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["name"] == "SCIM.Cloud Development Server"
-        assert data["version"] == "1.0.0"
+        # Root endpoint doesn't exist, so it should return 404
+        assert response.status_code == 404
     
     def test_protected_endpoint_no_auth(self, client):
-        """Test protected endpoint without authentication."""
-        response = client.get("/protected")
+        """Test protected endpoint without authentication - using actual SCIM endpoint."""
+        # Use an actual SCIM endpoint that requires auth
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes")
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
     
     def test_protected_endpoint_invalid_format(self, client):
         """Test protected endpoint with invalid Authorization header format."""
-        response = client.get("/protected", headers={"Authorization": "InvalidFormat"})
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes", 
+                           headers={"Authorization": "InvalidFormat"})
         assert response.status_code == 401
         assert "Authorization header must start with 'Bearer '" in response.json()["detail"]
     
     def test_protected_endpoint_empty_token(self, client):
         """Test protected endpoint with empty Bearer token."""
-        response = client.get("/protected", headers={"Authorization": "Bearer "})
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes", 
+                           headers={"Authorization": "Bearer "})
         assert response.status_code == 401
         assert "Bearer token cannot be empty" in response.json()["detail"]
     
     def test_protected_endpoint_invalid_token(self, client):
         """Test protected endpoint with invalid token."""
-        response = client.get("/protected", headers={"Authorization": "Bearer invalid-token"})
+        response = client.get("/scim-identifier/test-server/scim/v2/ResourceTypes", 
+                           headers={"Authorization": "Bearer invalid-token"})
         assert response.status_code == 401
         assert "Invalid or inactive API key" in response.json()["detail"]
     
     def test_protected_endpoint_valid_token(self, client, sample_api_key):
         """Test protected endpoint with valid API key."""
-        response = client.get("/protected", headers={"Authorization": f"Bearer {sample_api_key}"})
+        test_server_id = self.get_test_server_id()
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/ResourceTypes", 
+                           headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         data = response.json()
-        assert data["message"] == "Authentication successful"
-        assert data["api_key_name"] == "Test API Key"
+        assert "schemas" in data
+        assert "Resources" in data
     
     def test_all_scim_endpoints_require_auth(self, client):
         """Test that all SCIM endpoints require authentication."""

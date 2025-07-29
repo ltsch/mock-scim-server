@@ -1,0 +1,516 @@
+{
+  "profile": "security",
+  "server_id": "security_test_server_1753743120",
+  "creation_result": {
+    "server_id": "security_test_server_1753743120",
+    "stats": {
+      "users": 3,
+      "groups": 2,
+      "entitlements": 2,
+      "user_group_relationships": 5,
+      "user_entitlement_relationships": 4
+    },
+    "app_profile": "security",
+    "access_url": "http://localhost:7001/scim/v2/Users?serverID=security_test_server_1753743120"
+  },
+  "statistics": {
+    "users": 3,
+    "groups": 2,
+    "entitlements": 2,
+    "user_group_relationships": 5,
+    "user_entitlement_relationships": 4
+  },
+  "server_config": {
+    "server_id": "security_test_server_1753743120",
+    "name": "SCIM Server security_test_server_1753743120",
+    "description": "Dynamic SCIM server with ID security_test_server_1753743120",
+    "app_profile": "security",
+    "enabled_resource_types": [
+      "User",
+      "Group",
+      "Entitlement"
+    ],
+    "custom_attributes": {},
+    "schema_extensions": {},
+    "entitlement_types": [
+      {
+        "name": "Office 365 License",
+        "type": "application_access",
+        "canonical_values": [
+          "E5",
+          "E3",
+          "Business Basic",
+          "Business Standard",
+          "E1",
+          "F3"
+        ],
+        "multi_valued": false,
+        "description": "Microsoft Office 365 license type"
+      },
+      {
+        "name": "Salesforce Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Administrator",
+          "Standard User",
+          "Read Only",
+          "Marketing User",
+          "Contract Manager"
+        ],
+        "multi_valued": false,
+        "description": "Salesforce user access level"
+      },
+      {
+        "name": "GitHub Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Write",
+          "Read",
+          "Triage",
+          "Maintain"
+        ],
+        "multi_valued": false,
+        "description": "GitHub repository access level"
+      },
+      {
+        "name": "Slack Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Member",
+          "Guest",
+          "Restricted"
+        ],
+        "multi_valued": false,
+        "description": "Slack workspace access level"
+      },
+      {
+        "name": "System Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Administrator",
+          "User",
+          "Read-Only",
+          "Auditor",
+          "Manager",
+          "Developer"
+        ],
+        "multi_valued": true,
+        "description": "System-wide role assignments (multi-select)"
+      },
+      {
+        "name": "Security Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Security Admin",
+          "Security Analyst",
+          "Security Auditor",
+          "Incident Responder",
+          "Threat Hunter"
+        ],
+        "multi_valued": true,
+        "description": "Security-specific role assignments (multi-select)"
+      },
+      {
+        "name": "Data Access Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Data Owner",
+          "Data Steward",
+          "Data Analyst",
+          "Data Scientist",
+          "Data Engineer"
+        ],
+        "multi_valued": true,
+        "description": "Data access role assignments (multi-select)"
+      },
+      {
+        "name": "VPN Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Limited Access",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "VPN access permission level"
+      },
+      {
+        "name": "Database Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Read Write",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "Database access permission level"
+      },
+      {
+        "name": "Adobe Creative Suite",
+        "type": "license_based",
+        "canonical_values": [
+          "Creative Cloud All Apps",
+          "Creative Cloud Single App",
+          "Creative Cloud Photography",
+          "Creative Cloud Design"
+        ],
+        "multi_valued": false,
+        "description": "Adobe Creative Suite license type"
+      },
+      {
+        "name": "AWS Access",
+        "type": "license_based",
+        "canonical_values": [
+          "AdministratorAccess",
+          "PowerUserAccess",
+          "ReadOnlyAccess",
+          "BillingAccess"
+        ],
+        "multi_valued": false,
+        "description": "AWS IAM access level"
+      },
+      {
+        "name": "Department Access",
+        "type": "department_based",
+        "canonical_values": [
+          "Engineering",
+          "Marketing",
+          "Sales",
+          "HR",
+          "Finance",
+          "Product",
+          "Design",
+          "Support",
+          "Operations",
+          "Legal",
+          "IT",
+          "Research"
+        ],
+        "multi_valued": true,
+        "description": "Department access assignments (multi-select)"
+      },
+      {
+        "name": "Project Access",
+        "type": "project_based",
+        "canonical_values": [
+          "Project Alpha",
+          "Project Beta",
+          "Project Gamma",
+          "Project Delta",
+          "Project Echo"
+        ],
+        "multi_valued": true,
+        "description": "Project access assignments (multi-select)"
+      }
+    ],
+    "user_attributes": {
+      "required_attributes": [
+        "userName"
+      ],
+      "optional_attributes": [
+        "displayName",
+        "emails",
+        "name",
+        "active"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {
+        "emails": {
+          "type": "complex",
+          "multiValued": true,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "required": false
+            }
+          ]
+        },
+        "name": {
+          "type": "complex",
+          "multiValued": false,
+          "subAttributes": [
+            {
+              "name": "givenName",
+              "type": "string",
+              "required": false
+            },
+            {
+              "name": "familyName",
+              "type": "string",
+              "required": false
+            }
+          ]
+        }
+      }
+    },
+    "group_attributes": {
+      "required_attributes": [
+        "displayName"
+      ],
+      "optional_attributes": [
+        "description"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {}
+    },
+    "validation_rules": {
+      "strict_mode": true,
+      "allow_unknown_attributes": false,
+      "validate_canonical_values": true,
+      "validate_required_fields": true,
+      "validate_complex_attributes": true
+    },
+    "rate_limits": {
+      "create": 500,
+      "read": 500,
+      "update": 500,
+      "delete": 500
+    },
+    "api_settings": {
+      "max_results_per_page": 100,
+      "default_page_size": 100
+    }
+  },
+  "users": [
+    {
+      "id": 374,
+      "scim_id": "4a3f1e37-1a41-41a4-a371-968fcb641ca5",
+      "external_id": null,
+      "user_name": "charlescardwell@sample-corp.com",
+      "display_name": "Charles Cardwell",
+      "given_name": null,
+      "family_name": null,
+      "email": "charlescardwell@sample-corp.com",
+      "active": true,
+      "server_id": "security_test_server_1753743120",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 139,
+          "scim_id": "46ad8b02-6e4b-4ba2-bb1f-85a3d9765af5",
+          "display_name": "Office 365 License",
+          "type": "E5",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 129,
+          "scim_id": "4fd21f4b-0b8f-4fa7-8da5-115385fec217",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server security"
+        },
+        {
+          "id": 128,
+          "scim_id": "c92ec55e-cd7e-4539-8138-b58e24a6c343",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server security"
+        }
+      ]
+    },
+    {
+      "id": 375,
+      "scim_id": "5dafcee5-f875-4e5c-a60e-10713ab4e442",
+      "external_id": null,
+      "user_name": "bartamian.ula@simulation-inc.com",
+      "display_name": "Ula Bartamian",
+      "given_name": null,
+      "family_name": null,
+      "email": "bartamian.ula@simulation-inc.com",
+      "active": true,
+      "server_id": "security_test_server_1753743120",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 139,
+          "scim_id": "46ad8b02-6e4b-4ba2-bb1f-85a3d9765af5",
+          "display_name": "Office 365 License",
+          "type": "E5",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 128,
+          "scim_id": "c92ec55e-cd7e-4539-8138-b58e24a6c343",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server security"
+        },
+        {
+          "id": 129,
+          "scim_id": "4fd21f4b-0b8f-4fa7-8da5-115385fec217",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server security"
+        }
+      ]
+    },
+    {
+      "id": 376,
+      "scim_id": "4d9ea22e-1ebd-4970-998d-3ed04e5b44ac",
+      "external_id": null,
+      "user_name": "messick.eric@mock-enterprise.com",
+      "display_name": "Eric Messick",
+      "given_name": null,
+      "family_name": null,
+      "email": "messick.eric@mock-enterprise.com",
+      "active": true,
+      "server_id": "security_test_server_1753743120",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 139,
+          "scim_id": "46ad8b02-6e4b-4ba2-bb1f-85a3d9765af5",
+          "display_name": "Office 365 License",
+          "type": "E5",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 140,
+          "scim_id": "ea522c67-07f6-49b9-8a20-518da5189e06",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 128,
+          "scim_id": "c92ec55e-cd7e-4539-8138-b58e24a6c343",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server security"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": 128,
+      "scim_id": "c92ec55e-cd7e-4539-8138-b58e24a6c343",
+      "display_name": "Engineering Team",
+      "description": "Test group 1 for server security",
+      "server_id": "security_test_server_1753743120",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 374,
+          "user_name": "charlescardwell@sample-corp.com",
+          "display_name": "Charles Cardwell"
+        },
+        {
+          "user_id": 375,
+          "user_name": "bartamian.ula@simulation-inc.com",
+          "display_name": "Ula Bartamian"
+        },
+        {
+          "user_id": 376,
+          "user_name": "messick.eric@mock-enterprise.com",
+          "display_name": "Eric Messick"
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "scim_id": "4fd21f4b-0b8f-4fa7-8da5-115385fec217",
+      "display_name": "Marketing Team",
+      "description": "Test group 2 for server security",
+      "server_id": "security_test_server_1753743120",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 374,
+          "user_name": "charlescardwell@sample-corp.com",
+          "display_name": "Charles Cardwell"
+        },
+        {
+          "user_id": 375,
+          "user_name": "bartamian.ula@simulation-inc.com",
+          "display_name": "Ula Bartamian"
+        }
+      ]
+    }
+  ],
+  "entitlements": [
+    {
+      "id": 139,
+      "scim_id": "46ad8b02-6e4b-4ba2-bb1f-85a3d9765af5",
+      "display_name": "Office 365 License",
+      "type": "E5",
+      "description": "Microsoft Office 365 license type",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "security_test_server_1753743120",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 374,
+          "user_name": "charlescardwell@sample-corp.com",
+          "display_name": "Charles Cardwell"
+        },
+        {
+          "user_id": 375,
+          "user_name": "bartamian.ula@simulation-inc.com",
+          "display_name": "Ula Bartamian"
+        },
+        {
+          "user_id": 376,
+          "user_name": "messick.eric@mock-enterprise.com",
+          "display_name": "Eric Messick"
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "scim_id": "ea522c67-07f6-49b9-8a20-518da5189e06",
+      "display_name": "Salesforce Access",
+      "type": "Read Only",
+      "description": "Salesforce user access level",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "security_test_server_1753743120",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 376,
+          "user_name": "messick.eric@mock-enterprise.com",
+          "display_name": "Eric Messick"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "users_count": 3,
+    "groups_count": 2,
+    "entitlements_count": 2,
+    "generated_at": "2025-07-28T22:52:00Z"
+  }
+}

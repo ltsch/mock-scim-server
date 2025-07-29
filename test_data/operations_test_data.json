@@ -1,0 +1,527 @@
+{
+  "profile": "operations",
+  "server_id": "operations_test_server_1753743119",
+  "creation_result": {
+    "server_id": "operations_test_server_1753743119",
+    "stats": {
+      "users": 3,
+      "groups": 2,
+      "entitlements": 2,
+      "user_group_relationships": 6,
+      "user_entitlement_relationships": 4
+    },
+    "app_profile": "operations",
+    "access_url": "http://localhost:7001/scim/v2/Users?serverID=operations_test_server_1753743119"
+  },
+  "statistics": {
+    "users": 3,
+    "groups": 2,
+    "entitlements": 2,
+    "user_group_relationships": 6,
+    "user_entitlement_relationships": 4
+  },
+  "server_config": {
+    "server_id": "operations_test_server_1753743119",
+    "name": "SCIM Server operations_test_server_1753743119",
+    "description": "Dynamic SCIM server with ID operations_test_server_1753743119",
+    "app_profile": "operations",
+    "enabled_resource_types": [
+      "User",
+      "Group",
+      "Entitlement"
+    ],
+    "custom_attributes": {},
+    "schema_extensions": {},
+    "entitlement_types": [
+      {
+        "name": "Office 365 License",
+        "type": "application_access",
+        "canonical_values": [
+          "E5",
+          "E3",
+          "Business Basic",
+          "Business Standard",
+          "E1",
+          "F3"
+        ],
+        "multi_valued": false,
+        "description": "Microsoft Office 365 license type"
+      },
+      {
+        "name": "Salesforce Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Administrator",
+          "Standard User",
+          "Read Only",
+          "Marketing User",
+          "Contract Manager"
+        ],
+        "multi_valued": false,
+        "description": "Salesforce user access level"
+      },
+      {
+        "name": "GitHub Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Write",
+          "Read",
+          "Triage",
+          "Maintain"
+        ],
+        "multi_valued": false,
+        "description": "GitHub repository access level"
+      },
+      {
+        "name": "Slack Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Member",
+          "Guest",
+          "Restricted"
+        ],
+        "multi_valued": false,
+        "description": "Slack workspace access level"
+      },
+      {
+        "name": "System Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Administrator",
+          "User",
+          "Read-Only",
+          "Auditor",
+          "Manager",
+          "Developer"
+        ],
+        "multi_valued": true,
+        "description": "System-wide role assignments (multi-select)"
+      },
+      {
+        "name": "Security Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Security Admin",
+          "Security Analyst",
+          "Security Auditor",
+          "Incident Responder",
+          "Threat Hunter"
+        ],
+        "multi_valued": true,
+        "description": "Security-specific role assignments (multi-select)"
+      },
+      {
+        "name": "Data Access Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Data Owner",
+          "Data Steward",
+          "Data Analyst",
+          "Data Scientist",
+          "Data Engineer"
+        ],
+        "multi_valued": true,
+        "description": "Data access role assignments (multi-select)"
+      },
+      {
+        "name": "VPN Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Limited Access",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "VPN access permission level"
+      },
+      {
+        "name": "Database Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Read Write",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "Database access permission level"
+      },
+      {
+        "name": "Adobe Creative Suite",
+        "type": "license_based",
+        "canonical_values": [
+          "Creative Cloud All Apps",
+          "Creative Cloud Single App",
+          "Creative Cloud Photography",
+          "Creative Cloud Design"
+        ],
+        "multi_valued": false,
+        "description": "Adobe Creative Suite license type"
+      },
+      {
+        "name": "AWS Access",
+        "type": "license_based",
+        "canonical_values": [
+          "AdministratorAccess",
+          "PowerUserAccess",
+          "ReadOnlyAccess",
+          "BillingAccess"
+        ],
+        "multi_valued": false,
+        "description": "AWS IAM access level"
+      },
+      {
+        "name": "Department Access",
+        "type": "department_based",
+        "canonical_values": [
+          "Engineering",
+          "Marketing",
+          "Sales",
+          "HR",
+          "Finance",
+          "Product",
+          "Design",
+          "Support",
+          "Operations",
+          "Legal",
+          "IT",
+          "Research"
+        ],
+        "multi_valued": true,
+        "description": "Department access assignments (multi-select)"
+      },
+      {
+        "name": "Project Access",
+        "type": "project_based",
+        "canonical_values": [
+          "Project Alpha",
+          "Project Beta",
+          "Project Gamma",
+          "Project Delta",
+          "Project Echo"
+        ],
+        "multi_valued": true,
+        "description": "Project access assignments (multi-select)"
+      }
+    ],
+    "user_attributes": {
+      "required_attributes": [
+        "userName"
+      ],
+      "optional_attributes": [
+        "displayName",
+        "emails",
+        "name",
+        "active"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {
+        "emails": {
+          "type": "complex",
+          "multiValued": true,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "required": false
+            }
+          ]
+        },
+        "name": {
+          "type": "complex",
+          "multiValued": false,
+          "subAttributes": [
+            {
+              "name": "givenName",
+              "type": "string",
+              "required": false
+            },
+            {
+              "name": "familyName",
+              "type": "string",
+              "required": false
+            }
+          ]
+        }
+      }
+    },
+    "group_attributes": {
+      "required_attributes": [
+        "displayName"
+      ],
+      "optional_attributes": [
+        "description"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {}
+    },
+    "validation_rules": {
+      "strict_mode": true,
+      "allow_unknown_attributes": false,
+      "validate_canonical_values": true,
+      "validate_required_fields": true,
+      "validate_complex_attributes": true
+    },
+    "rate_limits": {
+      "create": 500,
+      "read": 500,
+      "update": 500,
+      "delete": 500
+    },
+    "api_settings": {
+      "max_results_per_page": 100,
+      "default_page_size": 100
+    }
+  },
+  "users": [
+    {
+      "id": 371,
+      "scim_id": "0da34b53-ee24-4e88-9053-5962d827b03b",
+      "external_id": null,
+      "user_name": "catherinebarger@mock-enterprise.com",
+      "display_name": "Catherine Barger",
+      "given_name": null,
+      "family_name": null,
+      "email": "catherinebarger@mock-enterprise.com",
+      "active": false,
+      "server_id": "operations_test_server_1753743119",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 137,
+          "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+          "display_name": "Office 365 License",
+          "type": "E1",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 127,
+          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 126,
+          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 372,
+      "scim_id": "f364adfc-6834-4aab-a2ad-58dfe80a0167",
+      "external_id": null,
+      "user_name": "joseph_kotula@sample-corp.com",
+      "display_name": "Joseph Kotula",
+      "given_name": null,
+      "family_name": null,
+      "email": "joseph_kotula@sample-corp.com",
+      "active": true,
+      "server_id": "operations_test_server_1753743119",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 138,
+          "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+          "display_name": "Salesforce Access",
+          "type": "Contract Manager",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 137,
+          "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+          "display_name": "Office 365 License",
+          "type": "E1",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 126,
+          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 127,
+          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 373,
+      "scim_id": "b5410adc-2e47-40a8-b6fe-01343c1eb902",
+      "external_id": null,
+      "user_name": "yan.jeffrey@sample-corp.com",
+      "display_name": "Jeffrey Yan",
+      "given_name": null,
+      "family_name": null,
+      "email": "yan.jeffrey@sample-corp.com",
+      "active": true,
+      "server_id": "operations_test_server_1753743119",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 138,
+          "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+          "display_name": "Salesforce Access",
+          "type": "Contract Manager",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 127,
+          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 126,
+          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": 126,
+      "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+      "display_name": "Engineering Team",
+      "description": "Test group 1 for server operatio",
+      "server_id": "operations_test_server_1753743119",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 371,
+          "user_name": "catherinebarger@mock-enterprise.com",
+          "display_name": "Catherine Barger"
+        },
+        {
+          "user_id": 372,
+          "user_name": "joseph_kotula@sample-corp.com",
+          "display_name": "Joseph Kotula"
+        },
+        {
+          "user_id": 373,
+          "user_name": "yan.jeffrey@sample-corp.com",
+          "display_name": "Jeffrey Yan"
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+      "display_name": "Marketing Team",
+      "description": "Test group 2 for server operatio",
+      "server_id": "operations_test_server_1753743119",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 371,
+          "user_name": "catherinebarger@mock-enterprise.com",
+          "display_name": "Catherine Barger"
+        },
+        {
+          "user_id": 372,
+          "user_name": "joseph_kotula@sample-corp.com",
+          "display_name": "Joseph Kotula"
+        },
+        {
+          "user_id": 373,
+          "user_name": "yan.jeffrey@sample-corp.com",
+          "display_name": "Jeffrey Yan"
+        }
+      ]
+    }
+  ],
+  "entitlements": [
+    {
+      "id": 137,
+      "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+      "display_name": "Office 365 License",
+      "type": "E1",
+      "description": "Microsoft Office 365 license type",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753743119",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 371,
+          "user_name": "catherinebarger@mock-enterprise.com",
+          "display_name": "Catherine Barger"
+        },
+        {
+          "user_id": 372,
+          "user_name": "joseph_kotula@sample-corp.com",
+          "display_name": "Joseph Kotula"
+        }
+      ]
+    },
+    {
+      "id": 138,
+      "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+      "display_name": "Salesforce Access",
+      "type": "Contract Manager",
+      "description": "Salesforce user access level",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753743119",
+      "created_at": "2025-07-28T22:52:00",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 372,
+          "user_name": "joseph_kotula@sample-corp.com",
+          "display_name": "Joseph Kotula"
+        },
+        {
+          "user_id": 373,
+          "user_name": "yan.jeffrey@sample-corp.com",
+          "display_name": "Jeffrey Yan"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "users_count": 3,
+    "groups_count": 2,
+    "entitlements_count": 2,
+    "generated_at": "2025-07-28T22:51:59Z"
+  }
+}

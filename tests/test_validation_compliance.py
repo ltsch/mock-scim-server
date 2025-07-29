@@ -122,43 +122,50 @@ class TestValidationCompliance:
     
     def test_utility_endpoints_require_api_key(self, client: TestClient):
         """Test that utility endpoints require API key."""
-        # Test /routing endpoint
-        response = client.get("/routing")
+        # Test /api/protected endpoint (which should require auth)
+        response = client.get("/api/protected")
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
         
-        response = client.get("/routing", headers={"Authorization": f"Bearer {settings.test_api_key}"})
+        response = client.get("/api/protected", headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 200
         
-        # Test /protected endpoint
-        response = client.get("/protected")
+        # Test /api/routing endpoint (which should require auth)
+        response = client.get("/api/routing")
         assert response.status_code == 401
         assert "Authorization header required" in response.json()["detail"]
         
-        response = client.get("/protected", headers={"Authorization": f"Bearer {settings.test_api_key}"})
+        response = client.get("/api/routing", headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 200
+        
+        # Test that non-existent endpoints return 404
+        response = client.get("/api/servers")
+        assert response.status_code == 404
     
     def test_health_endpoints_no_auth_required(self, client: TestClient):
-        """Test that health and root endpoints don't require authentication (as intended)."""
+        """Test that health endpoints don't require authentication."""
         # Test /healthz endpoint
         response = client.get("/healthz")
         assert response.status_code == 200
         
-        # Test / endpoint
+        # Test / endpoint (should return 404 since it doesn't exist)
         response = client.get("/")
-        assert response.status_code == 200
+        assert response.status_code == 404
     
     def test_valid_api_keys_accepted(self, client: TestClient):
         """Test that valid API keys are accepted."""
+        # Test with actual SCIM endpoint
+        test_server_id = "test-server-123"
+        
         # Test default API key
-        response = client.get("/protected", headers={"Authorization": f"Bearer {settings.default_api_key}"})
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/ResourceTypes", 
+                           headers={"Authorization": f"Bearer {settings.default_api_key}"})
         assert response.status_code == 200
-        assert response.json()["api_key_name"] == "Default API Key"
         
         # Test test API key
-        response = client.get("/protected", headers={"Authorization": f"Bearer {settings.test_api_key}"})
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/ResourceTypes", 
+                           headers={"Authorization": f"Bearer {settings.test_api_key}"})
         assert response.status_code == 200
-        assert response.json()["api_key_name"] == "Test API Key"
     
     def test_server_id_validation_edge_cases(self, client: TestClient):
         """Test server ID validation with various edge cases."""

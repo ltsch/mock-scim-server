@@ -1,0 +1,516 @@
+{
+  "profile": "marketing",
+  "server_id": "marketing_test_server_1753743118",
+  "creation_result": {
+    "server_id": "marketing_test_server_1753743118",
+    "stats": {
+      "users": 3,
+      "groups": 2,
+      "entitlements": 2,
+      "user_group_relationships": 5,
+      "user_entitlement_relationships": 4
+    },
+    "app_profile": "marketing",
+    "access_url": "http://localhost:7001/scim/v2/Users?serverID=marketing_test_server_1753743118"
+  },
+  "statistics": {
+    "users": 3,
+    "groups": 2,
+    "entitlements": 2,
+    "user_group_relationships": 5,
+    "user_entitlement_relationships": 4
+  },
+  "server_config": {
+    "server_id": "marketing_test_server_1753743118",
+    "name": "SCIM Server marketing_test_server_1753743118",
+    "description": "Dynamic SCIM server with ID marketing_test_server_1753743118",
+    "app_profile": "marketing",
+    "enabled_resource_types": [
+      "User",
+      "Group",
+      "Entitlement"
+    ],
+    "custom_attributes": {},
+    "schema_extensions": {},
+    "entitlement_types": [
+      {
+        "name": "Office 365 License",
+        "type": "application_access",
+        "canonical_values": [
+          "E5",
+          "E3",
+          "Business Basic",
+          "Business Standard",
+          "E1",
+          "F3"
+        ],
+        "multi_valued": false,
+        "description": "Microsoft Office 365 license type"
+      },
+      {
+        "name": "Salesforce Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Administrator",
+          "Standard User",
+          "Read Only",
+          "Marketing User",
+          "Contract Manager"
+        ],
+        "multi_valued": false,
+        "description": "Salesforce user access level"
+      },
+      {
+        "name": "GitHub Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Write",
+          "Read",
+          "Triage",
+          "Maintain"
+        ],
+        "multi_valued": false,
+        "description": "GitHub repository access level"
+      },
+      {
+        "name": "Slack Access",
+        "type": "application_access",
+        "canonical_values": [
+          "Owner",
+          "Admin",
+          "Member",
+          "Guest",
+          "Restricted"
+        ],
+        "multi_valued": false,
+        "description": "Slack workspace access level"
+      },
+      {
+        "name": "System Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Administrator",
+          "User",
+          "Read-Only",
+          "Auditor",
+          "Manager",
+          "Developer"
+        ],
+        "multi_valued": true,
+        "description": "System-wide role assignments (multi-select)"
+      },
+      {
+        "name": "Security Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Security Admin",
+          "Security Analyst",
+          "Security Auditor",
+          "Incident Responder",
+          "Threat Hunter"
+        ],
+        "multi_valued": true,
+        "description": "Security-specific role assignments (multi-select)"
+      },
+      {
+        "name": "Data Access Role",
+        "type": "role_based",
+        "canonical_values": [
+          "Data Owner",
+          "Data Steward",
+          "Data Analyst",
+          "Data Scientist",
+          "Data Engineer"
+        ],
+        "multi_valued": true,
+        "description": "Data access role assignments (multi-select)"
+      },
+      {
+        "name": "VPN Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Limited Access",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "VPN access permission level"
+      },
+      {
+        "name": "Database Access",
+        "type": "permission_based",
+        "canonical_values": [
+          "Full Access",
+          "Read Write",
+          "Read Only",
+          "No Access"
+        ],
+        "multi_valued": false,
+        "description": "Database access permission level"
+      },
+      {
+        "name": "Adobe Creative Suite",
+        "type": "license_based",
+        "canonical_values": [
+          "Creative Cloud All Apps",
+          "Creative Cloud Single App",
+          "Creative Cloud Photography",
+          "Creative Cloud Design"
+        ],
+        "multi_valued": false,
+        "description": "Adobe Creative Suite license type"
+      },
+      {
+        "name": "AWS Access",
+        "type": "license_based",
+        "canonical_values": [
+          "AdministratorAccess",
+          "PowerUserAccess",
+          "ReadOnlyAccess",
+          "BillingAccess"
+        ],
+        "multi_valued": false,
+        "description": "AWS IAM access level"
+      },
+      {
+        "name": "Department Access",
+        "type": "department_based",
+        "canonical_values": [
+          "Engineering",
+          "Marketing",
+          "Sales",
+          "HR",
+          "Finance",
+          "Product",
+          "Design",
+          "Support",
+          "Operations",
+          "Legal",
+          "IT",
+          "Research"
+        ],
+        "multi_valued": true,
+        "description": "Department access assignments (multi-select)"
+      },
+      {
+        "name": "Project Access",
+        "type": "project_based",
+        "canonical_values": [
+          "Project Alpha",
+          "Project Beta",
+          "Project Gamma",
+          "Project Delta",
+          "Project Echo"
+        ],
+        "multi_valued": true,
+        "description": "Project access assignments (multi-select)"
+      }
+    ],
+    "user_attributes": {
+      "required_attributes": [
+        "userName"
+      ],
+      "optional_attributes": [
+        "displayName",
+        "emails",
+        "name",
+        "active"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {
+        "emails": {
+          "type": "complex",
+          "multiValued": true,
+          "subAttributes": [
+            {
+              "name": "value",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "primary",
+              "type": "boolean",
+              "required": false
+            }
+          ]
+        },
+        "name": {
+          "type": "complex",
+          "multiValued": false,
+          "subAttributes": [
+            {
+              "name": "givenName",
+              "type": "string",
+              "required": false
+            },
+            {
+              "name": "familyName",
+              "type": "string",
+              "required": false
+            }
+          ]
+        }
+      }
+    },
+    "group_attributes": {
+      "required_attributes": [
+        "displayName"
+      ],
+      "optional_attributes": [
+        "description"
+      ],
+      "custom_attributes": {},
+      "complex_attributes": {}
+    },
+    "validation_rules": {
+      "strict_mode": true,
+      "allow_unknown_attributes": false,
+      "validate_canonical_values": true,
+      "validate_required_fields": true,
+      "validate_complex_attributes": true
+    },
+    "rate_limits": {
+      "create": 500,
+      "read": 500,
+      "update": 500,
+      "delete": 500
+    },
+    "api_settings": {
+      "max_results_per_page": 100,
+      "default_page_size": 100
+    }
+  },
+  "users": [
+    {
+      "id": 362,
+      "scim_id": "a1bab816-7079-4193-a0f4-160eee6a2818",
+      "external_id": null,
+      "user_name": "perkins.andrea@virtual-org.com",
+      "display_name": "Andrea Perkins",
+      "given_name": null,
+      "family_name": null,
+      "email": "perkins.andrea@virtual-org.com",
+      "active": true,
+      "server_id": "marketing_test_server_1753743118",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 132,
+          "scim_id": "91644804-dfe2-46f5-b086-54a092b6cd94",
+          "display_name": "Salesforce Access",
+          "type": "Marketing User",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 131,
+          "scim_id": "c190f2e0-514f-4909-a1f7-6d7834166ea8",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 120,
+          "scim_id": "d80b8e41-d9f3-4103-bfb7-83fa11e47908",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server marketin"
+        },
+        {
+          "id": 121,
+          "scim_id": "4d6bc90d-3915-42e2-b996-0a6f330280b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server marketin"
+        }
+      ]
+    },
+    {
+      "id": 363,
+      "scim_id": "b71c313b-7344-4686-91fc-d7a339e8a0c9",
+      "external_id": null,
+      "user_name": "smith.richard@scim-test.com",
+      "display_name": "Richard Smith",
+      "given_name": null,
+      "family_name": null,
+      "email": "smith.richard@scim-test.com",
+      "active": true,
+      "server_id": "marketing_test_server_1753743118",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 132,
+          "scim_id": "91644804-dfe2-46f5-b086-54a092b6cd94",
+          "display_name": "Salesforce Access",
+          "type": "Marketing User",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 120,
+          "scim_id": "d80b8e41-d9f3-4103-bfb7-83fa11e47908",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server marketin"
+        }
+      ]
+    },
+    {
+      "id": 364,
+      "scim_id": "7f02b3cd-93cd-45e4-b4df-dc8b6ba6a3b7",
+      "external_id": null,
+      "user_name": "stephengray@demo-org.com",
+      "display_name": "Stephen Gray",
+      "given_name": null,
+      "family_name": null,
+      "email": "stephengray@demo-org.com",
+      "active": true,
+      "server_id": "marketing_test_server_1753743118",
+      "app_profile_id": null,
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 132,
+          "scim_id": "91644804-dfe2-46f5-b086-54a092b6cd94",
+          "display_name": "Salesforce Access",
+          "type": "Marketing User",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 120,
+          "scim_id": "d80b8e41-d9f3-4103-bfb7-83fa11e47908",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server marketin"
+        },
+        {
+          "id": 121,
+          "scim_id": "4d6bc90d-3915-42e2-b996-0a6f330280b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server marketin"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": 120,
+      "scim_id": "d80b8e41-d9f3-4103-bfb7-83fa11e47908",
+      "display_name": "Engineering Team",
+      "description": "Test group 1 for server marketin",
+      "server_id": "marketing_test_server_1753743118",
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 362,
+          "user_name": "perkins.andrea@virtual-org.com",
+          "display_name": "Andrea Perkins"
+        },
+        {
+          "user_id": 363,
+          "user_name": "smith.richard@scim-test.com",
+          "display_name": "Richard Smith"
+        },
+        {
+          "user_id": 364,
+          "user_name": "stephengray@demo-org.com",
+          "display_name": "Stephen Gray"
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "scim_id": "4d6bc90d-3915-42e2-b996-0a6f330280b3",
+      "display_name": "Marketing Team",
+      "description": "Test group 2 for server marketin",
+      "server_id": "marketing_test_server_1753743118",
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 362,
+          "user_name": "perkins.andrea@virtual-org.com",
+          "display_name": "Andrea Perkins"
+        },
+        {
+          "user_id": 364,
+          "user_name": "stephengray@demo-org.com",
+          "display_name": "Stephen Gray"
+        }
+      ]
+    }
+  ],
+  "entitlements": [
+    {
+      "id": 131,
+      "scim_id": "c190f2e0-514f-4909-a1f7-6d7834166ea8",
+      "display_name": "Office 365 License",
+      "type": "Business Basic",
+      "description": "Microsoft Office 365 license type",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "marketing_test_server_1753743118",
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 362,
+          "user_name": "perkins.andrea@virtual-org.com",
+          "display_name": "Andrea Perkins"
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "scim_id": "91644804-dfe2-46f5-b086-54a092b6cd94",
+      "display_name": "Salesforce Access",
+      "type": "Marketing User",
+      "description": "Salesforce user access level",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "marketing_test_server_1753743118",
+      "created_at": "2025-07-28T22:51:58",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 362,
+          "user_name": "perkins.andrea@virtual-org.com",
+          "display_name": "Andrea Perkins"
+        },
+        {
+          "user_id": 363,
+          "user_name": "smith.richard@scim-test.com",
+          "display_name": "Richard Smith"
+        },
+        {
+          "user_id": 364,
+          "user_name": "stephengray@demo-org.com",
+          "display_name": "Stephen Gray"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "users_count": 3,
+    "groups_count": 2,
+    "entitlements_count": 2,
+    "generated_at": "2025-07-28T22:51:58Z"
+  }
+}

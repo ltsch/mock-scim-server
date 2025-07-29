@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey, UniqueConstraint, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -14,6 +14,20 @@ class ApiKey(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_used_at = Column(DateTime(timezone=True), nullable=True)
 
+class AppProfile(Base):
+    """App Profile entity for defining different application layouts and configurations."""
+    __tablename__ = "app_profiles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    profile_id = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    app_type = Column(String(100), nullable=False)  # e.g., "hr", "it", "sales", "marketing"
+    configuration = Column(JSON, nullable=True)  # JSON configuration for the profile
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 class User(Base):
     """SCIM User entity."""
     __tablename__ = "users"
@@ -28,6 +42,7 @@ class User(Base):
     email = Column(String(255), nullable=True)  # Remove global unique constraint
     active = Column(Boolean, default=True)
     server_id = Column(String(255), index=True, nullable=False)
+    app_profile_id = Column(String(255), ForeignKey("app_profiles.profile_id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
