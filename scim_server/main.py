@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends, Request, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from loguru import logger
 import sys
 from contextlib import asynccontextmanager
@@ -9,6 +11,9 @@ from fastapi.exceptions import HTTPException as FastAPIHTTPException
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
+import os
+from fastapi.responses import HTMLResponse
+import ipaddress
 
 from .database import init_db, get_db
 from .auth import get_api_key
@@ -138,14 +143,13 @@ async def not_found_handler(request: Request, exc: HTTPException):
         "help": {
             "available_endpoints": [
                 "/healthz",
-                "/",
-                "/protected",
-                "/routing",
-                "/scim/v2/Users",
-                "/scim/v2/Groups", 
-                "/scim/v2/Entitlements",
-                "/scim/v2/ResourceTypes",
-                "/scim/v2/Schemas",
+                "/frontend/index.html",
+                "/api/info",
+                "/api/protected",
+                "/api/routing",
+                "/api/list-servers",
+                "/api/export-server/{server_id}",
+                "/api/server-stats/{server_id}",
                 "/scim-identifier/{server_id}/scim/v2/Users",
                 "/scim-identifier/{server_id}/scim/v2/Groups",
                 "/scim-identifier/{server_id}/scim/v2/Entitlements",
@@ -154,6 +158,8 @@ async def not_found_handler(request: Request, exc: HTTPException):
             ],
             "common_issues": [
                 "Check if the URL path is correct",
+                "Frontend is available at /frontend/index.html",
+                "API endpoints are under /api/",
                 "Verify the server_id in path-based URLs",
                 "Ensure authentication header is present",
                 "Check if the endpoint supports the HTTP method"
@@ -211,46 +217,134 @@ path_based_routers = create_path_based_routers()
 for router in path_based_routers:
     app.include_router(router)
 
+# Include frontend API router for web UI endpoints
+from frontend.api import router as frontend_router
+app.include_router(frontend_router)
+
+# Include main API router
+from .api_router import router as api_router
+app.include_router(api_router)
+
+# Mount static files for the frontend
+app.mount("/frontend/static", StaticFiles(directory="frontend/static"), name="static")
+
 
 @app.get("/healthz", tags=["Health"])
 def health_check():
-    """Health check endpoint for readiness/liveness probes."""
-    return {"status": "ok"}
+    """Health check endpoint for readiness/liveness probes. No authentication required."""
+    try:
+        # Basic health check - just return OK status
+        # This endpoint is designed for Docker health checks and monitoring
+        return {"status": "ok", "timestamp": str(datetime.now())}
+    except Exception as e:
+        # If there's any error, return 500 to indicate unhealthy state
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=500, detail="Health check failed")
 
-@app.get("/", tags=["Root"])
-def root():
-    """Root endpoint with basic server information."""
-    return {
-        "name": "SCIM.Cloud Development Server",
-        "version": "1.0.0",
-        "description": "SCIM 2.0 server with Okta compatibility"
-    }
+@app.get("/health", tags=["Health"])
+def detailed_health_check(request: Request):
+    """Detailed health check endpoint for comprehensive monitoring. No authentication required."""
+    try:
+        # Import here to avoid circular imports
+        from .database import SessionLocal
+        from sqlalchemy import text
+        
+        # Check if the request is from an internal network
+        client_ip = request.client.host if request.client else "unknown"
+        if not is_internal_network(client_ip):
+            logger.warning(f"Access to /health from external IP: {client_ip}")
+            raise HTTPException(status_code=403, detail="Access denied from external network")
 
-@app.get("/protected", tags=["Auth"])
-async def protected_endpoint(api_key: str = Depends(get_api_key)):
-    """Test endpoint to verify authentication is working."""
-    return {
-        "message": "Authentication successful",
-        "api_key_name": "Test API Key" if api_key == "test" else "Default API Key"
-    }
-
-@app.get("/routing", tags=["Configuration"])
-async def get_routing_info(api_key: str = Depends(get_api_key)):
-    """
-    Get information about the current routing configuration and SCIM client compatibility.
-    This helps developers understand how to configure their SCIM clients.
-    """
-    routing_config = get_routing_config()
-    compatibility_info = get_compatibility_info()
-    
-    return {
-        "routing_strategy": routing_config.strategy.value,
-        "enabled_strategies": [s.value for s in routing_config.enabled_strategies],
-        "url_patterns": routing_config.get_url_patterns(),
-        "compatibility": compatibility_info,
-        "recommendations": {
-            "best_for_scim_clients": "path_parameter",
-            "best_for_okta": "hybrid",
-            "best_for_custom_clients": "query_parameter"
+        # Check database connectivity
+        db_status = "ok"
+        try:
+            db = SessionLocal()
+            # Try a simple query to verify database is working
+            db.execute(text("SELECT 1"))
+            db.close()
+        except Exception as e:
+            db_status = f"error: {str(e)}"
+            logger.error(f"Database health check failed: {e}")
+        
+        health_info = {
+            "status": "ok",
+            "timestamp": str(datetime.now()),
+            "version": "1.0.0",
+            "database": db_status,
+            "endpoints": {
+                "healthz": "/healthz",
+                "health": "/health",
+                "frontend": "/frontend/index.html"
+            }
         }
-    } 
+        
+        # If database is not ok, return 503 (Service Unavailable)
+        if db_status != "ok":
+            return JSONResponse(
+                status_code=503,
+                content=health_info
+            )
+        
+        return health_info
+        
+    except Exception as e:
+        logger.error(f"Detailed health check failed: {e}")
+        raise HTTPException(status_code=500, detail="Health check failed")
+
+@app.get("/frontend/index.html", tags=["Frontend"])
+async def frontend(request: Request):
+    """Frontend web UI endpoint."""
+    # Read the HTML file
+    with open("frontend/static/index.html", "r") as f:
+        html_content = f.read()
+    
+    # Get the Authorization header from the request
+    auth_header = request.headers.get("authorization")
+    
+    # Inject the Authorization header into the HTML as a meta tag
+    if auth_header:
+        # Insert the meta tag in the head section
+        meta_tag = f'<meta name="authorization" content="{auth_header}">'
+        html_content = html_content.replace('<head>', f'<head>\n    {meta_tag}')
+    
+    return HTMLResponse(content=html_content) 
+
+def is_internal_network(client_ip: str) -> bool:
+    """
+    Check if the client IP is from an internal/private network.
+    Allows access from localhost, Docker networks, and private IP ranges.
+    """
+    try:
+        # Special case for TestClient in testing
+        if client_ip == "testclient":
+            return True
+        
+        # Parse the IP address
+        ip = ipaddress.ip_address(client_ip)
+        
+        # Allow localhost
+        if ip.is_loopback:
+            return True
+        
+        # Allow private networks (RFC 1918)
+        if ip.is_private:
+            return True
+        
+        # Allow link-local addresses
+        if ip.is_link_local:
+            return True
+        
+        # Allow Docker default networks (172.16.0.0/12)
+        if ip in ipaddress.ip_network('172.16.0.0/12'):
+            return True
+        
+        # Allow Docker bridge networks (192.168.0.0/16)
+        if ip in ipaddress.ip_network('192.168.0.0/16'):
+            return True
+        
+        return False
+        
+    except ValueError:
+        # If we can't parse the IP, deny access for security
+        logger.warning(f"Invalid IP address format: {client_ip}")
+        return False 

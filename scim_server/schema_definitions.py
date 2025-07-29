@@ -38,8 +38,19 @@ class DynamicSchemaGenerator:
         
         attributes = []
         
-        # Core SCIM attributes
+        # Core SCIM attributes - including required 'schemas' field per RFC 7643 §3.1
         attributes.extend([
+            {
+                "name": "schemas",
+                "type": "string",
+                "multiValued": True,
+                "description": "URIs of schemas used to define the attributes of the current resource",
+                "required": True,
+                "caseExact": False,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+            },
             {
                 "name": "id",
                 "type": "string",
@@ -204,8 +215,19 @@ class DynamicSchemaGenerator:
         
         attributes = []
         
-        # Core SCIM attributes
+        # Core SCIM attributes - including required 'schemas' field per RFC 7643 §3.1
         attributes.extend([
+            {
+                "name": "schemas",
+                "type": "string",
+                "multiValued": True,
+                "description": "URIs of schemas used to define the attributes of the current resource",
+                "required": True,
+                "caseExact": False,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+            },
             {
                 "name": "id",
                 "type": "string",
@@ -322,6 +344,17 @@ class DynamicSchemaGenerator:
             canonical_values.extend(entitlement.get("canonical_values", []))
         
         attributes = [
+            {
+                "name": "schemas",
+                "type": "string",
+                "multiValued": True,
+                "description": "URIs of schemas used to define the attributes of the current resource",
+                "required": True,
+                "caseExact": False,
+                "mutability": "readWrite",
+                "returned": "default",
+                "uniqueness": "none"
+            },
             {
                 "name": "id",
                 "type": "string",

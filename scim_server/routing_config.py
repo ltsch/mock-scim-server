@@ -32,6 +32,7 @@ class RoutingConfig:
             "entitlements_path": "/scim-identifier/{server_id}/scim/v2/Entitlements",
             "resource_types_path": "/scim-identifier/{server_id}/scim/v2/ResourceTypes",
             "schemas_path": "/scim-identifier/{server_id}/scim/v2/Schemas",
+            "service_provider_config_path": "/scim-identifier/{server_id}/scim/v2/ServiceProviderConfig",
         }
         return patterns
 

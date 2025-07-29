@@ -313,6 +313,27 @@ class SchemaValidator:
         attr_name = attr["name"]
         attr_type = attr["type"]
         attr_canonical_values = attr.get("canonicalValues", [])
+        attr_required = attr.get("required", False)
+        
+        # Handle None values for optional fields
+        if value is None:
+            if attr_required:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "SCIM_VALIDATION_ERROR",
+                        "message": f"Required field '{attr_name}' cannot be null",
+                        "field": attr_name,
+                        "provided_value": None,
+                        "resource_type": resource_type,
+                        "server_id": self.server_id,
+                        "type": "required_field_missing",
+                        "help": f"Add a value for '{attr_name}'. This field is required."
+                    }
+                )
+            else:
+                # Optional field can be None
+                return None
         
         # Type validation
         if attr_type == "string":

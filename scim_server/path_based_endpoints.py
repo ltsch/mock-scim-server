@@ -104,9 +104,11 @@ def create_path_based_routers() -> List[APIRouter]:
     )
     
     # Import and register SCIM discovery endpoints
-    from .scim_endpoints import get_resource_types, get_schemas, get_schema_by_urn
+    from .scim_endpoints import get_resource_types, get_schemas, get_schema_by_urn, get_service_provider_config
     
     # Register the endpoints with the path-based router
+    scim_router.add_api_route("/ServiceProviderConfig", get_service_provider_config, methods=["GET"])
+    scim_router.add_api_route("/ServiceProviderConfig/", get_service_provider_config, methods=["GET"])
     scim_router.add_api_route("/ResourceTypes", get_resource_types, methods=["GET"])
     scim_router.add_api_route("/ResourceTypes/", get_resource_types, methods=["GET"])
     scim_router.add_api_route("/Schemas", get_schemas, methods=["GET"])

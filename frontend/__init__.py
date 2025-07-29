@@ -1,0 +1,1 @@
+# Frontend package for SCIM Server web UI

@@ -144,4 +144,12 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
-.hypothesis/ 
+.hypothesis/
+
+# SCIM Client specific
+test-results/
+*.log
+test-report.txt
+playwright-report/
+test-results/
+playwright/.cache/ 

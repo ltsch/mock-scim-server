@@ -334,7 +334,7 @@ class SCIMCLI:
             self.db.rollback()
     
     def create_virtual_server(self, server_id: Optional[str] = None, users: int = None, 
-                            groups: int = None, entitlements: int = None) -> Dict[str, Any]:
+                            groups: int = None, entitlements: int = None, app_profile: Optional[str] = None) -> Dict[str, Any]:
         """Create a new virtual SCIM server with populated data."""
         try:
             # Generate server ID if not provided
@@ -358,16 +358,28 @@ class SCIMCLI:
             self.create_test_entitlements(server_id, entitlements)
             self.create_test_users(server_id, users)  # This will also create relationships
             
+            # Apply app profile if specified
+            if app_profile:
+                try:
+                    server_config_manager = get_server_config_manager(self.db)
+                    server_config_manager.set_server_app_profile(server_id, app_profile)
+                    logger.info(f"Applied app profile '{app_profile}' to server {server_id}")
+                except Exception as e:
+                    logger.warning(f"Failed to apply app profile '{app_profile}': {e}")
+            
             # Get final stats
             stats = self.get_server_stats(server_id)
             
             result = {
                 "server_id": server_id,
                 "stats": stats,
+                "app_profile": app_profile,
                 "access_url": f"http://{settings.client_host}:{settings.port}{settings.api_base_path}/scim/v2/Users?serverID={server_id}"
             }
             
             logger.info(f"Virtual SCIM server '{server_id}' created successfully!")
+            if app_profile:
+                logger.info(f"App Profile: {app_profile}")
             logger.info(f"Final stats: {stats['users']} users, {stats['groups']} groups, "
                        f"{stats['entitlements']} entitlements")
             logger.info(f"Relationships: {stats['user_group_relationships']} user-group, "
@@ -615,6 +627,55 @@ class SCIMCLI:
             logger.error(f"Error creating server config for {server_id}: {e}")
             return {"error": str(e)}
     
+    def list_app_profiles(self) -> Dict[str, Any]:
+        """List all available app profiles."""
+        try:
+            server_config_manager = get_server_config_manager(self.db)
+            profiles = server_config_manager.get_available_app_profiles()
+            return {
+                "success": True,
+                "total": len(profiles),
+                "profiles": profiles
+            }
+        except Exception as e:
+            logger.error(f"Error listing app profiles: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def get_app_profile_config(self, profile: str) -> Dict[str, Any]:
+        """Get configuration for a specific app profile."""
+        try:
+            server_config_manager = get_server_config_manager(self.db)
+            config = server_config_manager.get_app_profile_config(profile)
+            if config:
+                return {
+                    "success": True,
+                    "profile": profile,
+                    "config": config
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": f"App profile '{profile}' not found"
+                }
+        except Exception as e:
+            logger.error(f"Error getting app profile config: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def set_server_app_profile(self, server_id: str, profile: str) -> Dict[str, Any]:
+        """Set app profile for a specific server."""
+        try:
+            server_config_manager = get_server_config_manager(self.db)
+            server_config_manager.set_server_app_profile(server_id, profile)
+            return {
+                "success": True,
+                "server_id": server_id,
+                "profile": profile,
+                "message": f"App profile '{profile}' set for server '{server_id}'"
+            }
+        except Exception as e:
+            logger.error(f"Error setting app profile: {e}")
+            return {"success": False, "error": str(e)}
+    
     def output_json(self, data: Dict[str, Any]) -> None:
         """Shared function to output data in JSON format."""
         print(json.dumps(data, indent=2))
@@ -636,6 +697,12 @@ Examples:
   # Command line mode
   python scripts/scim_cli.py create --users 20 --groups 8 --entitlements 12
   
+  # Create server with HR app profile
+  python scripts/scim_cli.py create --app-profile hr --defaults
+  
+  # Create server with IT app profile
+  python scripts/scim_cli.py create --app-profile it --users 30 --groups 15 --entitlements 20
+  
   # List all servers
   python scripts/scim_cli.py list
   
@@ -653,6 +720,15 @@ Examples:
   
   # Update server configuration from JSON file
   python scripts/scim_cli.py config update --server-id abc123 --config-file config.json
+  
+  # List available app profiles
+  python scripts/scim_cli.py app-profile list
+  
+  # Get HR app profile configuration
+  python scripts/scim_cli.py app-profile get --profile hr
+  
+  # Set IT app profile for existing server
+  python scripts/scim_cli.py app-profile set --server-id abc123 --profile it
         """
     )
     
@@ -666,6 +742,8 @@ Examples:
     create_parser.add_argument('--entitlements', type=int, help='Number of entitlements to create')
     create_parser.add_argument('--defaults', action='store_true', 
                               help='Use default values from config.py (20 users, 10 groups, 12 entitlements)')
+    create_parser.add_argument('--app-profile', choices=['hr', 'it', 'sales', 'marketing', 'finance', 'legal', 'operations', 'security', 'customer_success', 'research'],
+                              help='Apply an app profile to the server')
     create_parser.add_argument('--interactive', '-i', action='store_true', 
                               help='Use interactive mode (ignores other parameters)')
     create_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
@@ -704,6 +782,27 @@ Examples:
     update_config_parser.add_argument('--config-file', help='JSON file containing configuration updates')
     update_config_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
     
+    # App Profile command
+    app_profile_parser = subparsers.add_parser('app-profile', help='Manage app profiles')
+    app_profile_subparsers = app_profile_parser.add_subparsers(dest='app_profile_command', help='App profile subcommands')
+    
+    # List app profiles command
+    list_app_profiles_parser = app_profile_subparsers.add_parser('list', help='List available app profiles')
+    list_app_profiles_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Get app profile command
+    get_app_profile_parser = app_profile_subparsers.add_parser('get', help='Get app profile configuration')
+    get_app_profile_parser.add_argument('--profile', required=True, choices=['hr', 'it', 'sales', 'marketing', 'finance', 'legal', 'operations', 'security', 'customer_success', 'research'],
+                                       help='App profile to get configuration for')
+    get_app_profile_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Set app profile command
+    set_app_profile_parser = app_profile_subparsers.add_parser('set', help='Set app profile for a server')
+    set_app_profile_parser.add_argument('--server-id', required=True, help='Server ID to set app profile for')
+    set_app_profile_parser.add_argument('--profile', required=True, choices=['hr', 'it', 'sales', 'marketing', 'finance', 'legal', 'operations', 'security', 'customer_success', 'research'],
+                                       help='App profile to apply')
+    set_app_profile_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
     args = parser.parse_args()
     
     if not args.command:
@@ -728,7 +827,8 @@ Examples:
                     server_id=args.server_id,
                     users=settings.cli_default_users,
                     groups=settings.cli_default_groups,
-                    entitlements=settings.cli_default_entitlements
+                    entitlements=settings.cli_default_entitlements,
+                    app_profile=args.app_profile
                 )
                 if args.json:
                     cli.output_json(result)
@@ -736,13 +836,16 @@ Examples:
                     logger.info(f"\nVirtual SCIM server created successfully with defaults!")
                     logger.info(f"Server ID: {result['server_id']}")
                     logger.info(f"Access URL: {result['access_url']}")
+                    if args.app_profile:
+                        logger.info(f"App Profile: {args.app_profile}")
                     logger.info(f"Created: {settings.cli_default_users} users, {settings.cli_default_groups} groups, {settings.cli_default_entitlements} entitlements")
             else:
                 result = cli.create_virtual_server(
                     server_id=args.server_id,
                     users=args.users,
                     groups=args.groups,
-                    entitlements=args.entitlements
+                    entitlements=args.entitlements,
+                    app_profile=args.app_profile
                 )
                 if args.json:
                     cli.output_json(result)
@@ -750,6 +853,8 @@ Examples:
                     logger.info(f"\nVirtual SCIM server created successfully!")
                     logger.info(f"Server ID: {result['server_id']}")
                     logger.info(f"Access URL: {result['access_url']}")
+                    if args.app_profile:
+                        logger.info(f"App Profile: {args.app_profile}")
         
         elif args.command == 'list':
             result = cli.list_servers()
@@ -808,6 +913,44 @@ Examples:
                         logger.error(f"Invalid JSON in config file: {args.config_file}")
                 else:
                     logger.error("Please provide a config file with --config-file")
+        
+        elif args.command == 'app-profile':
+            if args.app_profile_command == 'list':
+                result = cli.list_app_profiles()
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        logger.info(f"Available app profiles ({result['total']}):")
+                        for profile in result['profiles']:
+                            logger.info(f"  {profile['id']}: {profile['name']} - {profile['description']}")
+                    else:
+                        logger.error(f"Failed to list app profiles: {result.get('error', 'Unknown error')}")
+            
+            elif args.app_profile_command == 'get':
+                result = cli.get_app_profile_config(args.profile)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        config = result['config']
+                        logger.info(f"App Profile: {config['name']}")
+                        logger.info(f"Description: {config['description']}")
+                        logger.info(f"Compatible Entitlements: {', '.join(config['compatible_entitlements'])}")
+                        logger.info(f"Compatible Departments: {', '.join(config['compatible_departments'])}")
+                        logger.info(f"Compatible Groups: {', '.join(config['compatible_groups'])}")
+                    else:
+                        logger.error(f"Failed to get app profile: {result.get('error', 'Unknown error')}")
+            
+            elif args.app_profile_command == 'set':
+                result = cli.set_server_app_profile(args.server_id, args.profile)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        logger.info(f"Successfully set app profile '{args.profile}' for server '{args.server_id}'")
+                    else:
+                        logger.error(f"Failed to set app profile: {result.get('error', 'Unknown error')}")
     
     except KeyboardInterrupt:
         logger.info("\nOperation cancelled by user.")

@@ -205,9 +205,48 @@ The SCIM server implements **RFC 7644 compliant path-based routing** for maximum
 
 ### **🔄 Planned Features**
 
-- **Web Frontend:** A minimal web UI for browsing and editing database contents
+- **✅ Web Frontend:** A modern web UI for browsing and managing SCIM servers (see [FRONTEND_API.md](FRONTEND_API.md))
 - **Custom Schemas:** Support for custom SCIM schema extensions
 - **Advanced Filtering:** Additional SCIM filter operators and complex queries
+- **Profile Management API:** REST API endpoints for managing application profiles
+
+---
+
+## Application Profiles System
+
+The SCIM server includes a sophisticated **Application Profiles System** that allows different application contexts (HR, IT, Sales, etc.) to have customized views of user data, with specific attribute visibility, mutability rules, and data filtering capabilities.
+
+### **Key Features:**
+- **10 Predefined Profiles**: HR, IT, Sales, Marketing, Finance, Legal, Operations, Security, Customer Success, Research
+- **Attribute Visibility Control**: Each profile defines which user attributes are visible and modifiable
+- **Mutability Rules**: Four levels of attribute control (read-only, read-write, immutable, write-once)
+- **Role-Based Access**: Application-specific roles and permissions
+- **Data Filtering**: Department-based filtering and data visibility rules
+- **Integration**: Seamless integration with existing configuration systems
+
+### **Documentation:**
+For detailed information about the profiles system, including capabilities, limitations, implementation details, and usage examples, see **[PROFILES.md](PROFILES.md)**.
+
+---
+
+## Web Frontend
+
+The SCIM server includes a **modern web interface** for managing virtual SCIM servers and viewing server data.
+
+### **Key Features:**
+- **Server Management**: List all virtual SCIM servers with statistics
+- **Data Export**: Export complete server data with relationships
+- **Real-time Statistics**: View user, group, and entitlement counts
+- **API Integration**: RESTful API endpoints for programmatic access
+- **Caddy Proxy Support**: Automatic API key injection for production use
+
+### **URLs:**
+- **Main Web UI**: `http://localhost:7001/frontend/index.html`
+- **API Endpoints**: `http://localhost:7001/api/`
+- **Static Files**: `http://localhost:7001/frontend/static/`
+
+### **Documentation:**
+For detailed information about the frontend API, including endpoints, authentication, and usage examples, see **[FRONTEND_API.md](FRONTEND_API.md)**.
 
 ---
 
@@ -367,14 +406,17 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
 
 5. **Test the API:**
    ```bash
-   # Health check
-   curl http://localhost:6000/healthz
+   # Basic health check (public access)
+   curl http://localhost:7001/healthz
+   
+   # Detailed health check (internal networks only)
+   curl http://localhost:7001/health
    
    # Get resource types (requires authentication)
-   curl -H "Authorization: Bearer dev-api-key-12345" http://localhost:6000/scim-identifier/test-server/scim/v2/ResourceTypes
+   curl -H "Authorization: Bearer api-key-12345" http://localhost:7001/scim-identifier/test-server/scim/v2/ResourceTypes
    
    # List users with filtering
-   curl -H "Authorization: Bearer dev-api-key-12345" "http://localhost:6000/scim-identifier/test-server/scim/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+   curl -H "Authorization: Bearer api-key-12345" "http://localhost:7001/scim-identifier/test-server/scim/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
    ```
 
 6. **Run comprehensive tests:**
@@ -391,6 +433,241 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
    ```bash
    python scripts/test_enhanced_error_handling.py
    ```
+
+---
+
+## 🚀 **Development Server Runner** (`run_server.py`)
+
+The `run_server.py` script provides a comprehensive development server runner with advanced features for testing and integration scenarios.
+
+### **Prerequisites**
+
+The server requires a Python virtual environment with all dependencies installed:
+
+```bash
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### **Quick Start**
+
+**Option 1: Using the wrapper script (recommended)**
+```bash
+# Start server with default settings
+./run_server_wrapper.sh
+
+# Show help and all options
+./run_server_wrapper.sh --help
+
+# Start server in background (daemon mode)
+./run_server_wrapper.sh -d
+
+# Start server on specific port
+./run_server_wrapper.sh --port 8080
+```
+
+**Option 2: Manual virtual environment activation**
+```bash
+# Activate virtual environment first
+source .venv/bin/activate
+
+# Start server with default settings
+python run_server.py
+
+# Show help and all options
+python run_server.py --help
+
+# Start server in background (daemon mode)
+python run_server.py -d
+
+# Start server on specific port
+python run_server.py --port 8080
+```
+
+### **Command-Line Options**
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `-h, --help` | Show detailed help information | `./run_server_wrapper.sh --help` |
+| `-p, --port PORT` | Specify port number | `./run_server_wrapper.sh --port 8080` |
+| `-H, --host HOST` | Specify host address | `./run_server_wrapper.sh --host 0.0.0.0` |
+| `-d, --daemon` | Run server in background | `./run_server_wrapper.sh -d` |
+| `--pid-file FILE` | Specify PID file for daemon | `./run_server_wrapper.sh -d --pid-file /var/run/scim.pid` |
+| `--reload` | Enable auto-reload for development | `./run_server_wrapper.sh --reload` |
+| `--no-reload` | Disable auto-reload | `./run_server_wrapper.sh --no-reload` |
+| `--log-level LEVEL` | Set log level (debug, info, warning, error) | `./run_server_wrapper.sh --log-level debug` |
+| `--version` | Show version information | `./run_server_wrapper.sh --version` |
+
+### **Usage Examples**
+
+#### **Basic Usage**
+```bash
+# Start with default settings (localhost:7001)
+./run_server_wrapper.sh
+
+# Start on specific host and port
+./run_server_wrapper.sh --host 0.0.0.0 --port 9000
+
+# Start with debug logging
+./run_server_wrapper.sh --log-level debug
+```
+
+#### **Development Mode**
+```bash
+# Start with auto-reload enabled
+./run_server_wrapper.sh --reload
+
+# Start with auto-reload disabled
+./run_server_wrapper.sh --no-reload
+```
+
+#### **Daemon Mode (Background Operation)**
+```bash
+# Start server in background
+./run_server_wrapper.sh -d
+
+# Start daemon with custom PID file
+./run_server_wrapper.sh -d --pid-file /var/run/scim_server.pid
+
+# Start daemon on specific port
+./run_server_wrapper.sh -d --port 8080
+
+# Check if daemon is running
+ps aux | grep run_server.py
+
+# Stop the daemon
+kill $(cat /tmp/scim_server.pid)
+
+# View daemon logs
+tail -f /tmp/scim_server.log
+```
+
+### **Virtual Environment Management**
+
+The server requires a Python virtual environment with all dependencies installed. The wrapper script (`run_server_wrapper.sh`) automatically:
+
+- ✅ **Activates the virtual environment** (`.venv`)
+- ✅ **Validates the environment** before running
+- ✅ **Provides clear error messages** if setup is incorrect
+- ✅ **Passes all arguments** to the Python script
+
+If you prefer to run manually:
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run the server
+python run_server.py [options]
+```
+
+### **Daemon Management**
+
+When using daemon mode (`-d` flag), the server runs in the background with these features:
+
+- **PID File**: Created at `/tmp/scim_server.pid` (or custom location)
+- **Log File**: All output captured in `/tmp/scim_server.log`
+- **Process Safety**: Prevents duplicate daemons and handles cleanup
+- **Signal Handling**: Graceful shutdown with SIGTERM/SIGINT
+- **Virtual Environment**: Automatically uses the correct Python environment
+
+#### **Daemon Status Check**
+```bash
+# Check if daemon is running
+if [ -f /tmp/scim_server.pid ]; then
+    echo "Daemon PID: $(cat /tmp/scim_server.pid)"
+    ps -p $(cat /tmp/scim_server.pid) > /dev/null && echo "Daemon is running" || echo "Daemon is not running"
+else
+    echo "No daemon PID file found"
+fi
+```
+
+### **Server Features**
+
+The development server includes:
+
+- **✅ Multi-server support** with virtual SCIM servers
+- **✅ RFC 7644 compliant** SCIM 2.0 endpoints
+- **✅ Okta integration ready** with entitlement support
+- **✅ Enhanced Application Profiles System** with 13 profile types
+- **✅ Comprehensive test coverage** (198/198 tests)
+- **✅ Dynamic schema system** with server-specific configurations
+- **✅ Authentication system** with API key support
+
+### **Available Endpoints**
+
+When the server starts, it displays available endpoints:
+
+```
+Available endpoints:
+  /healthz                                    # Basic health check (public access)
+  /health                                     # Detailed health check (internal networks only)
+  /scim-identifier/{server_id}/scim/v2/Users
+  /scim-identifier/{server_id}/scim/v2/Groups
+  /scim-identifier/{server_id}/scim/v2/Entitlements
+  /scim-identifier/{server_id}/scim/v2/Roles
+  /scim-identifier/{server_id}/scim/v2/ResourceTypes
+  /scim-identifier/{server_id}/scim/v2/Schemas
+```
+
+### **Authentication**
+
+Use Bearer token authentication with API keys:
+- `default_api_key`: For normal operations
+- `test_api_key`: For testing operations
+
+```bash
+# Example API call
+curl -H "Authorization: Bearer default_api_key" \
+     http://localhost:7001/scim-identifier/test-server/scim/v2/Users
+```
+
+### **Configuration**
+
+The server uses settings from `scim_server.config`:
+- **Host**: Default `0.0.0.0`
+- **Port**: Default `7001`
+- **Reload**: Default `True` for development
+- **Log Level**: Default `debug`
+
+### **Troubleshooting**
+
+#### **Common Issues**
+
+1. **Port already in use**:
+   ```bash
+   # Check what's using the port
+   lsof -i :7001
+   
+   # Use different port
+   python run_server.py --port 8080
+   ```
+
+2. **Daemon already running**:
+   ```bash
+   # Stop existing daemon
+   kill $(cat /tmp/scim_server.pid)
+   
+   # Or remove stale PID file
+   rm /tmp/scim_server.pid
+   ```
+
+3. **Permission denied**:
+   ```bash
+   # Use different PID file location
+   python run_server.py -d --pid-file /tmp/my_scim.pid
+   ```
+
+#### **Log Files**
+
+- **Daemon logs**: `/tmp/scim_server.log`
+- **Application logs**: Check console output for non-daemon mode
+- **Error logs**: Both console and log file for daemon mode
 
 ---
 
@@ -557,22 +834,22 @@ curl -X POST -H "Authorization: Bearer test-api-key-12345" -H "Content-Type: app
 ```bash
 # Access virtual server with ID "12345"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users?serverID=12345"
+  "http://localhost:7001/v2/Users?serverID=12345"
 
 # Access virtual server with ID "test-env"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Groups?serverID=test-env"
+  "http://localhost:7001/v2/Groups?serverID=test-env"
 ```
 
 ### **Path Parameter Pattern**
 ```bash
 # Access virtual server with UUID "550e8400-e29b-41d4-a716-446655440000"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/scim-identifier/550e8400-e29b-41d4-a716-446655440000/scim/v2/Users"
+  "http://localhost:7001/scim-identifier/550e8400-e29b-41d4-a716-446655440000/scim/v2/Users"
 
 # Access virtual server with UUID "test-uuid-123"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/scim-identifier/test-uuid-123/scim/v2/Groups"
+  "http://localhost:7001/scim-identifier/test-uuid-123/scim/v2/Groups"
 ```
 
 ### **Standard SCIM Endpoints**
@@ -691,6 +968,156 @@ cli_max_roles_per_user: int = 3  # Maximum roles a user can have
 
 ---
 
+## 🆕 **Enhanced Application Profiles System** *(New in this branch)*
+
+The SCIM server now includes a sophisticated **Application Profiles System** that provides comprehensive context documentation and enhanced user attributes for realistic testing scenarios. This system allows different application contexts (HR, IT, Sales, etc.) to have customized views of user data with specific attribute visibility, mutability rules, and data filtering capabilities.
+
+### **🎯 Key Enhancements**
+
+#### **1. Comprehensive Context Documentation**
+- **Mutability Rules**: Clear explanation of READ_ONLY, READ_WRITE, IMMUTABLE, and WRITE_ONCE
+- **Acceptable Values**: Format requirements for emails, phone numbers, addresses, employee numbers, etc.
+- **Profile-Specific Rules**: Context for each profile type and their unique requirements
+- **Compliance Awareness**: Each profile explains its compliance requirements and data sensitivity levels
+
+#### **2. Enhanced User Attributes**
+- **Multiple Email Addresses**: Support for work and personal email addresses following SCIM 2.0 specification
+- **Multiple Phone Numbers**: Support for work, mobile, and other phone number types
+- **Location Information**: Comprehensive address attributes including city, state, country, and postal code
+- **Enhanced Employment Details**: Improved field organization with logical grouping and descriptive comments
+
+#### **3. New Common Profiles**
+- **Engineering Profile**: Software development and engineering operations
+- **Product Profile**: Product management and development
+- **Support Profile**: Customer support and technical assistance
+
+### **📋 Supported Application Types**
+
+The system supports **13 application profiles** with detailed context documentation:
+
+| Profile Type | Purpose | Data Sensitivity | Key Restrictions |
+|--------------|---------|------------------|------------------|
+| **HR** | Employee lifecycle management | HIGH | Employee numbers and hire dates are WRITE_ONCE |
+| **IT** | System administration and access control | HIGH | Technical entitlements require approval workflows |
+| **Sales** | Sales operations and CRM access | MEDIUM | Territory assignments may require management approval |
+| **Marketing** | Campaign management and brand communications | MEDIUM | Creative tool access requires brand compliance approval |
+| **Finance** | Financial operations and accounting | HIGH | Cost centers require approval, financial data access requires audit logging |
+| **Legal** | Legal operations and compliance management | HIGH | Legal document access requires privilege level verification |
+| **Operations** | Business operations and process management | MEDIUM | Process changes require operational review and approval |
+| **Security** | Security operations and access control | HIGH | Security access requires background checks and approval |
+| **Customer Success** | Customer relationship management | MEDIUM | Customer data access requires customer consent and privacy compliance |
+| **Research** | Research operations and data analysis | MEDIUM | Research data access requires research ethics approval |
+| **Engineering** | Software development and engineering | MEDIUM | Code repository access requires code review and security approval |
+| **Product** | Product management and development | MEDIUM | Product roadmap access requires product strategy approval |
+| **Support** | Technical support and customer assistance | MEDIUM | Customer data access requires customer consent and privacy compliance |
+
+### **🔧 Technical Implementation**
+
+#### **Profile Configuration**
+```python
+@dataclass
+class AppProfileConfig:
+    app_type: AppType
+    name: str
+    description: str
+    user_attributes: List[AttributeConfig]
+    roles: List[RoleConfig]
+    entitlements: List[EntitlementConfig]
+    data_filters: Dict[str, Any]
+    mutability_rules: Dict[str, MutabilityLevel]
+    compatible_entitlements: List[str]
+    compatible_departments: List[str]
+    compatible_groups: List[str]
+```
+
+#### **Mutability Levels**
+- **READ_ONLY**: Attribute cannot be modified
+- **READ_WRITE**: Full read/write access
+- **IMMUTABLE**: Cannot be changed after creation
+- **WRITE_ONCE**: Can be set during creation only
+
+### **📝 Usage Examples**
+
+#### **Creating a User with Multiple Emails**
+```json
+{
+  "userName": "john.doe",
+  "displayName": "John Doe",
+  "emails": [
+    {"value": "john.doe@company.com", "type": "work", "primary": true},
+    {"value": "john.doe@gmail.com", "type": "home"}
+  ],
+  "phoneNumbers": [
+    {"value": "+1-555-123-4567", "type": "work"},
+    {"value": "+1-555-987-6543", "type": "mobile"}
+  ],
+  "addresses": [
+    {
+      "type": "work",
+      "streetAddress": "123 Main St",
+      "locality": "San Francisco",
+      "region": "CA",
+      "postalCode": "94105",
+      "country": "US"
+    }
+  ]
+}
+```
+
+#### **Profile-Specific Operations**
+```python
+# Get HR profile and understand its restrictions
+manager = AppProfileManager()
+hr_profile = manager.get_profile(AppType.HR)
+
+# Check if employee number can be modified (it cannot - WRITE_ONCE)
+can_modify = manager.validate_attribute_mutability(
+    AppType.HR, "employeeNumber", "write"
+)  # Returns False
+
+# Get compatible entitlements for IT profile
+it_entitlements = manager.get_compatible_entitlements(AppType.IT)
+# Returns: ['Office 365 License', 'GitHub Access', 'Slack Access', 'VPN Access', ...]
+
+# Get visible attributes for Sales profile
+sales_attrs = manager.get_visible_attributes(AppType.SALES)
+# Returns all attributes visible to sales applications
+```
+
+### **✅ Benefits for Developers**
+
+#### **1. Clear Understanding**
+- Developers understand exactly what can be changed and when
+- Clear guidance on acceptable values and formats
+- Context for why certain restrictions exist
+
+#### **2. Compliance Awareness**
+- Each profile explains its compliance requirements
+- Data sensitivity levels are clearly documented
+- Approval workflows and restrictions are explained
+
+#### **3. Practical Examples**
+- Code examples show how to use the profile system
+- Real-world scenarios for each profile type
+- Clear guidance on integration with existing systems
+
+#### **4. Error Prevention**
+- Clear documentation prevents common mistakes
+- Understanding of mutability rules prevents invalid operations
+- Knowledge of acceptable values prevents data format errors
+
+### **🧪 Testing Status**
+
+All tests continue to pass with the enhanced documentation:
+- **57/57 profile tests** ✅
+- **19/19 CLI tests** ✅
+- **Enhanced documentation** ✅
+- **Backward compatibility** ✅
+
+The enhanced documentation provides developers with comprehensive guidance while maintaining full functionality and test coverage.
+
+---
+
 ## Design Philosophies
 
 - **Simplicity First:** Prioritize clear, maintainable code and a simple, functional UI (for the planned frontend). Avoid unnecessary complexity or "fancy" features.
@@ -762,9 +1189,9 @@ The SCIM server uses a simple configuration file (`scim_server/config.py`) with 
 - `rate_limit_read`: Rate limit for read operations (default: `100` requests per minute)
 - `rate_limit_window`: Rate limit window in seconds (default: `60`)
 - `host`: Server host (default: `0.0.0.0`)
-- `port`: Server port (default: `6000`)
+- `port`: Server port (default: `7001`)
 - `log_level`: Logging level (default: `debug`)
-- `default_api_key`: Development API key (default: `dev-api-key-12345`)
+- `default_api_key`: Development API key (default: `api-key-12345`)
 - `test_api_key`: Test API key (default: `test-api-key-12345`)
 
 ### **CLI Tool Settings:**
@@ -801,7 +1228,7 @@ Simply edit `scim_server/config.py` to change any settings:
 
 ```python
 # Example: Change port and API keys
-port: int = 6000
+port: int = 7001
 default_api_key: str = "my-custom-dev-key"
 test_api_key: str = "my-custom-test-key"
 ```
@@ -811,7 +1238,7 @@ test_api_key: str = "my-custom-test-key"
 - All API requests must include an `Authorization: Bearer <API_KEY>` header.
 - API keys are stored in the SQLite database and can be managed via the API.
 - Requests without a valid API key will receive a 401 Unauthorized response.
-- Default development API key: Configurable in `scim_server/config.py` (default: `dev-api-key-12345`)
+- Default development API key: Configurable in `scim_server/config.py` (default: `api-key-12345`)
 - Test API key: Configurable in `scim_server/config.py` (default: `test-api-key-12345`)
 - **Multi-Server Note**: All virtual SCIM servers share the same API key authentication system.
 
@@ -825,26 +1252,26 @@ The server supports SCIM 2.0 filtering and pagination:
 ```bash
 # Exact username match
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+  "http://localhost:7001/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
 
 # Contains display name
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?filter=displayName%20co%20%22John%22"
+  "http://localhost:7001/v2/Users/?filter=displayName%20co%20%22John%22"
 
 # Group filtering
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
+  "http://localhost:7001/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
 ```
 
 ### **Pagination Examples:**
 ```bash
 # Get first 2 users
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?startIndex=1&count=2"
+  "http://localhost:7001/v2/Users/?startIndex=1&count=2"
 
 # Get users 3-5
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?startIndex=3&count=3"
+  "http://localhost:7001/v2/Users/?startIndex=3&count=3"
 ```
 
 ---

@@ -283,16 +283,32 @@ class TestRFC7644SpecificCompliance(DynamicTestDataMixin):
         test_server_id = "rfc-config-test"
         
         # RFC 7644 Section 3.2 - Test Service Provider Configuration
-        # Note: Our implementation uses ResourceTypes instead of ServiceProviderConfig
-        
-        # Test ResourceTypes endpoint (our equivalent)
-        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/ResourceTypes/",
+        # Test ServiceProviderConfig endpoint (REQUIRED by RFC 7644 §4.4)
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/ServiceProviderConfig",
                             headers={"Authorization": f"Bearer {sample_api_key}"})
         assert response.status_code == 200
         data = response.json()
         
         # Verify RFC-compliant response format
         assert "schemas" in data
-        assert "urn:ietf:params:scim:api:messages:2.0:ListResponse" in data["schemas"]
-        assert "totalResults" in data
-        assert "Resources" in data 
+        assert "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig" in data["schemas"]
+        assert "patch" in data
+        assert "bulk" in data
+        assert "filter" in data
+        assert "authenticationSchemes" in data
+        
+        # Verify specific capability configurations
+        assert data["patch"]["supported"] is True
+        assert data["bulk"]["supported"] is False
+        assert data["filter"]["supported"] is True
+        assert data["changePassword"]["supported"] is False
+        assert data["sort"]["supported"] is False
+        assert data["etag"]["supported"] is False
+        
+        # Verify authentication scheme
+        auth_schemes = data["authenticationSchemes"]
+        assert len(auth_schemes) >= 1
+        oauth_scheme = auth_schemes[0]
+        assert oauth_scheme["type"] == "oauthbearertoken"
+        assert "name" in oauth_scheme
+        assert "description" in oauth_scheme 

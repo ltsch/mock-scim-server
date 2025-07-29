@@ -157,7 +157,7 @@ class TestErrorHandling(DynamicTestDataMixin):
         
         # Test with invalid JSON
         response = client.post(f"/scim-identifier/{test_server_id}/scim/v2/Users/",
-                             data="invalid json",
+                             content="invalid json",
                              headers={"Authorization": f"Bearer {sample_api_key}",
                                     "Content-Type": "application/json"})
         assert response.status_code == 422

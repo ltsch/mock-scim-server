@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCIM Server Management</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .api-key-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-danger {
+            background: #e74c3c;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-success {
+            background: #27ae60;
+        }
+        .btn-success:hover {
+            background: #229954;
+        }
+        .server-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .server-id {
+            font-family: monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .export-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .export-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #exportData {
+            width: 100%;
+            height: 500px;
+            min-height: 400px;
+            max-height: 800px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SCIM Server Management</h1>
+            <p>Monitor and export your virtual SCIM servers</p>
+        </div>
+        
+        <div class="content">
+            <div class="api-key-section">
+                <h3>API Configuration</h3>
+                <input type="password" id="apiKey" class="api-key-input" placeholder="Enter your API key (Bearer token)">
+                <button class="btn btn-success" onclick="testApiKey()">Test API Key</button>
+                <span id="apiKeyStatus"></span>
+            </div>
+
+            <div>
+                <h3>Server List</h3>
+                <button class="btn" onclick="loadServers()">Refresh Servers</button>
+                <div id="serversList"></div>
+            </div>
+
+            <div class="export-section">
+                <h3>Export Server Data</h3>
+                <div class="export-controls">
+                    <input type="text" id="exportServerId" placeholder="Enter server ID" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="includeRelationships" checked>
+                        <label for="includeRelationships">Include relationships</label>
+                    </div>
+                    <button class="btn btn-success" onclick="exportServer()">Export</button>
+                </div>
+                <textarea id="exportData" readonly placeholder="Exported data will appear here..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // Extract API key from current request headers
+        function getApiKey() {
+            // Try to get the Authorization header from the current page request
+            // This will be available if Caddy injected it for the frontend request
+            const authHeader = document.querySelector('meta[name="authorization"]')?.content;
+            if (authHeader) {
+                return authHeader;
+            }
+            
+            // Fallback: try to get from a custom header or data attribute
+            const apiKey = document.querySelector('meta[name="api-key"]')?.content;
+            if (apiKey) {
+                return `Bearer ${apiKey}`;
+            }
+            
+            return null;
+        }
+        
+        function setStatus(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = isError ? 'error' : 'success';
+        }
+        
+        function clearStatus(elementId) {
+            const element = document.getElementById(elementId);
+            element.textContent = '';
+            element.className = '';
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show a brief success message
+                const tempDiv = document.createElement('div');
+                tempDiv.textContent = 'URL copied to clipboard!';
+                tempDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #27ae60;
+                    color: white;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    z-index: 1000;
+                    font-size: 14px;
+                `;
+                document.body.appendChild(tempDiv);
+                setTimeout(() => {
+                    document.body.removeChild(tempDiv);
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy URL to clipboard');
+            });
+        }
+        
+        function copyServerUrl(serverId, endpoint = 'Users') {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const scimUrl = `${protocol}//${host}/scim-identifier/${serverId}/scim/v2/${endpoint}`;
+            copyToClipboard(scimUrl);
+        }
+        
+        async function makeApiCall(endpoint, options = {}) {
+            const apiKey = getApiKey();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            // Add Authorization header if we have an API key
+            if (apiKey) {
+                headers['Authorization'] = apiKey;
+            }
+            
+            const response = await fetch(`${API_BASE}${endpoint}`, {
+                headers,
+                ...options
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+        
+        async function testApiKey() {
+            try {
+                clearStatus('apiKeyStatus');
+                await makeApiCall('/list-servers');
+                setStatus('apiKeyStatus', '✅ API access working (proxy configured)');
+            } catch (error) {
+                setStatus('apiKeyStatus', `❌ ${error.message}`, true);
+            }
+        }
+        
+        async function loadServers() {
+            const serversList = document.getElementById('serversList');
+            serversList.innerHTML = '<div class="loading">Loading servers...</div>';
+            
+            try {
+                const data = await makeApiCall('/list-servers');
+                
+                if (data.servers.length === 0) {
+                    serversList.innerHTML = '<div class="loading">No servers found</div>';
+                    return;
+                }
+                
+                serversList.innerHTML = data.servers.map(server => `
+                    <div class="server-card">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div class="server-id">${server.server_id}</div>
+                            <button class="btn" onclick="copyServerUrl('${server.server_id}', 'Users')" style="padding: 5px 10px; font-size: 12px;">Copy Users URL</button>
+                            <button class="btn" onclick="copyServerUrl('${server.server_id}', 'Groups')" style="padding: 5px 10px; font-size: 12px;">Copy Groups URL</button>
+                        </div>
+                        ${server.app_profile ? `
+                            <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #3498db;">
+                                <div><strong>Profile:</strong> ${server.app_profile.name || server.app_profile.id}</div>
+                                ${server.app_profile.description ? `<div><strong>Description:</strong> ${server.app_profile.description}</div>` : ''}
+                                ${server.app_profile.app_type ? `<div><strong>Type:</strong> ${server.app_profile.app_type}</div>` : ''}
+                                ${server.app_profile.is_active !== undefined ? `<div><strong>Active:</strong> ${server.app_profile.is_active ? 'Yes' : 'No'}</div>` : ''}
+                            </div>
+                        ` : ''}
+                        <div class="stats">
+                            <div class="stat-item">
+                                <div class="stat-number">${server.stats.users}</div>
+                                <div class="stat-label">Users</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${server.stats.groups}</div>
+                                <div class="stat-label">Groups</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${server.stats.entitlements}</div>
+                                <div class="stat-label">Entitlements</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${server.stats.user_group_relationships}</div>
+                                <div class="stat-label">User-Group</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">${server.stats.user_entitlement_relationships}</div>
+                                <div class="stat-label">User-Entitlement</div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn" onclick="exportServerById('${server.server_id}')">Export This Server</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                serversList.innerHTML = `<div class="error">Error loading servers: ${error.message}</div>`;
+            }
+        }
+        
+        async function exportServer() {
+            const serverId = document.getElementById('exportServerId').value;
+            const includeRelationships = document.getElementById('includeRelationships').checked;
+            const exportData = document.getElementById('exportData');
+            
+            if (!serverId) {
+                alert('Please enter a server ID');
+                return;
+            }
+            
+            exportData.value = 'Exporting...';
+            
+            try {
+                const data = await makeApiCall(`/export-server/${serverId}?include_relationships=${includeRelationships}`);
+                exportData.value = JSON.stringify(data, null, 2);
+            } catch (error) {
+                exportData.value = `Error: ${error.message}`;
+            }
+        }
+        
+        async function exportServerById(serverId) {
+            document.getElementById('exportServerId').value = serverId;
+            await exportServer();
+        }
+        
+        async function getServerStats(serverId) {
+            try {
+                const data = await makeApiCall(`/server-stats/${serverId}`);
+                alert(`Server Stats for ${serverId}:\n\n` +
+                      `Users: ${data.stats.users}\n` +
+                      `Groups: ${data.stats.groups}\n` +
+                      `Entitlements: ${data.stats.entitlements}\n` +
+                      `User-Group Relationships: ${data.stats.user_group_relationships}\n` +
+                      `User-Entitlement Relationships: ${data.stats.user_entitlement_relationships}\n\n` +
+                      `App Profile: ${data.app_profile || 'None'}`);
+            } catch (error) {
+                alert(`Error getting stats: ${error.message}`);
+            }
+        }
+        
+        // Auto-load servers when page loads (no API key needed)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide the API key section since it's handled by proxy
+            const apiKeySection = document.querySelector('.api-key-section');
+            if (apiKeySection) {
+                apiKeySection.style.display = 'none';
+            }
+            
+            // Auto-load servers
+            loadServers();
+        });
+    </script>
+</body>
+</html>

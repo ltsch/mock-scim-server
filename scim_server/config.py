@@ -250,8 +250,8 @@ class Settings:
     ]
     
     cli_company_domains: list = [
-        "example.com", "testcompany.com", "demo-org.com", "scim-test.com", "dev-company.com",
-        "mock-enterprise.com", "sample-corp.com", "virtual-org.com", "simulation-inc.com"
+        "example.lan", "testcompany.lan", "demo-org.lan", "scim-test.lan", "dev-company.lan",
+        "mock-enterprise.lan", "sample-corp.lan", "virtual-org.lan", "simulation-inc.lan"
     ]
     
     # User attribute distribution settings (percentages)

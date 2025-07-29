@@ -12,6 +12,8 @@ from loguru import logger
 import json
 from .models import Schema
 from .config import settings
+# Import app profiles only when needed to avoid circular imports
+# from .app_profiles import get_app_profile_manager, AppType
 
 
 class ServerConfiguration:
@@ -29,6 +31,10 @@ class ServerConfiguration:
     
     def _load_server_config(self, server_id: str) -> Dict[str, Any]:
         """Load or create server-specific configuration."""
+        # Validate server_id is not None
+        if server_id is None:
+            raise ValueError("server_id cannot be None")
+        
         # Try to load from database first
         db_schema = self.db.query(Schema).filter(
             Schema.urn == f"urn:scim:server:{server_id}:config"
@@ -54,6 +60,7 @@ class ServerConfiguration:
             "server_id": server_id,
             "name": f"SCIM Server {server_id}",
             "description": f"Dynamic SCIM server with ID {server_id}",
+            "app_profile": None,  # No app profile by default
             "enabled_resource_types": ["User", "Group", "Entitlement"],
             "custom_attributes": {},
             "schema_extensions": {},
@@ -129,6 +136,10 @@ class ServerConfiguration:
     
     def _save_server_config(self, server_id: str, config: Dict[str, Any]) -> None:
         """Save server configuration to database."""
+        # Validate server_id is not None
+        if server_id is None:
+            raise ValueError("server_id cannot be None")
+        
         schema_urn = f"urn:scim:server:{server_id}:config"
         
         # Check if config already exists
@@ -257,6 +268,91 @@ class ServerConfiguration:
             "update": settings.rate_limit_create,
             "delete": settings.rate_limit_create
         })
+    
+    def get_server_app_profile(self, server_id: str) -> Optional[str]:
+        """Get the app profile for a specific server."""
+        config = self.get_server_config(server_id)
+        return config.get("app_profile")
+    
+    def set_server_app_profile(self, server_id: str, app_profile: str) -> None:
+        """Set the app profile for a specific server."""
+        config = self.get_server_config(server_id)
+        config["app_profile"] = app_profile
+        self._save_server_config(server_id, config)
+        logger.info(f"Set app profile '{app_profile}' for server {server_id}")
+    
+    def get_available_app_profiles(self) -> List[Dict[str, Any]]:
+        """Get list of available app profiles."""
+        try:
+            # Import here to avoid circular imports
+            from .app_profiles import get_app_profile_manager
+            profiles = []
+            app_profile_manager = get_app_profile_manager()
+            for app_type, profile_config in app_profile_manager.get_all_profiles().items():
+                profiles.append({
+                    "id": app_type.value,
+                    "name": profile_config.name,
+                    "description": profile_config.description,
+                    "app_type": app_type.value
+                })
+            return profiles
+        except ImportError:
+            logger.warning("App profiles not available")
+            return []
+    
+    def get_app_profile_config(self, app_profile: str) -> Optional[Dict[str, Any]]:
+        """Get configuration for a specific app profile."""
+        try:
+            # Import here to avoid circular imports
+            from .app_profiles import get_app_profile_manager, AppType
+            app_type = AppType(app_profile)
+            app_profile_manager = get_app_profile_manager()
+            profile = app_profile_manager.get_profile(app_type)
+            if profile:
+                return {
+                    "app_type": app_type.value,
+                    "name": profile.name,
+                    "description": profile.description,
+                    "compatible_entitlements": profile.compatible_entitlements,
+                    "compatible_departments": profile.compatible_departments,
+                    "compatible_groups": profile.compatible_groups,
+                    "user_attributes": [
+                        {
+                            "name": attr.name,
+                            "mutability": attr.mutability.value,
+                            "required": attr.required,
+                            "visible": attr.visible,
+                            "description": attr.description
+                        }
+                        for attr in profile.user_attributes
+                    ],
+                    "roles": [
+                        {
+                            "name": role.name,
+                            "description": role.description,
+                            "permissions": role.permissions,
+                            "mutability": role.mutability.value
+                        }
+                        for role in profile.roles
+                    ],
+                    "entitlements": [
+                        {
+                            "name": entitlement.name,
+                            "type": entitlement.type,
+                            "canonical_values": entitlement.canonical_values,
+                            "multi_valued": entitlement.multi_valued,
+                            "mutability": entitlement.mutability.value,
+                            "description": entitlement.description
+                        }
+                        for entitlement in profile.entitlements
+                    ]
+                }
+        except ValueError:
+            logger.warning(f"Invalid app profile: {app_profile}")
+            return None
+        except ImportError:
+            logger.warning(f"App profiles not available: {app_profile}")
+            return None
 
 
 # Global server configuration manager
