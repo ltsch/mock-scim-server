@@ -19,6 +19,42 @@ limiter = Limiter(key_func=get_remote_address)
 api_prefix = f"{settings.api_base_path}/scim/v2"
 router = APIRouter(prefix=api_prefix, tags=["SCIM"])
 
+@router.get("/ServiceProviderConfig")
+@router.get("/ServiceProviderConfig/")  # With trailing slash
+@limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
+async def get_service_provider_config(
+    request: Request,
+    server_id: str = Depends(get_validated_server_id),
+    api_key: str = Depends(get_api_key),
+    db: Session = Depends(get_db)
+):
+    """
+    Get Service Provider Configuration per RFC 7644 §4.4.
+    This endpoint is used to discover the capabilities supported by a SCIM service provider.
+    """
+    logger.info(f"ServiceProviderConfig endpoint called for server: {server_id}")
+    
+    # Return RFC 7644 §4.4 compliant ServiceProviderConfig response
+    response = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
+        "patch": {"supported": True},
+        "bulk": {"supported": False, "maxOperations": 0},
+        "filter": {"supported": True, "maxResults": 200},
+        "changePassword": {"supported": False},
+        "sort": {"supported": False},
+        "etag": {"supported": False},
+        "authenticationSchemes": [
+            {
+                "type": "oauthbearertoken",
+                "name": "OAuth Bearer Token",
+                "description": "OAuth Bearer Token authentication"
+            }
+        ]
+    }
+    
+    logger.info(f"Returning ServiceProviderConfig for server: {server_id}")
+    return response
+
 @router.get("/ResourceTypes")
 @router.get("/ResourceTypes/")  # With trailing slash
 @limiter.limit(f"{settings.rate_limit_read}/{settings.rate_limit_window}minute")
@@ -99,16 +135,7 @@ async def get_schema_by_urn(
     schema = schema_generator.get_schema_by_urn(schema_urn)
     
     if not schema:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": "SCIM_VALIDATION_ERROR",
-                "message": f"Schema '{schema_urn}' not found",
-                "schema_urn": schema_urn,
-                "server_id": server_id,
-                "help": f"The schema '{schema_urn}' is not available for this server."
-            }
-        )
+        raise HTTPException(status_code=404, detail=f"Schema not found: {schema_urn}")
     
-    logger.info(f"Returning schema {schema_urn} for server: {server_id}")
+    logger.info(f"Returning schema for URN: {schema_urn}, server: {server_id}")
     return schema 

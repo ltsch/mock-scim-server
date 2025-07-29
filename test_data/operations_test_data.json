@@ -1,29 +1,29 @@
 {
   "profile": "operations",
-  "server_id": "operations_test_server_1753743119",
+  "server_id": "operations_test_server_1753806341",
   "creation_result": {
-    "server_id": "operations_test_server_1753743119",
+    "server_id": "operations_test_server_1753806341",
     "stats": {
-      "users": 3,
-      "groups": 2,
-      "entitlements": 2,
-      "user_group_relationships": 6,
-      "user_entitlement_relationships": 4
+      "users": 50,
+      "groups": 10,
+      "entitlements": 10,
+      "user_group_relationships": 175,
+      "user_entitlement_relationships": 195
     },
     "app_profile": "operations",
-    "access_url": "http://localhost:7001/scim/v2/Users?serverID=operations_test_server_1753743119"
+    "access_url": "http://localhost:7001/scim/v2/Users?serverID=operations_test_server_1753806341"
   },
   "statistics": {
-    "users": 3,
-    "groups": 2,
-    "entitlements": 2,
-    "user_group_relationships": 6,
-    "user_entitlement_relationships": 4
+    "users": 50,
+    "groups": 10,
+    "entitlements": 10,
+    "user_group_relationships": 175,
+    "user_entitlement_relationships": 195
   },
   "server_config": {
-    "server_id": "operations_test_server_1753743119",
-    "name": "SCIM Server operations_test_server_1753743119",
-    "description": "Dynamic SCIM server with ID operations_test_server_1753743119",
+    "server_id": "operations_test_server_1753806341",
+    "name": "SCIM Server operations_test_server_1753806341",
+    "description": "Dynamic SCIM server with ID operations_test_server_1753806341",
     "app_profile": "operations",
     "enabled_resource_types": [
       "User",
@@ -285,25 +285,484 @@
   },
   "users": [
     {
-      "id": 371,
-      "scim_id": "0da34b53-ee24-4e88-9053-5962d827b03b",
+      "id": 3698,
+      "scim_id": "26d6b812-0caf-4a19-8fe3-7b469d7e1586",
       "external_id": null,
-      "user_name": "catherinebarger@mock-enterprise.com",
-      "display_name": "Catherine Barger",
+      "user_name": "simmons.joseph@dev-company.lan",
+      "display_name": "Joseph Simmons",
       "given_name": null,
       "family_name": null,
-      "email": "catherinebarger@mock-enterprise.com",
+      "email": "simmons.joseph@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3699,
+      "scim_id": "6a3b33ec-f6b8-424e-866f-8e081fadbfca",
+      "external_id": null,
+      "user_name": "conniejarosz@example.lan",
+      "display_name": "Connie Jarosz",
+      "given_name": null,
+      "family_name": null,
+      "email": "conniejarosz@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3700,
+      "scim_id": "6e43f790-e756-4f85-b1c7-0770061b9b0d",
+      "external_id": null,
+      "user_name": "stellarafferty@sample-corp.lan",
+      "display_name": "Stella Rafferty",
+      "given_name": null,
+      "family_name": null,
+      "email": "stellarafferty@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3701,
+      "scim_id": "f1ce7041-ee0b-4cca-909c-39d086fb7008",
+      "external_id": null,
+      "user_name": "emiliar@demo-org.lan",
+      "display_name": "Emilia Reed",
+      "given_name": null,
+      "family_name": null,
+      "email": "emiliar@demo-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3702,
+      "scim_id": "d96f5df2-f5d4-4822-b60a-f9af67499f93",
+      "external_id": null,
+      "user_name": "john_orr@mock-enterprise.lan",
+      "display_name": "John Orr",
+      "given_name": null,
+      "family_name": null,
+      "email": "john_orr@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3703,
+      "scim_id": "0c414a99-e391-4090-869d-8708d62a4cbe",
+      "external_id": null,
+      "user_name": "ronda.congrove@simulation-inc.lan",
+      "display_name": "Ronda Congrove",
+      "given_name": null,
+      "family_name": null,
+      "email": "ronda.congrove@simulation-inc.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3704,
+      "scim_id": "8e0951f4-3d2e-44ea-909d-8210ff827f54",
+      "external_id": null,
+      "user_name": "larson.jacob@simulation-inc.lan",
+      "display_name": "Jacob Larson",
+      "given_name": null,
+      "family_name": null,
+      "email": "larson.jacob@simulation-inc.lan",
       "active": false,
-      "server_id": "operations_test_server_1753743119",
+      "server_id": "operations_test_server_1753806341",
       "app_profile_id": null,
-      "created_at": "2025-07-28T22:52:00",
+      "created_at": "2025-07-29T16:25:42",
       "updated_at": null,
       "entitlements": [
         {
-          "id": 137,
-          "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
           "display_name": "Office 365 License",
-          "type": "E1",
+          "type": "Business Basic",
           "description": "Microsoft Office 365 license type",
           "entitlement_type": "application_access",
           "multi_valued": false
@@ -311,48 +770,1237 @@
       ],
       "groups": [
         {
-          "id": 127,
-          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
           "display_name": "Marketing Team",
           "description": "Test group 2 for server operatio"
         },
         {
-          "id": 126,
-          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3705,
+      "scim_id": "0a95fcac-595e-4b33-b85c-709005fb4fe6",
+      "external_id": null,
+      "user_name": "jessicam@scim-test.lan",
+      "display_name": "Jessica Munder",
+      "given_name": null,
+      "family_name": null,
+      "email": "jessicam@scim-test.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3706,
+      "scim_id": "96a769e7-fb1d-4afd-a546-8712a8a15c9b",
+      "external_id": null,
+      "user_name": "lee_hale@dev-company.lan",
+      "display_name": "Lee Hale",
+      "given_name": null,
+      "family_name": null,
+      "email": "lee_hale@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3707,
+      "scim_id": "f50140b4-9404-4dc9-ba42-561502ff0e54",
+      "external_id": null,
+      "user_name": "juanf@sample-corp.lan",
+      "display_name": "Juan Fields",
+      "given_name": null,
+      "family_name": null,
+      "email": "juanf@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3708,
+      "scim_id": "2c6c60c7-4739-4c18-9620-45b9c05ceb90",
+      "external_id": null,
+      "user_name": "jopling.ryan@example.lan",
+      "display_name": "Ryan Jopling",
+      "given_name": null,
+      "family_name": null,
+      "email": "jopling.ryan@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3709,
+      "scim_id": "81111aba-8190-49b2-bc96-660b14079720",
+      "external_id": null,
+      "user_name": "saenz.amy@example.lan",
+      "display_name": "Amy Saenz",
+      "given_name": null,
+      "family_name": null,
+      "email": "saenz.amy@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3710,
+      "scim_id": "f54eca9b-53ee-4e22-8532-62c00f8c6fb2",
+      "external_id": null,
+      "user_name": "moriarity.alfredo@simulation-inc.lan",
+      "display_name": "Alfredo Moriarity",
+      "given_name": null,
+      "family_name": null,
+      "email": "moriarity.alfredo@simulation-inc.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3711,
+      "scim_id": "d0eae86d-a5af-47c0-8dfe-70e9150291d2",
+      "external_id": null,
+      "user_name": "matthewk@demo-org.lan",
+      "display_name": "Matthew King",
+      "given_name": null,
+      "family_name": null,
+      "email": "matthewk@demo-org.lan",
+      "active": false,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3712,
+      "scim_id": "301c0d9b-ac42-44ab-915b-faec0ea44b68",
+      "external_id": null,
+      "user_name": "mildred.brundage@scim-test.lan",
+      "display_name": "Mildred Brundage",
+      "given_name": null,
+      "family_name": null,
+      "email": "mildred.brundage@scim-test.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3713,
+      "scim_id": "1af44cfa-1c3b-4889-95b8-21c806ef4f5e",
+      "external_id": null,
+      "user_name": "kasey.collazo@testcompany.lan",
+      "display_name": "Kasey Collazo",
+      "given_name": null,
+      "family_name": null,
+      "email": "kasey.collazo@testcompany.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3714,
+      "scim_id": "58a95a86-d1c7-440a-9fa6-676a1f40c715",
+      "external_id": null,
+      "user_name": "tobias.jones@example.lan",
+      "display_name": "Tobias Jones",
+      "given_name": null,
+      "family_name": null,
+      "email": "tobias.jones@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3715,
+      "scim_id": "4f3466ae-b8ec-4042-b0ae-40d390026d39",
+      "external_id": null,
+      "user_name": "valentine.russell@sample-corp.lan",
+      "display_name": "Russell Valentine",
+      "given_name": null,
+      "family_name": null,
+      "email": "valentine.russell@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3716,
+      "scim_id": "ea4db94e-5c2e-45cf-9620-1174c54c5bae",
+      "external_id": null,
+      "user_name": "virginiaq@mock-enterprise.lan",
+      "display_name": "Virginia Queen",
+      "given_name": null,
+      "family_name": null,
+      "email": "virginiaq@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
           "display_name": "Engineering Team",
           "description": "Test group 1 for server operatio"
         }
       ]
     },
     {
-      "id": 372,
-      "scim_id": "f364adfc-6834-4aab-a2ad-58dfe80a0167",
+      "id": 3717,
+      "scim_id": "613e29ff-388c-479e-a501-6e00fdaa8357",
       "external_id": null,
-      "user_name": "joseph_kotula@sample-corp.com",
-      "display_name": "Joseph Kotula",
+      "user_name": "jeffery.harrington@example.lan",
+      "display_name": "Jeffery Harrington",
       "given_name": null,
       "family_name": null,
-      "email": "joseph_kotula@sample-corp.com",
+      "email": "jeffery.harrington@example.lan",
       "active": true,
-      "server_id": "operations_test_server_1753743119",
+      "server_id": "operations_test_server_1753806341",
       "app_profile_id": null,
-      "created_at": "2025-07-28T22:52:00",
+      "created_at": "2025-07-29T16:25:42",
       "updated_at": null,
       "entitlements": [
         {
-          "id": 138,
-          "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3718,
+      "scim_id": "ec558fb6-4b86-46fc-93ae-38c48bcf30ce",
+      "external_id": null,
+      "user_name": "anthony397@testcompany.lan",
+      "display_name": "Anthony Pershall",
+      "given_name": null,
+      "family_name": null,
+      "email": "anthony397@testcompany.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3719,
+      "scim_id": "d2e51461-1f72-4215-990d-6c11aaca5c1f",
+      "external_id": null,
+      "user_name": "juneo@virtual-org.lan",
+      "display_name": "June Obrien",
+      "given_name": null,
+      "family_name": null,
+      "email": "juneo@virtual-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
           "display_name": "Salesforce Access",
-          "type": "Contract Manager",
+          "type": "Read Only",
           "description": "Salesforce user access level",
           "entitlement_type": "application_access",
           "multi_valued": false
         },
         {
-          "id": 137,
-          "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3720,
+      "scim_id": "328b2733-4f46-47d1-9cb0-f018a8fb8559",
+      "external_id": null,
+      "user_name": "carrier.katherine@mock-enterprise.lan",
+      "display_name": "Katherine Carrier",
+      "given_name": null,
+      "family_name": null,
+      "email": "carrier.katherine@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3721,
+      "scim_id": "280e7971-2f16-4d8a-981c-a282bd7fddc2",
+      "external_id": null,
+      "user_name": "albertaj@dev-company.lan",
+      "display_name": "Alberta Johnson",
+      "given_name": null,
+      "family_name": null,
+      "email": "albertaj@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
           "display_name": "Office 365 License",
-          "type": "E1",
+          "type": "Business Basic",
           "description": "Microsoft Office 365 license type",
           "entitlement_type": "application_access",
           "multi_valued": false
@@ -360,39 +2008,336 @@
       ],
       "groups": [
         {
-          "id": 126,
-          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
           "display_name": "Engineering Team",
           "description": "Test group 1 for server operatio"
         },
         {
-          "id": 127,
-          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
           "display_name": "Marketing Team",
           "description": "Test group 2 for server operatio"
         }
       ]
     },
     {
-      "id": 373,
-      "scim_id": "b5410adc-2e47-40a8-b6fe-01343c1eb902",
+      "id": 3722,
+      "scim_id": "d6cf2d9e-e4fe-489a-818a-4e7a30255fd0",
       "external_id": null,
-      "user_name": "yan.jeffrey@sample-corp.com",
-      "display_name": "Jeffrey Yan",
+      "user_name": "johnson.lori@virtual-org.lan",
+      "display_name": "Lori Johnson",
       "given_name": null,
       "family_name": null,
-      "email": "yan.jeffrey@sample-corp.com",
+      "email": "johnson.lori@virtual-org.lan",
       "active": true,
-      "server_id": "operations_test_server_1753743119",
+      "server_id": "operations_test_server_1753806341",
       "app_profile_id": null,
-      "created_at": "2025-07-28T22:52:00",
+      "created_at": "2025-07-29T16:25:42",
       "updated_at": null,
       "entitlements": [
         {
-          "id": 138,
-          "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3723,
+      "scim_id": "aed79748-0553-42ec-8a27-0e24b68de146",
+      "external_id": null,
+      "user_name": "joelle_davis@mock-enterprise.lan",
+      "display_name": "Joelle Davis",
+      "given_name": null,
+      "family_name": null,
+      "email": "joelle_davis@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3724,
+      "scim_id": "f13f3732-c51e-4a47-bc02-a81ce7bbfa97",
+      "external_id": null,
+      "user_name": "rosalva_brooks@simulation-inc.lan",
+      "display_name": "Rosalva Brooks",
+      "given_name": null,
+      "family_name": null,
+      "email": "rosalva_brooks@simulation-inc.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
           "display_name": "Salesforce Access",
-          "type": "Contract Manager",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3725,
+      "scim_id": "6e535204-cd9a-4e8c-a89b-21e6ab29cc9e",
+      "external_id": null,
+      "user_name": "tinab@demo-org.lan",
+      "display_name": "Tina Brosnan",
+      "given_name": null,
+      "family_name": null,
+      "email": "tinab@demo-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
           "description": "Salesforce user access level",
           "entitlement_type": "application_access",
           "multi_valued": false
@@ -400,128 +2345,3809 @@
       ],
       "groups": [
         {
-          "id": 127,
-          "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
           "display_name": "Marketing Team",
           "description": "Test group 2 for server operatio"
         },
         {
-          "id": 126,
-          "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3726,
+      "scim_id": "cdc76b45-ccad-4fa4-8eaf-638ee40bcfc2",
+      "external_id": null,
+      "user_name": "anthony_hsiao@testcompany.lan",
+      "display_name": "Anthony Hsiao",
+      "given_name": null,
+      "family_name": null,
+      "email": "anthony_hsiao@testcompany.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
           "display_name": "Engineering Team",
           "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3727,
+      "scim_id": "93a980d9-e320-4ac7-ac9f-a82f613c2824",
+      "external_id": null,
+      "user_name": "eunicef@dev-company.lan",
+      "display_name": "Eunice Freetage",
+      "given_name": null,
+      "family_name": null,
+      "email": "eunicef@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3728,
+      "scim_id": "ef23ddb3-5aff-45b2-82d7-4ada6d73ac26",
+      "external_id": null,
+      "user_name": "albert810@dev-company.lan",
+      "display_name": "Albert Aitken",
+      "given_name": null,
+      "family_name": null,
+      "email": "albert810@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3729,
+      "scim_id": "6ed875ff-a835-4b0f-8e33-2bbe9a6fdf87",
+      "external_id": null,
+      "user_name": "norma.forry@example.lan",
+      "display_name": "Norma Forry",
+      "given_name": null,
+      "family_name": null,
+      "email": "norma.forry@example.lan",
+      "active": false,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3730,
+      "scim_id": "e3dd25b4-a323-4ab1-829f-099032bae453",
+      "external_id": null,
+      "user_name": "snow.dale@scim-test.lan",
+      "display_name": "Dale Snow",
+      "given_name": null,
+      "family_name": null,
+      "email": "snow.dale@scim-test.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3731,
+      "scim_id": "fde594bb-ce46-458f-aec0-6d806ae21408",
+      "external_id": null,
+      "user_name": "ethel605@dev-company.lan",
+      "display_name": "Ethel Capponi",
+      "given_name": null,
+      "family_name": null,
+      "email": "ethel605@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3732,
+      "scim_id": "e184146f-e15d-4654-ae33-f57388e0bf2d",
+      "external_id": null,
+      "user_name": "vivian.toban@mock-enterprise.lan",
+      "display_name": "Vivian Toban",
+      "given_name": null,
+      "family_name": null,
+      "email": "vivian.toban@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3733,
+      "scim_id": "4921c6b3-8cdc-4f54-a330-ebdda2ef1c94",
+      "external_id": null,
+      "user_name": "sharon.nester@virtual-org.lan",
+      "display_name": "Sharon Nester",
+      "given_name": null,
+      "family_name": null,
+      "email": "sharon.nester@virtual-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3734,
+      "scim_id": "50bfc627-9afc-449d-a1f2-d5402d4c75be",
+      "external_id": null,
+      "user_name": "pearl.munoz@dev-company.lan",
+      "display_name": "Pearl Munoz",
+      "given_name": null,
+      "family_name": null,
+      "email": "pearl.munoz@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3735,
+      "scim_id": "53b05b12-3d21-4f4c-ae53-4256fcf9ceec",
+      "external_id": null,
+      "user_name": "don.townes@dev-company.lan",
+      "display_name": "Don Townes",
+      "given_name": null,
+      "family_name": null,
+      "email": "don.townes@dev-company.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3736,
+      "scim_id": "75c0a0cd-17ad-4d80-b29c-d553e98acf6a",
+      "external_id": null,
+      "user_name": "david44@example.lan",
+      "display_name": "David Montague",
+      "given_name": null,
+      "family_name": null,
+      "email": "david44@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3737,
+      "scim_id": "c42ea0f2-5fd0-4c1d-a580-9a920915e8f6",
+      "external_id": null,
+      "user_name": "sonja_mayer@virtual-org.lan",
+      "display_name": "Sonja Mayer",
+      "given_name": null,
+      "family_name": null,
+      "email": "sonja_mayer@virtual-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3738,
+      "scim_id": "c7362ecd-2401-460f-b743-80643cd96fed",
+      "external_id": null,
+      "user_name": "gladyst@sample-corp.lan",
+      "display_name": "Gladys Taylor",
+      "given_name": null,
+      "family_name": null,
+      "email": "gladyst@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3739,
+      "scim_id": "3201280d-fb86-49e5-b974-f9fddfb6aeea",
+      "external_id": null,
+      "user_name": "price.hugo@sample-corp.lan",
+      "display_name": "Hugo Price",
+      "given_name": null,
+      "family_name": null,
+      "email": "price.hugo@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3740,
+      "scim_id": "c31afdc5-7b96-4e76-bb91-b510e2f23c03",
+      "external_id": null,
+      "user_name": "gregg.robert@virtual-org.lan",
+      "display_name": "Robert Gregg",
+      "given_name": null,
+      "family_name": null,
+      "email": "gregg.robert@virtual-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3741,
+      "scim_id": "767d44d9-23f0-4384-b8ce-acb0a2dd6c39",
+      "external_id": null,
+      "user_name": "vinson.david@example.lan",
+      "display_name": "David Vinson",
+      "given_name": null,
+      "family_name": null,
+      "email": "vinson.david@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 781,
+          "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+          "display_name": "Data Access Role",
+          "type": "Data Scientist",
+          "description": "Data access role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3742,
+      "scim_id": "d3450519-c216-42e3-a598-ced557efc407",
+      "external_id": null,
+      "user_name": "glennmatthews@mock-enterprise.lan",
+      "display_name": "Glenn Matthews",
+      "given_name": null,
+      "family_name": null,
+      "email": "glennmatthews@mock-enterprise.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3743,
+      "scim_id": "d00015b4-d8b3-4969-ac4f-f1772ad031c9",
+      "external_id": null,
+      "user_name": "lori707@virtual-org.lan",
+      "display_name": "Lori Kerr",
+      "given_name": null,
+      "family_name": null,
+      "email": "lori707@virtual-org.lan",
+      "active": false,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 786,
+          "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+          "display_name": "Support Team",
+          "description": "Test group 8 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3744,
+      "scim_id": "02d371a0-15f3-4b7a-ab21-917b1bbe6fc8",
+      "external_id": null,
+      "user_name": "vega.cora@sample-corp.lan",
+      "display_name": "Cora Vega",
+      "given_name": null,
+      "family_name": null,
+      "email": "vega.cora@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 778,
+          "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+          "display_name": "Slack Access",
+          "type": "Member",
+          "description": "Slack workspace access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 779,
+          "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+          "display_name": "System Role",
+          "type": "User",
+          "description": "System-wide role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 784,
+          "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+          "display_name": "Product Team",
+          "description": "Test group 6 for server operatio"
+        },
+        {
+          "id": 785,
+          "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+          "display_name": "Design Team",
+          "description": "Test group 7 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3745,
+      "scim_id": "b3b8f5ad-741f-4a9e-bcb1-2b24113b4631",
+      "external_id": null,
+      "user_name": "jack_tyska@sample-corp.lan",
+      "display_name": "Jack Tyska",
+      "given_name": null,
+      "family_name": null,
+      "email": "jack_tyska@sample-corp.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 777,
+          "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+          "display_name": "GitHub Access",
+          "type": "Owner",
+          "description": "GitHub repository access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 775,
+          "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
+          "display_name": "Office 365 License",
+          "type": "Business Basic",
+          "description": "Microsoft Office 365 license type",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 782,
+          "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+          "display_name": "VPN Access",
+          "type": "Limited Access",
+          "description": "VPN access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        },
+        {
+          "id": 776,
+          "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
+          "display_name": "Salesforce Access",
+          "type": "Read Only",
+          "description": "Salesforce user access level",
+          "entitlement_type": "application_access",
+          "multi_valued": false
+        },
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        },
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 779,
+          "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
+          "display_name": "Engineering Team",
+          "description": "Test group 1 for server operatio"
+        },
+        {
+          "id": 782,
+          "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+          "display_name": "HR Team",
+          "description": "Test group 4 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3746,
+      "scim_id": "a390e939-f954-4789-9867-23cdfbf35226",
+      "external_id": null,
+      "user_name": "lindat@example.lan",
+      "display_name": "Linda Thurman",
+      "given_name": null,
+      "family_name": null,
+      "email": "lindat@example.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
+        },
+        {
+          "id": 781,
+          "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+          "display_name": "Sales Team",
+          "description": "Test group 3 for server operatio"
+        },
+        {
+          "id": 780,
+          "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
+          "display_name": "Marketing Team",
+          "description": "Test group 2 for server operatio"
+        },
+        {
+          "id": 783,
+          "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+          "display_name": "Finance Team",
+          "description": "Test group 5 for server operatio"
+        },
+        {
+          "id": 788,
+          "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+          "display_name": "Legal Team",
+          "description": "Test group 10 for server operatio"
+        }
+      ]
+    },
+    {
+      "id": 3747,
+      "scim_id": "78ae706e-670d-4381-988f-c5dbd16cc09d",
+      "external_id": null,
+      "user_name": "chase.trinh@demo-org.lan",
+      "display_name": "Trinh Chase",
+      "given_name": null,
+      "family_name": null,
+      "email": "chase.trinh@demo-org.lan",
+      "active": true,
+      "server_id": "operations_test_server_1753806341",
+      "app_profile_id": null,
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "entitlements": [
+        {
+          "id": 780,
+          "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+          "display_name": "Security Role",
+          "type": "Security Auditor",
+          "description": "Security-specific role assignments (multi-select)",
+          "entitlement_type": "role_based",
+          "multi_valued": true
+        },
+        {
+          "id": 784,
+          "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+          "display_name": "Adobe Creative Suite",
+          "type": "Creative Cloud All Apps",
+          "description": "Adobe Creative Suite license type",
+          "entitlement_type": "license_based",
+          "multi_valued": false
+        },
+        {
+          "id": 783,
+          "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+          "display_name": "Database Access",
+          "type": "Read Only",
+          "description": "Database access permission level",
+          "entitlement_type": "permission_based",
+          "multi_valued": false
+        }
+      ],
+      "groups": [
+        {
+          "id": 787,
+          "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+          "display_name": "Operations Team",
+          "description": "Test group 9 for server operatio"
         }
       ]
     }
   ],
   "groups": [
     {
-      "id": 126,
-      "scim_id": "66f56d21-d107-4faa-84db-8f8af8682cde",
+      "id": 779,
+      "scim_id": "ee87d020-f487-4e97-bc92-c26af19c066c",
       "display_name": "Engineering Team",
       "description": "Test group 1 for server operatio",
-      "server_id": "operations_test_server_1753743119",
-      "created_at": "2025-07-28T22:52:00",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
       "updated_at": null,
       "members": [
         {
-          "user_id": 371,
-          "user_name": "catherinebarger@mock-enterprise.com",
-          "display_name": "Catherine Barger"
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
         },
         {
-          "user_id": 372,
-          "user_name": "joseph_kotula@sample-corp.com",
-          "display_name": "Joseph Kotula"
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
         },
         {
-          "user_id": 373,
-          "user_name": "yan.jeffrey@sample-corp.com",
-          "display_name": "Jeffrey Yan"
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
         }
       ]
     },
     {
-      "id": 127,
-      "scim_id": "f1a0d7c3-0a34-4154-ab3d-c2e76697c1d4",
+      "id": 780,
+      "scim_id": "350646a0-75da-4473-a46a-87f00215a8b3",
       "display_name": "Marketing Team",
       "description": "Test group 2 for server operatio",
-      "server_id": "operations_test_server_1753743119",
-      "created_at": "2025-07-28T22:52:00",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
       "updated_at": null,
       "members": [
         {
-          "user_id": 371,
-          "user_name": "catherinebarger@mock-enterprise.com",
-          "display_name": "Catherine Barger"
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
         },
         {
-          "user_id": 372,
-          "user_name": "joseph_kotula@sample-corp.com",
-          "display_name": "Joseph Kotula"
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
         },
         {
-          "user_id": 373,
-          "user_name": "yan.jeffrey@sample-corp.com",
-          "display_name": "Jeffrey Yan"
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3714,
+          "user_name": "tobias.jones@example.lan",
+          "display_name": "Tobias Jones"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3742,
+          "user_name": "glennmatthews@mock-enterprise.lan",
+          "display_name": "Glenn Matthews"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
+        }
+      ]
+    },
+    {
+      "id": 781,
+      "scim_id": "ffc31848-dd96-4140-9312-5459e32e1658",
+      "display_name": "Sales Team",
+      "description": "Test group 3 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3713,
+          "user_name": "kasey.collazo@testcompany.lan",
+          "display_name": "Kasey Collazo"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3720,
+          "user_name": "carrier.katherine@mock-enterprise.lan",
+          "display_name": "Katherine Carrier"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3742,
+          "user_name": "glennmatthews@mock-enterprise.lan",
+          "display_name": "Glenn Matthews"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
+        }
+      ]
+    },
+    {
+      "id": 782,
+      "scim_id": "3a0cdbe0-129d-4013-8d82-f90356d4d269",
+      "display_name": "HR Team",
+      "description": "Test group 4 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3711,
+          "user_name": "matthewk@demo-org.lan",
+          "display_name": "Matthew King"
+        },
+        {
+          "user_id": 3714,
+          "user_name": "tobias.jones@example.lan",
+          "display_name": "Tobias Jones"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        }
+      ]
+    },
+    {
+      "id": 783,
+      "scim_id": "6fc88957-f760-48a4-af0c-c886a99ee541",
+      "display_name": "Finance Team",
+      "description": "Test group 5 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3720,
+          "user_name": "carrier.katherine@mock-enterprise.lan",
+          "display_name": "Katherine Carrier"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
+        }
+      ]
+    },
+    {
+      "id": 784,
+      "scim_id": "cd91d89b-debc-4e02-bf10-4a40ce29292c",
+      "display_name": "Product Team",
+      "description": "Test group 6 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3703,
+          "user_name": "ronda.congrove@simulation-inc.lan",
+          "display_name": "Ronda Congrove"
+        },
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        }
+      ]
+    },
+    {
+      "id": 785,
+      "scim_id": "f9f68897-1962-4480-a17f-f8f15ce7ebeb",
+      "display_name": "Design Team",
+      "description": "Test group 7 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3698,
+          "user_name": "simmons.joseph@dev-company.lan",
+          "display_name": "Joseph Simmons"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        }
+      ]
+    },
+    {
+      "id": 786,
+      "scim_id": "ebb0c37c-f736-4e77-85ab-58dd0512885e",
+      "display_name": "Support Team",
+      "description": "Test group 8 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3706,
+          "user_name": "lee_hale@dev-company.lan",
+          "display_name": "Lee Hale"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3720,
+          "user_name": "carrier.katherine@mock-enterprise.lan",
+          "display_name": "Katherine Carrier"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3742,
+          "user_name": "glennmatthews@mock-enterprise.lan",
+          "display_name": "Glenn Matthews"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        }
+      ]
+    },
+    {
+      "id": 787,
+      "scim_id": "d41330e2-1385-4cab-8c57-a1a85f45fa30",
+      "display_name": "Operations Team",
+      "description": "Test group 9 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3698,
+          "user_name": "simmons.joseph@dev-company.lan",
+          "display_name": "Joseph Simmons"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3706,
+          "user_name": "lee_hale@dev-company.lan",
+          "display_name": "Lee Hale"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3711,
+          "user_name": "matthewk@demo-org.lan",
+          "display_name": "Matthew King"
+        },
+        {
+          "user_id": 3719,
+          "user_name": "juneo@virtual-org.lan",
+          "display_name": "June Obrien"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3735,
+          "user_name": "don.townes@dev-company.lan",
+          "display_name": "Don Townes"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
+        },
+        {
+          "user_id": 3747,
+          "user_name": "chase.trinh@demo-org.lan",
+          "display_name": "Trinh Chase"
+        }
+      ]
+    },
+    {
+      "id": 788,
+      "scim_id": "c3c0d258-32f1-4a3b-afdf-b8e4b407d988",
+      "display_name": "Legal Team",
+      "description": "Test group 10 for server operatio",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "members": [
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3730,
+          "user_name": "snow.dale@scim-test.lan",
+          "display_name": "Dale Snow"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
         }
       ]
     }
   ],
   "entitlements": [
     {
-      "id": 137,
-      "scim_id": "139444e3-92d5-42b8-95a0-4e5cfdf5d92b",
+      "id": 775,
+      "scim_id": "a2e790fe-eba3-4a3c-8d02-7a33fb06275b",
       "display_name": "Office 365 License",
-      "type": "E1",
+      "type": "Business Basic",
       "description": "Microsoft Office 365 license type",
       "entitlement_type": "application_access",
       "multi_valued": false,
-      "server_id": "operations_test_server_1753743119",
-      "created_at": "2025-07-28T22:52:00",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
       "updated_at": null,
       "assigned_users": [
         {
-          "user_id": 371,
-          "user_name": "catherinebarger@mock-enterprise.com",
-          "display_name": "Catherine Barger"
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
         },
         {
-          "user_id": 372,
-          "user_name": "joseph_kotula@sample-corp.com",
-          "display_name": "Joseph Kotula"
+          "user_id": 3703,
+          "user_name": "ronda.congrove@simulation-inc.lan",
+          "display_name": "Ronda Congrove"
+        },
+        {
+          "user_id": 3704,
+          "user_name": "larson.jacob@simulation-inc.lan",
+          "display_name": "Jacob Larson"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3714,
+          "user_name": "tobias.jones@example.lan",
+          "display_name": "Tobias Jones"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3728,
+          "user_name": "albert810@dev-company.lan",
+          "display_name": "Albert Aitken"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
         }
       ]
     },
     {
-      "id": 138,
-      "scim_id": "119596d4-d2ad-493d-a6e2-3505c8976c10",
+      "id": 776,
+      "scim_id": "aa784564-a158-4ded-bbb9-c8977b7284f4",
       "display_name": "Salesforce Access",
-      "type": "Contract Manager",
+      "type": "Read Only",
       "description": "Salesforce user access level",
       "entitlement_type": "application_access",
       "multi_valued": false,
-      "server_id": "operations_test_server_1753743119",
-      "created_at": "2025-07-28T22:52:00",
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
       "updated_at": null,
       "assigned_users": [
         {
-          "user_id": 372,
-          "user_name": "joseph_kotula@sample-corp.com",
-          "display_name": "Joseph Kotula"
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
         },
         {
-          "user_id": 373,
-          "user_name": "yan.jeffrey@sample-corp.com",
-          "display_name": "Jeffrey Yan"
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3710,
+          "user_name": "moriarity.alfredo@simulation-inc.lan",
+          "display_name": "Alfredo Moriarity"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3719,
+          "user_name": "juneo@virtual-org.lan",
+          "display_name": "June Obrien"
+        },
+        {
+          "user_id": 3720,
+          "user_name": "carrier.katherine@mock-enterprise.lan",
+          "display_name": "Katherine Carrier"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        }
+      ]
+    },
+    {
+      "id": 777,
+      "scim_id": "cacc351e-a721-4057-b6d4-809e1708a518",
+      "display_name": "GitHub Access",
+      "type": "Owner",
+      "description": "GitHub repository access level",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3703,
+          "user_name": "ronda.congrove@simulation-inc.lan",
+          "display_name": "Ronda Congrove"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3735,
+          "user_name": "don.townes@dev-company.lan",
+          "display_name": "Don Townes"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        }
+      ]
+    },
+    {
+      "id": 778,
+      "scim_id": "eb3816c7-cebd-4a8c-a533-9b1fbfc6c69f",
+      "display_name": "Slack Access",
+      "type": "Member",
+      "description": "Slack workspace access level",
+      "entitlement_type": "application_access",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:41",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3698,
+          "user_name": "simmons.joseph@dev-company.lan",
+          "display_name": "Joseph Simmons"
+        },
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3736,
+          "user_name": "david44@example.lan",
+          "display_name": "David Montague"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3742,
+          "user_name": "glennmatthews@mock-enterprise.lan",
+          "display_name": "Glenn Matthews"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        }
+      ]
+    },
+    {
+      "id": 779,
+      "scim_id": "55961367-b49d-4f32-a170-253296e2a6d8",
+      "display_name": "System Role",
+      "type": "User",
+      "description": "System-wide role assignments (multi-select)",
+      "entitlement_type": "role_based",
+      "multi_valued": true,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3706,
+          "user_name": "lee_hale@dev-company.lan",
+          "display_name": "Lee Hale"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3714,
+          "user_name": "tobias.jones@example.lan",
+          "display_name": "Tobias Jones"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        }
+      ]
+    },
+    {
+      "id": 780,
+      "scim_id": "652df377-ad00-43b0-b0fd-f45c41fa7709",
+      "display_name": "Security Role",
+      "type": "Security Auditor",
+      "description": "Security-specific role assignments (multi-select)",
+      "entitlement_type": "role_based",
+      "multi_valued": true,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3711,
+          "user_name": "matthewk@demo-org.lan",
+          "display_name": "Matthew King"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3719,
+          "user_name": "juneo@virtual-org.lan",
+          "display_name": "June Obrien"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3730,
+          "user_name": "snow.dale@scim-test.lan",
+          "display_name": "Dale Snow"
+        },
+        {
+          "user_id": 3737,
+          "user_name": "sonja_mayer@virtual-org.lan",
+          "display_name": "Sonja Mayer"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        },
+        {
+          "user_id": 3746,
+          "user_name": "lindat@example.lan",
+          "display_name": "Linda Thurman"
+        },
+        {
+          "user_id": 3747,
+          "user_name": "chase.trinh@demo-org.lan",
+          "display_name": "Trinh Chase"
+        }
+      ]
+    },
+    {
+      "id": 781,
+      "scim_id": "90636b87-0a00-40f6-bee2-6027bcdcb974",
+      "display_name": "Data Access Role",
+      "type": "Data Scientist",
+      "description": "Data access role assignments (multi-select)",
+      "entitlement_type": "role_based",
+      "multi_valued": true,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3698,
+          "user_name": "simmons.joseph@dev-company.lan",
+          "display_name": "Joseph Simmons"
+        },
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3703,
+          "user_name": "ronda.congrove@simulation-inc.lan",
+          "display_name": "Ronda Congrove"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3713,
+          "user_name": "kasey.collazo@testcompany.lan",
+          "display_name": "Kasey Collazo"
+        },
+        {
+          "user_id": 3714,
+          "user_name": "tobias.jones@example.lan",
+          "display_name": "Tobias Jones"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3730,
+          "user_name": "snow.dale@scim-test.lan",
+          "display_name": "Dale Snow"
+        },
+        {
+          "user_id": 3733,
+          "user_name": "sharon.nester@virtual-org.lan",
+          "display_name": "Sharon Nester"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3735,
+          "user_name": "don.townes@dev-company.lan",
+          "display_name": "Don Townes"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        }
+      ]
+    },
+    {
+      "id": 782,
+      "scim_id": "bf557b01-6e89-493e-baa6-b9e43f1bedaf",
+      "display_name": "VPN Access",
+      "type": "Limited Access",
+      "description": "VPN access permission level",
+      "entitlement_type": "permission_based",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3702,
+          "user_name": "john_orr@mock-enterprise.lan",
+          "display_name": "John Orr"
+        },
+        {
+          "user_id": 3706,
+          "user_name": "lee_hale@dev-company.lan",
+          "display_name": "Lee Hale"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3708,
+          "user_name": "jopling.ryan@example.lan",
+          "display_name": "Ryan Jopling"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3711,
+          "user_name": "matthewk@demo-org.lan",
+          "display_name": "Matthew King"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3716,
+          "user_name": "virginiaq@mock-enterprise.lan",
+          "display_name": "Virginia Queen"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3723,
+          "user_name": "joelle_davis@mock-enterprise.lan",
+          "display_name": "Joelle Davis"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3725,
+          "user_name": "tinab@demo-org.lan",
+          "display_name": "Tina Brosnan"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3741,
+          "user_name": "vinson.david@example.lan",
+          "display_name": "David Vinson"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        },
+        {
+          "user_id": 3745,
+          "user_name": "jack_tyska@sample-corp.lan",
+          "display_name": "Jack Tyska"
+        }
+      ]
+    },
+    {
+      "id": 783,
+      "scim_id": "337fba7a-88a7-429e-89ad-e9ff537d9997",
+      "display_name": "Database Access",
+      "type": "Read Only",
+      "description": "Database access permission level",
+      "entitlement_type": "permission_based",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3699,
+          "user_name": "conniejarosz@example.lan",
+          "display_name": "Connie Jarosz"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3705,
+          "user_name": "jessicam@scim-test.lan",
+          "display_name": "Jessica Munder"
+        },
+        {
+          "user_id": 3706,
+          "user_name": "lee_hale@dev-company.lan",
+          "display_name": "Lee Hale"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3709,
+          "user_name": "saenz.amy@example.lan",
+          "display_name": "Amy Saenz"
+        },
+        {
+          "user_id": 3715,
+          "user_name": "valentine.russell@sample-corp.lan",
+          "display_name": "Russell Valentine"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3726,
+          "user_name": "anthony_hsiao@testcompany.lan",
+          "display_name": "Anthony Hsiao"
+        },
+        {
+          "user_id": 3729,
+          "user_name": "norma.forry@example.lan",
+          "display_name": "Norma Forry"
+        },
+        {
+          "user_id": 3730,
+          "user_name": "snow.dale@scim-test.lan",
+          "display_name": "Dale Snow"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3738,
+          "user_name": "gladyst@sample-corp.lan",
+          "display_name": "Gladys Taylor"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3744,
+          "user_name": "vega.cora@sample-corp.lan",
+          "display_name": "Cora Vega"
+        },
+        {
+          "user_id": 3747,
+          "user_name": "chase.trinh@demo-org.lan",
+          "display_name": "Trinh Chase"
+        }
+      ]
+    },
+    {
+      "id": 784,
+      "scim_id": "883053f1-36f3-4b76-afc7-0d650c2b3d30",
+      "display_name": "Adobe Creative Suite",
+      "type": "Creative Cloud All Apps",
+      "description": "Adobe Creative Suite license type",
+      "entitlement_type": "license_based",
+      "multi_valued": false,
+      "server_id": "operations_test_server_1753806341",
+      "created_at": "2025-07-29T16:25:42",
+      "updated_at": null,
+      "assigned_users": [
+        {
+          "user_id": 3700,
+          "user_name": "stellarafferty@sample-corp.lan",
+          "display_name": "Stella Rafferty"
+        },
+        {
+          "user_id": 3701,
+          "user_name": "emiliar@demo-org.lan",
+          "display_name": "Emilia Reed"
+        },
+        {
+          "user_id": 3703,
+          "user_name": "ronda.congrove@simulation-inc.lan",
+          "display_name": "Ronda Congrove"
+        },
+        {
+          "user_id": 3707,
+          "user_name": "juanf@sample-corp.lan",
+          "display_name": "Juan Fields"
+        },
+        {
+          "user_id": 3712,
+          "user_name": "mildred.brundage@scim-test.lan",
+          "display_name": "Mildred Brundage"
+        },
+        {
+          "user_id": 3713,
+          "user_name": "kasey.collazo@testcompany.lan",
+          "display_name": "Kasey Collazo"
+        },
+        {
+          "user_id": 3717,
+          "user_name": "jeffery.harrington@example.lan",
+          "display_name": "Jeffery Harrington"
+        },
+        {
+          "user_id": 3718,
+          "user_name": "anthony397@testcompany.lan",
+          "display_name": "Anthony Pershall"
+        },
+        {
+          "user_id": 3719,
+          "user_name": "juneo@virtual-org.lan",
+          "display_name": "June Obrien"
+        },
+        {
+          "user_id": 3720,
+          "user_name": "carrier.katherine@mock-enterprise.lan",
+          "display_name": "Katherine Carrier"
+        },
+        {
+          "user_id": 3721,
+          "user_name": "albertaj@dev-company.lan",
+          "display_name": "Alberta Johnson"
+        },
+        {
+          "user_id": 3722,
+          "user_name": "johnson.lori@virtual-org.lan",
+          "display_name": "Lori Johnson"
+        },
+        {
+          "user_id": 3724,
+          "user_name": "rosalva_brooks@simulation-inc.lan",
+          "display_name": "Rosalva Brooks"
+        },
+        {
+          "user_id": 3727,
+          "user_name": "eunicef@dev-company.lan",
+          "display_name": "Eunice Freetage"
+        },
+        {
+          "user_id": 3730,
+          "user_name": "snow.dale@scim-test.lan",
+          "display_name": "Dale Snow"
+        },
+        {
+          "user_id": 3731,
+          "user_name": "ethel605@dev-company.lan",
+          "display_name": "Ethel Capponi"
+        },
+        {
+          "user_id": 3732,
+          "user_name": "vivian.toban@mock-enterprise.lan",
+          "display_name": "Vivian Toban"
+        },
+        {
+          "user_id": 3734,
+          "user_name": "pearl.munoz@dev-company.lan",
+          "display_name": "Pearl Munoz"
+        },
+        {
+          "user_id": 3739,
+          "user_name": "price.hugo@sample-corp.lan",
+          "display_name": "Hugo Price"
+        },
+        {
+          "user_id": 3740,
+          "user_name": "gregg.robert@virtual-org.lan",
+          "display_name": "Robert Gregg"
+        },
+        {
+          "user_id": 3743,
+          "user_name": "lori707@virtual-org.lan",
+          "display_name": "Lori Kerr"
+        },
+        {
+          "user_id": 3747,
+          "user_name": "chase.trinh@demo-org.lan",
+          "display_name": "Trinh Chase"
         }
       ]
     }
   ],
   "metadata": {
-    "users_count": 3,
-    "groups_count": 2,
-    "entitlements_count": 2,
-    "generated_at": "2025-07-28T22:51:59Z"
+    "users_count": 50,
+    "groups_count": 10,
+    "entitlements_count": 10,
+    "generated_at": "2025-07-29T16:25:41Z"
   }
 }

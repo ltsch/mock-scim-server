@@ -62,7 +62,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Schema for creating a user."""
-    pass
+    schemas: List[str] = ["urn:ietf:params:scim:schemas:core:2.0:User"]
 
 class UserUpdate(BaseModel):
     """Schema for updating a user."""
@@ -97,7 +97,7 @@ class GroupBase(BaseModel):
 
 class GroupCreate(GroupBase):
     """Schema for creating a group."""
-    pass
+    schemas: List[str] = ["urn:ietf:params:scim:schemas:core:2.0:Group"]
 
 class GroupUpdate(BaseModel):
     """Schema for updating a group."""
@@ -122,7 +122,7 @@ class EntitlementBase(BaseModel):
 
 class EntitlementCreate(EntitlementBase):
     """Schema for creating an entitlement."""
-    pass
+    schemas: List[str] = ["urn:okta:scim:schemas:core:1.0:Entitlement"]
 
 class EntitlementUpdate(BaseModel):
     """Schema for updating an entitlement."""
