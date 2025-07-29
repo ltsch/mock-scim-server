@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  scim-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scim-server
+    ports:
+      - "7001:7001"
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=info
+    volumes:
+      # Mount database for persistence
+      - ./scim.db:/app/scim.db
+      # Mount logs directory for external access
+      - ./logs:/app/logs
+      # Mount test database if needed
+      - ./test_scim.db:/app/test_scim.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7001/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - scim-network
+
+  # Optional: Add a database service if you want to use PostgreSQL instead of SQLite
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: scim-postgres
+  #   environment:
+  #     POSTGRES_DB: scim
+  #     POSTGRES_USER: scim
+  #     POSTGRES_PASSWORD: scim_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - scim-network
+
+networks:
+  scim-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:

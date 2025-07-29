@@ -404,14 +404,17 @@ All dependencies should be installed locally (e.g., in a virtual environment or 
 
 5. **Test the API:**
    ```bash
-   # Health check
-   curl http://localhost:6000/healthz
+   # Basic health check (public access)
+   curl http://localhost:7001/healthz
+   
+   # Detailed health check (internal networks only)
+   curl http://localhost:7001/health
    
    # Get resource types (requires authentication)
-   curl -H "Authorization: Bearer dev-api-key-12345" http://localhost:6000/scim-identifier/test-server/scim/v2/ResourceTypes
+   curl -H "Authorization: Bearer api-key-12345" http://localhost:7001/scim-identifier/test-server/scim/v2/ResourceTypes
    
    # List users with filtering
-   curl -H "Authorization: Bearer dev-api-key-12345" "http://localhost:6000/scim-identifier/test-server/scim/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+   curl -H "Authorization: Bearer api-key-12345" "http://localhost:7001/scim-identifier/test-server/scim/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
    ```
 
 6. **Run comprehensive tests:**
@@ -600,6 +603,8 @@ When the server starts, it displays available endpoints:
 
 ```
 Available endpoints:
+  /healthz                                    # Basic health check (public access)
+  /health                                     # Detailed health check (internal networks only)
   /scim-identifier/{server_id}/scim/v2/Users
   /scim-identifier/{server_id}/scim/v2/Groups
   /scim-identifier/{server_id}/scim/v2/Entitlements
@@ -827,22 +832,22 @@ curl -X POST -H "Authorization: Bearer test-api-key-12345" -H "Content-Type: app
 ```bash
 # Access virtual server with ID "12345"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users?serverID=12345"
+  "http://localhost:7001/v2/Users?serverID=12345"
 
 # Access virtual server with ID "test-env"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Groups?serverID=test-env"
+  "http://localhost:7001/v2/Groups?serverID=test-env"
 ```
 
 ### **Path Parameter Pattern**
 ```bash
 # Access virtual server with UUID "550e8400-e29b-41d4-a716-446655440000"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/scim-identifier/550e8400-e29b-41d4-a716-446655440000/scim/v2/Users"
+  "http://localhost:7001/scim-identifier/550e8400-e29b-41d4-a716-446655440000/scim/v2/Users"
 
 # Access virtual server with UUID "test-uuid-123"
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/scim-identifier/test-uuid-123/scim/v2/Groups"
+  "http://localhost:7001/scim-identifier/test-uuid-123/scim/v2/Groups"
 ```
 
 ### **Standard SCIM Endpoints**
@@ -1182,9 +1187,9 @@ The SCIM server uses a simple configuration file (`scim_server/config.py`) with 
 - `rate_limit_read`: Rate limit for read operations (default: `100` requests per minute)
 - `rate_limit_window`: Rate limit window in seconds (default: `60`)
 - `host`: Server host (default: `0.0.0.0`)
-- `port`: Server port (default: `6000`)
+- `port`: Server port (default: `7001`)
 - `log_level`: Logging level (default: `debug`)
-- `default_api_key`: Development API key (default: `dev-api-key-12345`)
+- `default_api_key`: Development API key (default: `api-key-12345`)
 - `test_api_key`: Test API key (default: `test-api-key-12345`)
 
 ### **CLI Tool Settings:**
@@ -1221,7 +1226,7 @@ Simply edit `scim_server/config.py` to change any settings:
 
 ```python
 # Example: Change port and API keys
-port: int = 6000
+port: int = 7001
 default_api_key: str = "my-custom-dev-key"
 test_api_key: str = "my-custom-test-key"
 ```
@@ -1231,7 +1236,7 @@ test_api_key: str = "my-custom-test-key"
 - All API requests must include an `Authorization: Bearer <API_KEY>` header.
 - API keys are stored in the SQLite database and can be managed via the API.
 - Requests without a valid API key will receive a 401 Unauthorized response.
-- Default development API key: Configurable in `scim_server/config.py` (default: `dev-api-key-12345`)
+- Default development API key: Configurable in `scim_server/config.py` (default: `api-key-12345`)
 - Test API key: Configurable in `scim_server/config.py` (default: `test-api-key-12345`)
 - **Multi-Server Note**: All virtual SCIM servers share the same API key authentication system.
 
@@ -1245,26 +1250,26 @@ The server supports SCIM 2.0 filtering and pagination:
 ```bash
 # Exact username match
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
+  "http://localhost:7001/v2/Users/?filter=userName%20eq%20%22testuser@example.com%22"
 
 # Contains display name
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?filter=displayName%20co%20%22John%22"
+  "http://localhost:7001/v2/Users/?filter=displayName%20co%20%22John%22"
 
 # Group filtering
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
+  "http://localhost:7001/v2/Groups/?filter=displayName%20co%20%22Engineering%22"
 ```
 
 ### **Pagination Examples:**
 ```bash
 # Get first 2 users
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?startIndex=1&count=2"
+  "http://localhost:7001/v2/Users/?startIndex=1&count=2"
 
 # Get users 3-5
 curl -H "Authorization: Bearer dev-api-key-12345" \
-  "http://localhost:6000/v2/Users/?startIndex=3&count=3"
+  "http://localhost:7001/v2/Users/?startIndex=3&count=3"
 ```
 
 ---

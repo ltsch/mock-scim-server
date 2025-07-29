@@ -13,6 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
 import os
 from fastapi.responses import HTMLResponse
+import ipaddress
 
 from .database import init_db, get_db
 from .auth import get_api_key
@@ -230,8 +231,65 @@ app.mount("/frontend/static", StaticFiles(directory="frontend/static"), name="st
 
 @app.get("/healthz", tags=["Health"])
 def health_check():
-    """Health check endpoint for readiness/liveness probes."""
-    return {"status": "ok"}
+    """Health check endpoint for readiness/liveness probes. No authentication required."""
+    try:
+        # Basic health check - just return OK status
+        # This endpoint is designed for Docker health checks and monitoring
+        return {"status": "ok", "timestamp": str(datetime.now())}
+    except Exception as e:
+        # If there's any error, return 500 to indicate unhealthy state
+        logger.error(f"Health check failed: {e}")
+        raise HTTPException(status_code=500, detail="Health check failed")
+
+@app.get("/health", tags=["Health"])
+def detailed_health_check(request: Request):
+    """Detailed health check endpoint for comprehensive monitoring. No authentication required."""
+    try:
+        # Import here to avoid circular imports
+        from .database import SessionLocal
+        from sqlalchemy import text
+        
+        # Check if the request is from an internal network
+        client_ip = request.client.host if request.client else "unknown"
+        if not is_internal_network(client_ip):
+            logger.warning(f"Access to /health from external IP: {client_ip}")
+            raise HTTPException(status_code=403, detail="Access denied from external network")
+
+        # Check database connectivity
+        db_status = "ok"
+        try:
+            db = SessionLocal()
+            # Try a simple query to verify database is working
+            db.execute(text("SELECT 1"))
+            db.close()
+        except Exception as e:
+            db_status = f"error: {str(e)}"
+            logger.error(f"Database health check failed: {e}")
+        
+        health_info = {
+            "status": "ok",
+            "timestamp": str(datetime.now()),
+            "version": "1.0.0",
+            "database": db_status,
+            "endpoints": {
+                "healthz": "/healthz",
+                "health": "/health",
+                "frontend": "/frontend/index.html"
+            }
+        }
+        
+        # If database is not ok, return 503 (Service Unavailable)
+        if db_status != "ok":
+            return JSONResponse(
+                status_code=503,
+                content=health_info
+            )
+        
+        return health_info
+        
+    except Exception as e:
+        logger.error(f"Detailed health check failed: {e}")
+        raise HTTPException(status_code=500, detail="Health check failed")
 
 @app.get("/frontend/index.html", tags=["Frontend"])
 async def frontend(request: Request):
@@ -250,3 +308,43 @@ async def frontend(request: Request):
         html_content = html_content.replace('<head>', f'<head>\n    {meta_tag}')
     
     return HTMLResponse(content=html_content) 
+
+def is_internal_network(client_ip: str) -> bool:
+    """
+    Check if the client IP is from an internal/private network.
+    Allows access from localhost, Docker networks, and private IP ranges.
+    """
+    try:
+        # Special case for TestClient in testing
+        if client_ip == "testclient":
+            return True
+        
+        # Parse the IP address
+        ip = ipaddress.ip_address(client_ip)
+        
+        # Allow localhost
+        if ip.is_loopback:
+            return True
+        
+        # Allow private networks (RFC 1918)
+        if ip.is_private:
+            return True
+        
+        # Allow link-local addresses
+        if ip.is_link_local:
+            return True
+        
+        # Allow Docker default networks (172.16.0.0/12)
+        if ip in ipaddress.ip_network('172.16.0.0/12'):
+            return True
+        
+        # Allow Docker bridge networks (192.168.0.0/16)
+        if ip in ipaddress.ip_network('192.168.0.0/16'):
+            return True
+        
+        return False
+        
+    except ValueError:
+        # If we can't parse the IP, deny access for security
+        logger.warning(f"Invalid IP address format: {client_ip}")
+        return False 

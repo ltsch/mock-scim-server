@@ -23,7 +23,9 @@ class TestAuthentication(BaseEntityTest):
         """Test health check endpoint."""
         response = client.get("/healthz")
         assert response.status_code == 200
-        assert response.json() == {"status": "ok"}
+        data = response.json()
+        assert data["status"] == "ok"
+        assert "timestamp" in data
     
     def test_root(self, client):
         """Test root endpoint - should redirect to frontend or return 404."""

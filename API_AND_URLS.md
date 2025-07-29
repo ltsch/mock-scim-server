@@ -353,8 +353,15 @@ curl -H "Authorization: Bearer api-key-12345" \
 
 ### Health Check
 - **URL**: `http://localhost:7001/healthz`
-- **Description**: Health check endpoint for readiness/liveness probes
+- **Description**: Basic health check endpoint for readiness/liveness probes
 - **Authentication**: Not required
+- **Access**: Public - accessible from any network
+
+### Detailed Health Check
+- **URL**: `http://localhost:7001/health`
+- **Description**: Detailed health check endpoint with database status and comprehensive information
+- **Authentication**: Not required
+- **Access**: Internal networks only (localhost, private networks, Docker networks)
 
 ### API Information
 - **URL**: `http://localhost:7001/api`
