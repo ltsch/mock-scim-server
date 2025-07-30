@@ -26,13 +26,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create logs directory
-RUN mkdir -p logs
+# Create logs and database directories and ensure proper permissions
+RUN mkdir -p logs db && chmod 755 logs db
 
-# Create non-root user for security
+# Make startup script executable
+RUN chmod +x start.sh
+
+# Create non-root user for security (but allow running as root if needed)
 RUN groupadd -r scim && useradd -r -g scim scim
 RUN chown -R scim:scim /app
-USER scim
 
 # Expose port
 EXPOSE 7001
@@ -42,4 +44,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD curl -f http://localhost:7001/healthz || exit 1
 
 # Default command
-CMD ["uvicorn", "scim_server.main:app", "--host", "0.0.0.0", "--port", "7001"]
+CMD ["./start.sh"]

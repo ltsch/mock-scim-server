@@ -92,6 +92,43 @@ class ScimResponseConverter:
         if user.email:
             emails.append(ScimEmail(value=user.email, primary=True))
         
+        # Get user's entitlements and groups in optimized queries
+        from .database import get_db
+        from .models import UserEntitlement, Entitlement, UserGroup, Group
+        from sqlalchemy.orm import joinedload
+        
+        db = next(get_db())
+        
+        # Optimized query for user entitlements with join
+        user_entitlements = db.query(UserEntitlement, Entitlement).join(
+            Entitlement, UserEntitlement.entitlement_id == Entitlement.id
+        ).filter(UserEntitlement.user_id == user.id).all()
+        
+        scim_entitlements = []
+        for user_entitlement, entitlement in user_entitlements:
+            scim_entitlements.append({
+                "value": entitlement.scim_id,
+                "display": entitlement.display_name,
+                "type": entitlement.type,
+                "description": entitlement.description,
+                "entitlementType": entitlement.entitlement_type,
+                "multiValued": str(entitlement.multi_valued).lower() if entitlement.multi_valued is not None else None
+            })
+        
+        # Optimized query for user groups with join
+        user_groups = db.query(UserGroup, Group).join(
+            Group, UserGroup.group_id == Group.id
+        ).filter(UserGroup.user_id == user.id).all()
+        
+        scim_groups = []
+        for user_group, group in user_groups:
+            scim_groups.append({
+                "value": group.scim_id,
+                "display": group.display_name,
+                "type": "Group",
+                "$ref": f"/scim-identifier/{user.server_id}/scim/v2/Groups/{group.scim_id}"
+            })
+        
         return {
             "externalId": user.external_id,
             "userName": user.user_name,
@@ -99,6 +136,8 @@ class ScimResponseConverter:
             "name": name.model_dump() if name else None,
             "emails": [email.model_dump() for email in emails],
             "active": user.active,
+            "entitlements": scim_entitlements if scim_entitlements else None,
+            "groups": scim_groups if scim_groups else None,
         }
     
     def _extract_group_fields(self, group: Group) -> Dict[str, Any]:
@@ -132,7 +171,7 @@ class ScimResponseConverter:
             "type": entitlement.type,
             "description": entitlement.description,
             "entitlementType": entitlement.entitlement_type,
-            "multiValued": entitlement.multi_valued,
+            "multiValued": str(entitlement.multi_valued).lower() if entitlement.multi_valued is not None else None,
         }
     
 

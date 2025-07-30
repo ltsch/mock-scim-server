@@ -109,68 +109,32 @@ async def log_requests(request: Request, call_next):
     
     return response
 
-# Add custom 404 handler for detailed logging
+# Add custom 404 handler for secure error responses
 @app.exception_handler(404)
 async def not_found_handler(request: Request, exc: HTTPException):
     """
-    Custom 404 handler that logs detailed information about the request.
-    This helps developers debug routing and URL issues.
+    Custom 404 handler that logs detailed information for debugging but returns minimal response.
+    This prevents information disclosure while maintaining security.
     """
-    # Extract detailed request information
+    # Extract request information for logging only
     client_ip = request.client.host if request.client else "unknown"
     user_agent = request.headers.get("user-agent", "unknown")
-    referer = request.headers.get("referer", "none")
     authorization = "present" if request.headers.get("authorization") else "missing"
     
-    # Log detailed 404 information
+    # Log detailed 404 information for debugging (server-side only)
     logger.warning(
         f"404 NOT FOUND - URL: {request.url.path} | "
         f"Method: {request.method} | "
         f"Client: {client_ip} | "
         f"User-Agent: {user_agent[:100]} | "
-        f"Referer: {referer} | "
         f"Auth: {authorization} | "
-        f"Query: {dict(request.query_params)} | "
-        f"Headers: {dict(request.headers)}"
+        f"Query: {dict(request.query_params)}"
     )
     
-    # Provide helpful response for developers
+    # Return minimal, secure response without exposing internal structure
     response_data = {
         "error": "Not Found",
-        "message": f"The requested URL '{request.url.path}' was not found on this server",
-        "method": request.method,
-        "timestamp": str(datetime.now()),
-        "help": {
-            "available_endpoints": [
-                "/healthz",
-                "/frontend/index.html",
-                "/api/info",
-                "/api/protected",
-                "/api/routing",
-                "/api/list-servers",
-                "/api/export-server/{server_id}",
-                "/api/server-stats/{server_id}",
-                "/scim-identifier/{server_id}/scim/v2/Users",
-                "/scim-identifier/{server_id}/scim/v2/Groups",
-                "/scim-identifier/{server_id}/scim/v2/Entitlements",
-                "/scim-identifier/{server_id}/scim/v2/ResourceTypes",
-                "/scim-identifier/{server_id}/scim/v2/Schemas"
-            ],
-            "common_issues": [
-                "Check if the URL path is correct",
-                "Frontend is available at /frontend/index.html",
-                "API endpoints are under /api/",
-                "Verify the server_id in path-based URLs",
-                "Ensure authentication header is present",
-                "Check if the endpoint supports the HTTP method"
-            ],
-            "debug_info": {
-                "requested_path": request.url.path,
-                "request_method": request.method,
-                "query_parameters": dict(request.query_params),
-                "has_authorization": bool(request.headers.get("authorization"))
-            }
-        }
+        "message": "The requested resource was not found"
     }
     
     return JSONResponse(

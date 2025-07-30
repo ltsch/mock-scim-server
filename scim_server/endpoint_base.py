@@ -90,11 +90,22 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
             start_index: int = Query(1, ge=1, alias="startIndex", description="1-based index of the first result"),
             count: int = Query(settings.default_page_size, ge=1, le=settings.max_results_per_page, description="Number of results to return"),
             filter: Optional[str] = Query(None, alias="filter", description="SCIM filter query"),
+            sort_by: Optional[str] = Query(None, alias="sortBy", description="Field to sort by"),
+            sort_order: Optional[str] = Query("ascending", alias="sortOrder", description="Sort order (ascending/descending)"),
             server_id: str = Depends(self.server_id_dependency) if self.supports_multi_server else None,
             api_key: str = Depends(get_api_key),
             db: Session = Depends(get_db)
         ):
-            return await self._get_entities(start_index, count, filter, server_id, db)
+            # Check for multiple sort parameters (multi-sort not supported)
+            sort_by_list = request.query_params.getlist("sortBy")
+            sort_order_list = request.query_params.getlist("sortOrder")
+            if len(sort_by_list) > 1 or len(sort_order_list) > 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Multi-sort is not supported. Only single sortBy and sortOrder parameters are allowed."
+                )
+            
+            return await self._get_entities(start_index, count, filter, sort_by, sort_order, server_id, db)
         
         # Get by ID endpoint
         @self.router.get("/{entity_id}", response_model=self.response_schema)
@@ -229,17 +240,32 @@ class BaseEntityEndpoint(Generic[T, CreateSchema, UpdateSchema, ResponseSchema, 
         start_index: int, 
         count: int, 
         filter_query: Optional[str], 
+        sort_by: Optional[str],
+        sort_order: Optional[str],
         server_id: str, 
         db: Session
     ) -> ListResponseSchema:
         """Generic get entities endpoint."""
-        logger.info(f"Getting {self.entity_type}s in server: {server_id}, startIndex={start_index}, count={count}, filter={filter_query}")
+        logger.info(f"Getting {self.entity_type}s in server: {server_id}, startIndex={start_index}, count={count}, filter={filter_query}, sort_by={sort_by}, sort_order={sort_order}")
+        
+        # Validate sort parameters if provided
+        if sort_by or sort_order:
+            try:
+                validated_sort_by, validated_sort_order = self.crud.validate_sort_parameters(sort_by, sort_order)
+                sort_by = validated_sort_by
+                sort_order = validated_sort_order
+            except ValueError as e:
+                logger.warning(f"Invalid sort parameters: {e}")
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(e)
+                )
         
         # Calculate skip value (convert from 1-based to 0-based)
         skip = start_index - 1
         
-        # Get entities from database with filter
-        entities = self.crud.get_list(db, skip=skip, limit=count, filter_query=filter_query, server_id=server_id)
+        # Get entities from database with filter and sort
+        entities = self.crud.get_list(db, skip=skip, limit=count, filter_query=filter_query, sort_by=sort_by, sort_order=sort_order, server_id=server_id)
         
         # Get total count for pagination
         if filter_query:

@@ -374,7 +374,7 @@ class SCIMCLI:
                 "server_id": server_id,
                 "stats": stats,
                 "app_profile": app_profile,
-                "access_url": f"http://{settings.client_host}:{settings.port}{settings.api_base_path}/scim/v2/Users?serverID={server_id}"
+                "access_url": f"/scim-identifier/{server_id}/scim/v2/Users"
             }
             
             logger.info(f"Virtual SCIM server '{server_id}' created successfully!")
@@ -676,6 +676,43 @@ class SCIMCLI:
             logger.error(f"Error setting app profile: {e}")
             return {"success": False, "error": str(e)}
     
+    def enable_password_support(self, server_id: str, enabled: bool = True) -> Dict[str, Any]:
+        """Enable or disable password support for a server."""
+        try:
+            server_config = get_server_config_manager(self.db)
+            server_config.enable_password_support(server_id, enabled)
+            return {
+                "success": True,
+                "message": f"Password support {'enabled' if enabled else 'disabled'} for server '{server_id}'",
+                "server_id": server_id,
+                "password_support_enabled": enabled
+            }
+        except Exception as e:
+            logger.error(f"Error updating password support: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def get_password_support_status(self, server_id: str) -> Dict[str, Any]:
+        """Get password support status for a server."""
+        try:
+            server_config = get_server_config_manager(self.db)
+            is_enabled = server_config.is_password_support_enabled(server_id)
+            validation_rules = server_config.get_password_validation_rules(server_id)
+            return {
+                "success": True,
+                "server_id": server_id,
+                "password_support_enabled": is_enabled,
+                "validation_rules": validation_rules
+            }
+        except Exception as e:
+            logger.error(f"Error getting password support status: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
     def output_json(self, data: Dict[str, Any]) -> None:
         """Shared function to output data in JSON format."""
         print(json.dumps(data, indent=2))
@@ -729,6 +766,15 @@ Examples:
   
   # Set IT app profile for existing server
   python scripts/scim_cli.py app-profile set --server-id abc123 --profile it
+  
+  # Enable password support for a server
+  python scripts/scim_cli.py password enable --server-id abc123
+  
+  # Disable password support for a server
+  python scripts/scim_cli.py password disable --server-id abc123
+  
+  # Check password support status
+  python scripts/scim_cli.py password status --server-id abc123
         """
     )
     
@@ -802,6 +848,25 @@ Examples:
     set_app_profile_parser.add_argument('--profile', required=True, choices=['hr', 'it', 'sales', 'marketing', 'finance', 'legal', 'operations', 'security', 'customer_success', 'research'],
                                        help='App profile to apply')
     set_app_profile_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Password Support command
+    password_parser = subparsers.add_parser('password', help='Manage password support for servers')
+    password_subparsers = password_parser.add_subparsers(dest='password_command', help='Password support subcommands')
+    
+    # Enable password support command
+    enable_password_parser = password_subparsers.add_parser('enable', help='Enable password support for a server')
+    enable_password_parser.add_argument('--server-id', required=True, help='Server ID to enable password support for')
+    enable_password_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Disable password support command
+    disable_password_parser = password_subparsers.add_parser('disable', help='Disable password support for a server')
+    disable_password_parser.add_argument('--server-id', required=True, help='Server ID to disable password support for')
+    disable_password_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
+    
+    # Get password support status command
+    get_password_status_parser = password_subparsers.add_parser('status', help='Get password support status for a server')
+    get_password_status_parser.add_argument('--server-id', required=True, help='Server ID to get password support status for')
+    get_password_status_parser.add_argument('--json', action='store_true', help='Output in JSON format for machine parsing')
     
     args = parser.parse_args()
     
@@ -951,6 +1016,46 @@ Examples:
                         logger.info(f"Successfully set app profile '{args.profile}' for server '{args.server_id}'")
                     else:
                         logger.error(f"Failed to set app profile: {result.get('error', 'Unknown error')}")
+        
+        elif args.command == 'password':
+            if args.password_command == 'enable':
+                result = cli.enable_password_support(args.server_id, enabled=True)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        logger.info(f"Successfully enabled password support for server '{args.server_id}'")
+                    else:
+                        logger.error(f"Failed to enable password support: {result.get('error', 'Unknown error')}")
+            
+            elif args.password_command == 'disable':
+                result = cli.enable_password_support(args.server_id, enabled=False)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        logger.info(f"Successfully disabled password support for server '{args.server_id}'")
+                    else:
+                        logger.error(f"Failed to disable password support: {result.get('error', 'Unknown error')}")
+            
+            elif args.password_command == 'status':
+                result = cli.get_password_support_status(args.server_id)
+                if args.json:
+                    cli.output_json(result)
+                else:
+                    if result.get("success"):
+                        status = "enabled" if result.get("password_support_enabled") else "disabled"
+                        logger.info(f"Password support for server '{args.server_id}': {status}")
+                        if result.get("validation_rules"):
+                            rules = result["validation_rules"]
+                            logger.info(f"Password validation rules:")
+                            logger.info(f"  Minimum length: {rules.get('min_length', 8)}")
+                            logger.info(f"  Require uppercase: {rules.get('require_uppercase', True)}")
+                            logger.info(f"  Require lowercase: {rules.get('require_lowercase', True)}")
+                            logger.info(f"  Require numbers: {rules.get('require_numbers', True)}")
+                            logger.info(f"  Require special chars: {rules.get('require_special_chars', False)}")
+                    else:
+                        logger.error(f"Failed to get password support status: {result.get('error', 'Unknown error')}")
     
     except KeyboardInterrupt:
         logger.info("\nOperation cancelled by user.")

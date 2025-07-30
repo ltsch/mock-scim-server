@@ -34,14 +34,19 @@ async def get_service_provider_config(
     """
     logger.info(f"ServiceProviderConfig endpoint called for server: {server_id}")
     
+    # Check if password support is enabled for this server
+    from .server_config import get_server_config_manager
+    server_config = get_server_config_manager(db)
+    password_supported = server_config.is_password_support_enabled(server_id)
+    
     # Return RFC 7644 §4.4 compliant ServiceProviderConfig response
     response = {
         "schemas": ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
         "patch": {"supported": True},
         "bulk": {"supported": False, "maxOperations": 0},
         "filter": {"supported": True, "maxResults": 200},
-        "changePassword": {"supported": False},
-        "sort": {"supported": False},
+        "changePassword": {"supported": password_supported},
+        "sort": {"supported": True},
         "etag": {"supported": False},
         "authenticationSchemes": [
             {
@@ -52,7 +57,7 @@ async def get_service_provider_config(
         ]
     }
     
-    logger.info(f"Returning ServiceProviderConfig for server: {server_id}")
+    logger.info(f"Returning ServiceProviderConfig for server: {server_id} (password support: {password_supported})")
     return response
 
 @router.get("/ResourceTypes")

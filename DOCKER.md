@@ -32,18 +32,56 @@ The following environment variables can be configured in `docker-compose.yml`:
 
 - `PYTHONPATH`: Set to `/app` (default)
 - `LOG_LEVEL`: Set to `info` (default)
+- `DATABASE_URL`: Set to `sqlite:////app/db/scim.db` (default)
 
 ### Volumes
 
-The following directories are mounted for persistence:
+The following volumes are configured for persistence:
 
-- `./scim.db` → `/app/scim.db` (main database)
-- `./logs` → `/app/logs` (application logs)
-- `./test_scim.db` → `/app/test_scim.db` (test database)
+- `scim_database` → `/app/db` (main database - Docker volume)
+- `./logs` → `/app/logs` (application logs - bind mount)
+
+**Database Volume**: The `scim_database` volume is a Docker-managed volume that persists across container restarts and reboots. This ensures your SCIM server data is preserved even when containers are recreated.
 
 ### Ports
 
 - `7001` - Main SCIM server port
+
+## Database Persistence
+
+### Docker Volume Benefits
+
+- **Persistent Storage**: Database survives container restarts and reboots
+- **Isolated Storage**: Database is managed by Docker and isolated from host filesystem
+- **Easy Backup**: Volume can be easily backed up using Docker commands
+- **Performance**: Better I/O performance compared to bind mounts
+
+### Managing the Database Volume
+
+**List volumes:**
+```bash
+docker volume ls
+```
+
+**Inspect volume details:**
+```bash
+docker volume inspect scim_database
+```
+
+**Backup the database:**
+```bash
+docker run --rm -v scim_database:/data -v $(pwd):/backup alpine tar czf /backup/scim_database_backup.tar.gz -C /data .
+```
+
+**Restore the database:**
+```bash
+docker run --rm -v scim_database:/data -v $(pwd):/backup alpine tar xzf /backup/scim_database_backup.tar.gz -C /data
+```
+
+**Remove the volume (WARNING: This will delete all data):**
+```bash
+docker volume rm scim_database
+```
 
 ## Health Checks
 
@@ -91,123 +129,103 @@ docker build -t scim-server .
 ### Running the Container
 
 ```bash
-docker run -p 7001:7001 -v $(pwd)/scim.db:/app/scim.db -v $(pwd)/logs:/app/logs scim-server
+docker run -p 7001:7001 -v scim_database:/app/db -v $(pwd)/logs:/app/logs scim-server
 ```
 
 ### Viewing Logs
 
 ```bash
 # Docker Compose logs
-docker-compose logs -f
+docker-compose logs -f scim-server
 
 # Direct container logs
-docker logs scim-server
+docker logs -f scim-server
 ```
 
-### Checking Health Status
+### Database Initialization
+
+The container automatically initializes the database on first startup. The startup script (`start.sh`) checks if the database file exists and initializes it if needed.
+
+**Manual database initialization:**
+```bash
+docker exec scim-server python scripts/init_db.py
+```
+
+### CLI Access
+
+Access the SCIM CLI from within the container:
 
 ```bash
-# Check container health status
-docker ps
+# List all servers
+docker exec scim-server python scripts/scim_cli.py list
 
-# Check health check logs
-docker inspect scim-server | grep -A 10 "Health"
+# Create a new server
+docker exec scim-server python scripts/scim_cli.py create --app-profile hr --defaults
+
+# Create server with specific ID
+docker exec scim-server python scripts/scim_cli.py create --server-id your-server-id --app-profile hr --defaults
 ```
-
-## API Endpoints
-
-Once running, the SCIM server will be available at:
-
-- Health Check: `http://localhost:7001/healthz`
-- Detailed Health: `http://localhost:7001/health`
-- SCIM Endpoints: `http://localhost:7001/scim-identifier/{server_id}/scim/v2/`
 
 ## Troubleshooting
 
-### Container Won't Start
-
-1. Check if port 7001 is already in use:
-   ```bash
-   lsof -i :7001
-   ```
-
-2. Check container logs:
-   ```bash
-   docker-compose logs
-   ```
-
-3. Check health check status:
-   ```bash
-   docker ps
-   docker inspect scim-server
-   ```
-
-### Health Check Failures
-
-If health checks are failing:
-
-1. Check if the application is starting properly:
-   ```bash
-   docker-compose logs scim-server
-   ```
-
-2. Test the health endpoint manually:
-   ```bash
-   curl http://localhost:7001/healthz
-   curl http://localhost:7001/health
-   ```
-
-3. Verify the container is running:
-   ```bash
-   docker exec scim-server ps aux
-   ```
-
-### IP Restriction Issues
-
-If you're getting "Access denied from external network" errors when accessing `/health`:
-
-1. **From Docker container**: The `/health` endpoint is restricted to internal networks only
-2. **From host machine**: Use `localhost` or `127.0.0.1` to access the endpoint
-3. **From external networks**: Use `/healthz` instead, which is publicly accessible
-4. **For monitoring systems**: Configure your monitoring to use `/healthz` for external checks
-
-**Allowed networks for `/health`**:
-- Localhost: `127.0.0.1`, `::1`
-- Private networks: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`
-- Docker networks: `172.16.0.0/12`, `192.168.0.0/16`
-- Link-local: `169.254.0.0/16`, `fe80::/10`
-
 ### Database Issues
 
-If you encounter database issues, you can reset the database:
+**Check if database exists:**
+```bash
+docker exec scim-server ls -la /app/db/
+```
 
-1. Stop the container:
-   ```bash
-   docker-compose down
-   ```
+**Check database contents:**
+```bash
+docker exec scim-server python -c "import sqlite3; conn = sqlite3.connect('/app/db/scim.db'); cursor = conn.cursor(); cursor.execute('SELECT COUNT(*) FROM users'); print('Users:', cursor.fetchone()[0]); conn.close()"
+```
 
-2. Remove the database file:
-   ```bash
-   rm scim.db
-   ```
+**Reset database (WARNING: This will delete all data):**
+```bash
+docker exec scim-server python scripts/scim_cli.py reset
+```
 
-3. Restart the container:
-   ```bash
-   docker-compose up --build
-   ```
+### Volume Issues
 
-### Permission Issues
+**Check volume status:**
+```bash
+docker volume ls | grep scim_database
+```
 
-If you encounter permission issues with mounted volumes, ensure the current user has write permissions to the mounted directories.
+**Inspect volume:**
+```bash
+docker volume inspect scim_database
+```
+
+**Recreate volume (WARNING: This will delete all data):**
+```bash
+docker-compose down
+docker volume rm scim_database
+docker-compose up --build
+```
 
 ## Production Considerations
 
-For production deployment:
+### Security
 
-1. Use environment-specific configuration
-2. Consider using PostgreSQL instead of SQLite
-3. Set up proper logging and monitoring
-4. Configure SSL/TLS termination
-5. Use secrets management for API keys
-6. Monitor health check metrics
-7. Set up alerting for health check failures
+- The container runs as root for simplicity, but you can modify the Dockerfile to run as a non-root user
+- Database volume is isolated from the host filesystem
+- Health checks are available for monitoring
+
+### Backup Strategy
+
+1. **Regular backups**: Set up automated backups of the `scim_database` volume
+2. **Test restores**: Regularly test backup restoration procedures
+3. **Multiple locations**: Store backups in multiple locations
+
+### Monitoring
+
+- Use the health check endpoints for monitoring
+- Monitor container logs for errors
+- Set up alerts for database connectivity issues
+
+### Scaling
+
+- The current setup is designed for single-instance deployment
+- For multi-instance deployment, consider using an external database (PostgreSQL, MySQL)
+- Update the `DATABASE_URL` environment variable to point to your external database

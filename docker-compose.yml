@@ -11,14 +11,14 @@ services:
     environment:
       - PYTHONPATH=/app
       - LOG_LEVEL=info
+      - DATABASE_URL=sqlite:////app/db/scim.db
     volumes:
-      # Mount database for persistence
-      - ./scim.db:/app/scim.db
+      # Use Docker volume for database persistence
+      - scim_database:/app/db
       # Mount logs directory for external access
       - ./logs:/app/logs
-      # Mount test database if needed
-      - ./test_scim.db:/app/test_scim.db
     restart: unless-stopped
+    user: "0:0"  # Run as root to avoid permission issues
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7001/healthz"]
       interval: 30s
@@ -47,5 +47,6 @@ networks:
   scim-network:
     driver: bridge
 
-# volumes:
-#   postgres_data:
+volumes:
+  scim_database:
+    driver: local

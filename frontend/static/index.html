@@ -257,6 +257,47 @@
             copyToClipboard(scimUrl);
         }
         
+        function copyServerId(serverId) {
+            copyToClipboard(serverId);
+        }
+        
+        function copyServerBaseUrl(serverId) {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const baseUrl = `${protocol}//${host}/scim-identifier/${serverId}/scim/v2`;
+            copyToClipboard(baseUrl);
+        }
+        
+        function copyCurlExample(serverId) {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            const baseUrl = `${protocol}//${host}/scim-identifier/${serverId}/scim/v2`;
+            
+            // Get the API key from the page (if available)
+            const apiKey = getApiKey();
+            const authHeader = apiKey ? `-H "Authorization: ${apiKey}"` : '';
+            
+            const curlExample = `# Test SCIM Server: ${serverId}
+# Base URL: ${baseUrl}
+
+# Test Users endpoint
+curl -X GET "${baseUrl}/Users" -H "Accept: application/scim+json" -H "Content-Type: application/scim+json" ${authHeader}
+
+# Test Groups endpoint  
+curl -X GET "${baseUrl}/Groups" -H "Accept: application/scim+json" -H "Content-Type: application/scim+json" ${authHeader}
+
+# Test ServiceProviderConfig
+curl -X GET "${baseUrl}/ServiceProviderConfig" -H "Accept: application/scim+json" -H "Content-Type: application/scim+json" ${authHeader}
+
+# Test ResourceTypes
+curl -X GET "${baseUrl}/ResourceTypes" -H "Accept: application/scim+json" -H "Content-Type: application/scim+json" ${authHeader}
+
+# Test Schemas
+curl -X GET "${baseUrl}/Schemas" -H "Accept: application/scim+json" -H "Content-Type: application/scim+json" ${authHeader}`;
+            
+            copyToClipboard(curlExample);
+        }
+        
         async function makeApiCall(endpoint, options = {}) {
             const apiKey = getApiKey();
             const headers = {
@@ -308,8 +349,11 @@
                     <div class="server-card">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                             <div class="server-id">${server.server_id}</div>
+                            <button class="btn" onclick="copyServerId('${server.server_id}')" style="padding: 5px 10px; font-size: 12px;">Copy Server ID</button>
+                            <button class="btn" onclick="copyServerBaseUrl('${server.server_id}')" style="padding: 5px 10px; font-size: 12px;">Copy Server URL</button>
                             <button class="btn" onclick="copyServerUrl('${server.server_id}', 'Users')" style="padding: 5px 10px; font-size: 12px;">Copy Users URL</button>
                             <button class="btn" onclick="copyServerUrl('${server.server_id}', 'Groups')" style="padding: 5px 10px; font-size: 12px;">Copy Groups URL</button>
+                            <button class="btn" onclick="copyCurlExample('${server.server_id}')" style="padding: 5px 10px; font-size: 12px;">Copy cURL Example</button>
                         </div>
                         ${server.app_profile ? `
                             <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #3498db;">

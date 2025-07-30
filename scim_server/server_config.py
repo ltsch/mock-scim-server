@@ -6,10 +6,11 @@ to have unique attributes, schemas, and configurations. All functions will be dy
 based on the current server ID configuration.
 """
 
-from typing import Dict, Any, List, Optional, Set
+from typing import Dict, Any, List, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 from loguru import logger
 import json
+import time
 from .models import Schema
 from .config import settings
 # Import app profiles only when needed to avoid circular imports
@@ -21,13 +22,26 @@ class ServerConfiguration:
     
     def __init__(self, db: Session):
         self.db = db
-        self._server_configs = {}  # Cache for server configurations
+        self._server_configs: Dict[str, Tuple[Dict[str, Any], float]] = {}  # Cache: {server_id: (config, timestamp)}
+        self._cache_ttl = 30  # Cache expires after 30 seconds
     
     def get_server_config(self, server_id: str) -> Dict[str, Any]:
         """Get configuration for a specific server ID."""
-        if server_id not in self._server_configs:
-            self._server_configs[server_id] = self._load_server_config(server_id)
-        return self._server_configs[server_id]
+        current_time = time.time()
+        
+        # Check if we have a cached config and if it's still valid
+        if server_id in self._server_configs:
+            config, timestamp = self._server_configs[server_id]
+            if current_time - timestamp < self._cache_ttl:
+                return config
+            else:
+                # Cache expired, remove it
+                del self._server_configs[server_id]
+        
+        # Load fresh config from database
+        config = self._load_server_config(server_id)
+        self._server_configs[server_id] = (config, current_time)
+        return config
     
     def _load_server_config(self, server_id: str) -> Dict[str, Any]:
         """Load or create server-specific configuration."""
@@ -77,6 +91,17 @@ class ServerConfiguration:
             "api_settings": {
                 "max_results_per_page": settings.max_results_per_page,
                 "default_page_size": settings.default_page_size
+            },
+            "password_support": {
+                "enabled": False,  # Default to disabled for safety
+                "change_password_endpoint": True,  # Whether to expose /Users/{id}/password endpoint
+                "password_validation": {
+                    "min_length": 8,
+                    "require_uppercase": True,
+                    "require_lowercase": True,
+                    "require_numbers": True,
+                    "require_special_chars": False
+                }
             }
         }
     
@@ -353,6 +378,27 @@ class ServerConfiguration:
         except ImportError:
             logger.warning(f"App profiles not available: {app_profile}")
             return None
+    
+    def is_password_support_enabled(self, server_id: str) -> bool:
+        """Check if password support is enabled for a server."""
+        config = self.get_server_config(server_id)
+        password_config = config.get("password_support", {})
+        return password_config.get("enabled", False)
+    
+    def get_password_validation_rules(self, server_id: str) -> Dict[str, Any]:
+        """Get password validation rules for a server."""
+        config = self.get_server_config(server_id)
+        password_config = config.get("password_support", {})
+        return password_config.get("password_validation", {})
+    
+    def enable_password_support(self, server_id: str, enabled: bool = True) -> None:
+        """Enable or disable password support for a server."""
+        config = self.get_server_config(server_id)
+        if "password_support" not in config:
+            config["password_support"] = {}
+        config["password_support"]["enabled"] = enabled
+        self._save_server_config(server_id, config)
+        logger.info(f"Password support {'enabled' if enabled else 'disabled'} for server: {server_id}")
 
 
 # Global server configuration manager

@@ -6,7 +6,11 @@ from .config import settings
 # Create SQLAlchemy engine using configuration
 engine = create_engine(
     settings.database_url, 
-    connect_args={"check_same_thread": False}  # Required for SQLite with multiple threads
+    connect_args={"check_same_thread": False},  # Required for SQLite with multiple threads
+    pool_size=20,  # Increase pool size to handle more concurrent connections
+    max_overflow=30,  # Increase overflow to handle burst loads
+    pool_timeout=60,  # Increase timeout to 60 seconds
+    pool_recycle=3600,  # Recycle connections every hour
 )
 
 # Create SessionLocal class

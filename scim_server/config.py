@@ -1,8 +1,11 @@
+import os
+from typing import List, Dict, Any
+
 class Settings:
     """Application settings - all configuration in one place."""
     
     # Database settings
-    database_url: str = "sqlite:///./scim.db"
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./scim.db")
     
     # API settings
     max_results_per_page: int = 100
@@ -264,6 +267,14 @@ class Settings:
     # Relationship distribution settings
     cli_max_groups_per_user: int = 6  # Maximum groups a user can belong to
     cli_max_entitlements_per_user: int = 8  # Maximum entitlements a user can have
+    
+    # Sortable fields configuration - Static list of fields that can be used for sorting
+    # These fields must exist in the database models and be mapped correctly in the CRUD layer
+    sortable_fields: Dict[str, List[str]] = {
+        'User': ['userName', 'displayName', 'id', 'created', 'lastModified'],
+        'Group': ['displayName', 'id', 'created', 'lastModified'],
+        'Entitlement': ['displayName', 'id', 'created', 'lastModified']
+    }
 
 # Global settings instance
 settings = Settings() 

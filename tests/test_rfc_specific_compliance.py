@@ -216,18 +216,27 @@ class TestRFC7644SpecificCompliance(DynamicTestDataMixin):
         test_server_id = "rfc-sort-test"
         
         # RFC 7644 Section 3.4.2.1 - Test sorting parameters
-        # Note: Our implementation may not support sorting yet, so we test for graceful handling
-        
         # Test sortBy parameter
         response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users?sortBy=userName&sortOrder=ascending",
                             headers={"Authorization": f"Bearer {sample_api_key}"})
-        # Should either succeed or return a graceful error
-        assert response.status_code in [200, 400, 501]
+        assert response.status_code == 200
         
         # Test sortOrder parameter
         response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users?sortBy=userName&sortOrder=descending",
                             headers={"Authorization": f"Bearer {sample_api_key}"})
-        assert response.status_code in [200, 400, 501]
+        assert response.status_code == 200
+        
+        # Test invalid sort field
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users?sortBy=invalidField&sortOrder=ascending",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+        assert response.status_code == 400
+        assert "not allowed" in response.json()["detail"]
+        
+        # Test invalid sort order
+        response = client.get(f"/scim-identifier/{test_server_id}/scim/v2/Users?sortBy=userName&sortOrder=invalid",
+                            headers={"Authorization": f"Bearer {sample_api_key}"})
+        assert response.status_code == 400
+        assert "must be 'ascending' or 'descending'" in response.json()["detail"]
 
     def test_rfc_7644_section_3_4_3_search_operations(self, client, sample_api_key):
         """Test RFC 7644 Section 3.4.3 - Search operations compliance."""
@@ -302,7 +311,7 @@ class TestRFC7644SpecificCompliance(DynamicTestDataMixin):
         assert data["bulk"]["supported"] is False
         assert data["filter"]["supported"] is True
         assert data["changePassword"]["supported"] is False
-        assert data["sort"]["supported"] is False
+        assert data["sort"]["supported"] is True
         assert data["etag"]["supported"] is False
         
         # Verify authentication scheme
